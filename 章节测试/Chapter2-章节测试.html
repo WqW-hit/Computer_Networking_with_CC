@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 2：物理层</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+/* === Interactive Test Styles === */
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.q-text pre {
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+  padding: 10px 14px; margin: 8px 0; overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  line-height: 1.5; white-space: pre;
+}
+.q-text code {
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+}
+
+/* ── Options (compact) ── */
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* ── Textareas (compact) ── */
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ── Result after grading ── */
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+/* ── Grading button ── */
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+/* ── Wrong-question review document ── */
+.wrong-review-box {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 18px 0;
+}
+.wrong-review-box h3 {
+  margin-top: 0;
+}
+.wrong-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-review-actions button {
+  font-size: 0.92em;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.wrong-review-actions button:hover {
+  background: #000;
+}
+#wrong-review-text {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  line-height: 1.5;
+  background: #fff;
+  resize: vertical;
+}
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 2：物理层</h1>
+<h2 style="text-align:center">章节测试</h2>
+<p style="text-align:center;color:var(--ink-light);font-size:0.95em">满分100分</p>
+
+<div id="score-box"><div class="score-num" id="score-num">0</div><div class="score-label">总分</div></div>
+<div id="questions-container"></div>
+<div class="grading-bar no-print"><button onclick="gradeAll()" id="grade-btn">提交批改</button></div>
+<div id="wrong-review-box" class="wrong-review-box no-print"></div>
+
+<script>
+var Q = [{"type": "choice", "points": 2, "question": "物理层接口特性中，\"规定某条线上出现的某一电平的电压表示何种意义\"属于哪一特性？", "options": ["机械特性", "电气特性", "功能特性", "规程特性"], "answer": 2, "knowledge_point": "2.1 物理层基本功能", "diagnosis_hint": "混淆功能特性与电气特性的定义", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：功能特性指明某条线上出现的某一电平的电压表示何种意义；电气特性只描述电压范围等电路特性本身，不涉及\"意义\"；机械特性描述接线器的形状尺寸；规程特性描述事件出现的顺序。", "pitfall": "电气特性=电压范围本身；功能特性=电压表示什么意义。"}, {"type": "choice", "points": 2, "question": "关于DTE和DCE的说法，正确的是？", "options": ["DTE是数据电路终结设备，DCE是数据终端设备", "DCE在DTE和传输线路之间提供信号变换和编码功能，如调制解调器", "DTE和DCE之间不需要约定任何接口特性", "DTE只能作为数据接收方，不能作为发送方"], "answer": 1, "knowledge_point": "2.1 物理层基本功能", "diagnosis_hint": "记反DTE与DCE的角色", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：DTE（数据终端设备）负责数据处理，是信源或信宿；DCE（数据电路终结设备）在DTE和传输线路之间提供信号变换和编码功能，实现串行比特传输，典型例子是调制解调器（Modem）和网络接口卡（NIC）。A选项把二者的全称对应反了。", "pitfall": "DTE=数据终端设备(计算机/终端)；DCE=数据电路终结设备(Modem/NIC)。"}, {"type": "choice", "points": 2, "question": "关于异步通信与同步通信，下列说法正确的是？", "options": ["异步通信每次传输一个字符，字符之间不要求时钟同步，只需在字符传输期间保持同步", "同步通信的开销比异步通信更大，因为每个字符都需要额外的起始位和停止位", "异步通信更适合大数据块的高速传输场景", "同步通信必须使用独立的时钟线，绝不能将时钟信号嵌入数据信号中"], "answer": 0, "knowledge_point": "2.2 数据通信基础", "diagnosis_hint": "混淆异步/同步通信的开销与适用场景", "explanation": "<strong>正确答案</strong>：A<br><br><strong>推理过程</strong>：异步通信每次传输一个字符（5~8 bits），字符之间时钟不必同步，只需在每个字符传输期间保证时钟同步，每个字符开始时重新同步。异步通信恰恰是开销更大的一方（每字符约20%额外开销），且更适合短距离、低速率场合；同步通信可以将时钟信号嵌入数据信号（如曼彻斯特编码）来克服独立时钟线的局限。", "pitfall": "异步通信：逐字符同步，开销大，适合低速短距离；同步通信：整体同步，效率高，适合大数据块。"}, {"type": "choice", "points": 2, "question": "PCM（脉冲编码调制）将模拟信号转换为数字信号的三个步骤依次是？", "options": ["量化 --&gt; 采样 --&gt; 编码", "采样 --&gt; 量化 --&gt; 编码", "编码 --&gt; 采样 --&gt; 量化", "采样 --&gt; 编码 --&gt; 量化"], "answer": 1, "knowledge_point": "2.2 数据通信基础", "diagnosis_hint": "打乱PCM三步骤的顺序", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：PCM包括采样（时间上离散化）、量化（取值上离散化）、编码（用二进制码表示量化后的采样值）三个步骤，顺序不可颠倒——必须先在时间上采样，再在取值上量化，最后才能编码成二进制数。", "pitfall": "记忆顺序：采样(何时取)-->量化(取值离散化)-->编码(二进制表示)。"}, {"type": "choice", "points": 2, "question": "关于导引型传输介质，下列说法正确的是？", "options": ["同轴电缆主要用于基带传输，双绞线主要用于频带传输", "双绞线的类别数字越大，带宽通常越高，如6类线带宽为250MHz", "光纤的基本工作原理是电磁感应", "双绞线不能应用于以太网组网"], "answer": 1, "knowledge_point": "2.3 物理介质", "diagnosis_hint": "混淆双绞线/同轴电缆的用途及类别与带宽的对应关系", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：双绞线主要用于基带传输，同轴电缆主要用于频带传输（A选项对调了）；UTP类别数字越大带宽越高：3类16MHz、4类20MHz、5类/5E类100MHz、6类250MHz；光纤的基本原理是光的全反射，不是电磁感应；双绞线广泛用于各类以太网组网。", "pitfall": "双绞线=基带传输；同轴电缆=频带传输；UTP类别数越大带宽越高。"}, {"type": "choice", "points": 2, "question": "关于电磁波的传播方式，下列说法正确的是？", "options": ["地波传播的电磁波频率较高（大于30MHz），沿地表绕射能力很强", "天波传播依赖电离层反射，频率大约在2~30MHz之间，可实现远距离通信", "视线传播依赖电离层反射，不需要设立中继站", "天波传播的传播距离通常小于100km"], "answer": 1, "knowledge_point": "2.3 物理介质", "diagnosis_hint": "混淆地波/天波/视线传播各自依赖的频率范围与原理", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：天波传播是频率较高（约2~30MHz）的电磁波被距地表60~400km高度的电离层反射，可传播10000km以上；地波传播是频率较低（约2MHz以下）的电磁波沿地表传播；视线传播是频率高于30MHz的电磁波穿透电离层（不被反射），需要设立地面或卫星中继站进行接力传输。", "pitfall": "地波=低频沿地表；天波=中高频靠电离层反射；视线=更高频穿透电离层、直线传播。"}, {"type": "choice", "points": 2, "question": "在无噪声情况下，若某通信链路带宽为3kHz，采用4个相位、每个相位具有4种振幅的QAM调制技术，其最大数据传输速率（用奈奎斯特公式计算）是多少？", "options": ["12kbps", "24kbps", "48kbps", "96kbps"], "answer": 1, "knowledge_point": "2.4 信道与信道容量", "diagnosis_hint": "计算进制数M或代入奈奎斯特公式出错", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：4个相位、每个相位4种振幅，共$M=4\\times4=16$种信号状态。代入奈奎斯特公式：$C=2B\\log_2 M=2\\times3000\\times\\log_2 16=2\\times3000\\times4=24000$bps=24kbps。", "pitfall": "先算出总状态数M=相位数×振幅数，再代入C=2Blog2M。"}, {"type": "choice", "points": 2, "question": "若某通信链路带宽为2MHz，信噪比为30dB，用香农公式估算该链路的最大数据传输速率约是多少？", "options": ["2Mbps", "10Mbps", "20Mbps", "60Mbps"], "answer": 2, "knowledge_point": "2.4 信道与信道容量", "diagnosis_hint": "把dB值直接当作S/N代入公式，未做指数换算", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：信噪比30dB对应$S/N=10^{30/10}=1000$，代入香农公式：$C=B\\log_2(1+S/N)=2\\times10^6\\times\\log_2(1001)\\approx2\\times10^6\\times9.97\\approx20$Mbps。注意30dB不是S/N本身，需先换算成真实比值。", "pitfall": "dB是对数单位，S/N(真值)=10^(dB/10)，不能把dB数值直接代入log2()。"}, {"type": "choice", "points": 2, "question": "关于FDM、TDM、WDM、CDM四种多路复用技术，下列说法正确的是？", "options": ["FDM是将时间划分为等长的时分复用帧分配给各用户", "TDM中各用户在不同时间占用相同的频带宽度", "WDM只能应用于无线通信系统", "CDM要求各用户必须使用互不相同的载波频率"], "answer": 1, "knowledge_point": "2.5 信道共享-多路复用", "diagnosis_hint": "混淆FDM/TDM的定义或误解CDM/WDM的适用范围", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：TDM的所有用户在不同时间占用相同的频带宽度；A选项描述的其实是TDM的定义（FDM是按频率划分，不是按时间）；WDM是光的频分复用，应用于光纤通信而非无线通信；CDM中各用户使用相同频率载波，通过码片序列（而非频率）区分。", "pitfall": "FDM按频率分、TDM按时间分；WDM用于光纤；CDM各用户同频同时、靠码片序列区分。"}, {"type": "choice", "points": 2, "question": "关于曼彻斯特码与差分曼彻斯特码，下列说法正确的是？", "options": ["曼彻斯特码利用每比特周期中间时刻的电平跳变方向编码信息（正跳负表示1，负跳正表示0），差分曼彻斯特码利用比特开始处是否存在跳变编码信息（有跳变表示0，无跳变表示1）", "两种编码方式中间时刻的跳变都仅用于同步，不携带任何信息", "曼彻斯特码用于IEEE 802.5令牌环网，差分曼彻斯特码用于10Mbps以太网", "两种编码方式都不需要在比特周期中间时刻产生电平跳变"], "answer": 0, "knowledge_point": "2.6 基带传输", "diagnosis_hint": "混淆两种编码方式的信息携带机制或应用网络类型", "explanation": "<strong>正确答案</strong>：A<br><br><strong>推理过程</strong>：曼彻斯特码的中间跳变方向本身携带信息（正跳负=1，负跳正=0）；差分曼彻斯特码的中间跳变只用于同步，真正信息由比特开始处\"是否存在跳变\"决定（有跳变=0，无跳变=1）。10Mbps以太网采用曼彻斯特码，IEEE 802.5令牌环网采用差分曼彻斯特码，C选项对调了。", "pitfall": "曼彻斯特码=以太网，跳变方向携带信息；差分曼彻斯特码=令牌环网，跳变只同步，起始处是否跳变才携带信息。"}, {"type": "tf", "points": 1, "question": "物理层接口特性中的\"机械特性\"指明接线器的形状、尺寸、引脚数目和排列等。", "options": [], "answer": true, "knowledge_point": "2.1 物理层基本功能", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：机械特性指明接口所用接线器的形状和尺寸、引线数目和排列、固定和锁定装置等，属于四项接口特性之一。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "单工、半双工、全双工传输模式属于物理层接口特性四要素（机械、电气、功能、规程）的范畴之内。", "options": [], "answer": false, "knowledge_point": "2.1 物理层基本功能", "diagnosis_hint": "误将传输模式并入接口特性四要素", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：单工/半双工/全双工是与接口特性并列的另一类概念（传输模式），描述的是数据流动方向性，不属于机械/电气/功能/规程这四项接口特性的范畴。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "异步通信中，字符与字符之间的间隔时间可以不一致，每个字符开始时都要重新同步时钟。", "options": [], "answer": true, "knowledge_point": "2.2 数据通信基础", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：异步通信中字符之间的时钟不必同步，字符间间隔时间不一致，接收器在空闲状态下检测到1到0的跳变后才开始重新采样（同步），一个字符传输完毕后回归空闲状态，等待下一次跳变。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "PCM（脉冲编码调制）三个步骤的正确顺序是编码 --&gt; 量化 --&gt; 采样。", "options": [], "answer": false, "knowledge_point": "2.2 数据通信基础", "diagnosis_hint": "打乱PCM三步骤顺序", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：PCM的正确顺序是采样（时间离散化）--&gt; 量化（取值离散化）--&gt; 编码（二进制表示），必须先完成采样和量化才能进行编码，题目给出的顺序是完全反过来的。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "双绞线UTP的类别数字越大，其带宽通常越高，如6类线带宽为250MHz，高于3类线的16MHz。", "options": [], "answer": true, "knowledge_point": "2.3 物理介质", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：UTP各类别带宽依次为3类16MHz、4类20MHz、5类/5E类100MHz、6类250MHz，类别数字越大带宽越高。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "电磁波的\"天波传播\"是指频率较高（大约2~30MHz）的电磁波被电离层反射，从而实现远距离通信。", "options": [], "answer": true, "knowledge_point": "2.3 物理介质", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：天波传播依赖距地表约60~400km高度的电离层对2~30MHz电磁波的反射，由于电离层密度和厚度随时间变化（随参信道），电磁波可传播10000km以上。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "奈奎斯特公式$C=2B\\log_2 M$适用于任意有噪声或无噪声的信道。", "options": [], "answer": false, "knowledge_point": "2.4 信道与信道容量", "diagnosis_hint": "误以为奈奎斯特公式适用于任意信道", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：奈奎斯特公式只适用于理想的<strong>无噪声</strong>信道，给出的是无噪声条件下的极限容量；有噪声信道的容量上限需用香农公式$C=B\\log_2(1+S/N)$计算。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "香农公式给出的信道容量是理论上不可能通过任何调制或编码方式超越的速率上限。", "options": [], "answer": true, "knowledge_point": "2.4 信道与信道容量", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：香农公式$C=B\\log_2(1+S/N)$给出的是有噪声信道容量的理论极限，只与带宽$B$和信噪比$S/N$有关，与具体调制方式无关，是任何通信系统都无法突破的速率上限。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "时分多路复用（TDM）中，各用户在不同时间占用相同的频带宽度进行通信。", "options": [], "answer": true, "knowledge_point": "2.5 信道共享-多路复用", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：TDM将时间划分为周期性出现的时隙，各用户在各自固定序号的时隙（不同时间段）内占用相同的频带宽度，这是TDM与按频率划分资源的FDM的本质区别。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "中继器（Repeater）工作在物理层，主要完成比特信号的再生/整形/放大，不具备帧过滤或寻址转发能力。", "options": [], "answer": true, "knowledge_point": "2.8 物理层设备", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：中继器只工作在物理层，功能是对衰减/失真的比特信号进行再生转发（比特再生），不能识别帧结构或做寻址转发决策，中继器两端属于同一个冲突域；集线器本质是多端口中继器，原理相同。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述物理层接口特性的四个方面（机械特性、电气特性、功能特性、规程特性）及其各自含义。", "options": [], "answer": "", "knowledge_point": "2.1 物理层基本功能", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br>①<b>机械特性</b>：指明接口所用接线器的形状和尺寸、引线数目和排列、固定和锁定装置等。<br>②<b>电气特性</b>：指明在接口电缆的各条线上出现的电压范围等电路特性。<br>③<b>功能特性</b>：指明某条线上出现的某一电平的电压表示何种意义。<br>④<b>规程特性（过程特性）</b>：指明对于不同功能的各种可能事件的出现顺序。<br>四者共同规定了DTE与DCE之间、DCE与物理介质之间的接口约定。", "pitfall": ""}, {"type": "short", "points": 6, "question": "比较异步通信与同步通信的基本原理、开销及适用场景。", "options": [], "answer": "", "knowledge_point": "2.2 数据通信基础", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><b>异步通信</b>：每次传输一个字符（5~8 bits），发送器和接收器使用各自独立的时钟，只需在每个字符传输期间保持同步，字符之间时钟不必同步，每个字符开始时通过检测1到0的跳变重新同步。优点是简单、成本低，缺点是开销大（每字符约20%额外开销），适合短距离、低速率、字符间间隔较大的场景（如键盘输入）。<br><b>同步通信</b>：用于（大）数据块的传输，要求时钟始终同步，可使用独立时钟线（适合短距离）或将时钟信号嵌入数据信号中（如曼彻斯特编码，克服时钟信号损伤）。开销更小，效率更高，适合大数据块、较高速率的传输场景。", "pitfall": ""}, {"type": "short", "points": 6, "question": "写出奈奎斯特公式和香农公式，并说明二者分别适用的信道条件及相互关系。", "options": [], "answer": "", "knowledge_point": "2.4 信道与信道容量", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><b>奈奎斯特公式</b>：$C=2B\\log_2 M$，其中$B$为信道带宽（Hz），$M$为进制数（信号状态数）。适用于理想的<strong>无噪声</strong>信道，给出无噪声条件下由调制进制数决定的容量。<br><b>香农公式</b>：$C=B\\log_2(1+S/N)$，其中$S/N$为信噪比。适用于<strong>有噪声</strong>信道，给出的是不依赖具体调制方式、任何编码手段都无法突破的理论容量上限。<br><b>关系</b>：现实信道总存在噪声，实际系统选定的调制进制数$M$（对应奈奎斯特意义下的速率）必须在香农容量给出的上限之内才能保证可靠传输；进制数$M$越大，理论速率越高，但对信噪比的要求也越高，若超出信道实际信噪比所能支撑的范围，误码率会显著上升。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述FDM、TDM、WDM、CDM四种多路复用技术的基本原理及典型应用场景。", "options": [], "answer": "", "knowledge_point": "2.5 信道共享-多路复用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br>①<b>FDM（频分多路复用）</b>：将信道的频率资源划分给各用户，各用户在通信过程中始终占用各自分配的频带，各用户可同时、不同频段通信。<br>②<b>TDM（时分多路复用）</b>：将时间划分为周期性出现的TDM帧，各用户在每帧中占用固定序号的时隙，各用户不同时、相同频段通信。<br>③<b>WDM（波分多路复用）</b>：本质是光的频分复用，不同波长的光信号共享同一根光纤传输，常用于长距离光纤骨干网络。<br>④<b>CDM（码分多路复用）</b>：各用户使用相同频率、相同时间，依靠各自唯一且相互正交的码片序列区分数据，广泛应用于蜂窝网、卫星通信等无线链路共享场景。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "论述导引型传输介质（双绞线、同轴电缆、光纤）和非导引型传输介质（无线电波的地波、天波、视线三种传播方式）的主要特点及典型应用场景。", "options": [], "answer": "", "knowledge_point": "2.3 物理介质", "diagnosis_hint": "", "explanation": "<strong>参考答案（要点）</strong>：<br><b>导引型传输介质</b>：①双绞线主要用于基带传输，分屏蔽（STP）和非屏蔽（UTP），UTP按类别（3~6类）带宽从16MHz到250MHz递增，广泛用于以太网组网；②同轴电缆主要用于频带传输；③光纤基于光的全反射原理，分多模光纤和单模光纤，带宽大、抗干扰能力强，是长距离骨干传输的主流介质。<br><b>非导引型传输介质（无线电波）</b>：①地波传播，频率较低（约2MHz以下），沿地表传播，绕射能力强，适合低频远距离通信（如导航、水下通信）；②天波传播，频率较高（约2~30MHz），依赖电离层反射，可实现10000km以上的远距离通信，但电离层的随参特性会造成信号不稳定；③视线传播，频率高于30MHz，电磁波穿透电离层，沿地面绕射能力弱，需采用点对点直线传播，通常配合地面或卫星中继站实现远距离接力传输（如微波、卫星通信、Wi-Fi、蜂窝网）。<br>三种非导引型传播方式的核心区别在于频率范围与是否依赖电离层反射，频率越高越依赖视线直射，频率越低绕射能力越强。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "结合曼彻斯特编码和差分曼彻斯特编码的规则，论述典型数字基带传输码型（NRZ、AMI、双相码）的特点及应用，并说明为什么以太网和令牌环网分别选用曼彻斯特码和差分曼彻斯特码。", "options": [], "answer": "", "knowledge_point": "2.6 基带传输", "diagnosis_hint": "", "explanation": "<strong>参考答案（要点）</strong>：<br>①<b>单极不归零码（NRZ）</b>：用固定电平表示0/1，易于产生但不适合长距离传输，且缺乏自同步能力（长串相同比特时无跳变，难以提取时钟）。<br>②<b>AMI码（信号交替反转码）</b>：信息码0编码为0电平，信息码1交替编码为+1和-1脉冲，无直流分量，便于时钟提取，是一种改善同步性能的编码。<br>③<b>双相码（曼彻斯特码）</b>：每比特周期中间时刻电平跳变，正跳负表示1、负跳正表示0，跳变方向本身携带信息，且每比特都必然出现跳变，自同步能力强，10Mbps以太网采用该编码。<br>④<b>差分双相码（差分曼彻斯特码）</b>：中间时刻的跳变仅用于同步（不携带信息），真正的信息由每比特开始处\"是否存在跳变\"决定（有跳变表示0，无跳变表示1），IEEE 802.5令牌环网采用该编码。<br><b>为何以太网/令牌环网分别选用二者</b>：两种编码都能保证每比特周期必有一次跳变，从而具备良好的自同步能力，适合总线型/环形共享介质网络中多台设备的时钟同步需求；标准制定时以太网选择了直接用跳变方向表达信息的曼彻斯特码，而令牌环网标准选择了用起始处跳变与否表达信息、中间跳变仅同步的差分曼彻斯特码，二者都能满足自同步要求，属于不同标准委员会的设计选择，功能上并无优劣绝对之分。", "pitfall": ""}, {"type": "essay", "points": 10, "question": "论述二进制数字调制技术（2ASK、2FSK、2PSK、2DPSK）的原理及性能比较，并结合多进制调制/QAM说明频带传输相对于基带传输的意义。", "options": [], "answer": "", "knowledge_point": "2.7 频带传输", "diagnosis_hint": "", "explanation": "<strong>参考答案（要点）</strong>：<br><b>二进制数字调制原理</b>：①2ASK用基带信号控制载波<strong>幅值</strong>；②2FSK用基带信号在两个不同频率$f_1$、$f_2$之间切换载波<strong>频率</strong>；③2PSK用基带信号控制载波相对于固定参考相位$\\phi_0$的绝对<strong>相位</strong>（0对应$\\phi_0$，1对应$\\phi_0+\\pi$）；④2DPSK利用相邻码元载波间的相对相位变化（差分方式）表达信息，避免了2PSK需要精确参考相位的问题。<br><b>性能比较</b>：频带利用率方面，2ASK、2PSK、2DPSK相同，2FSK最低；误码率（抗噪声性能）方面，2PSK最优、2FSK居中、2ASK最差；对信道特性变化的敏感性方面，2ASK最敏感（性能最差），2FSK与2PSK都不敏感。<br><b>多进制调制与QAM的意义</b>：在带宽固定的前提下，多进制调制通过让每个码元携带多个比特（$R_b=R_B\\log_2 M$）来提高比特率，但$M$越大对信噪比要求越高；QAM同时调制载波的幅值和相位（$y'(t)=A_n\\cos(2\\pi ft)+B_n\\sin(2\\pi ft)$），兼具高频带利用率和较强抗噪声能力，是频带传输中广泛应用的高效方案。<br><b>频带传输相对于基带传输的意义</b>：基带信号具有低通特性，只能在具有低通特性的有线信道中传输；许多带通信道（如无线信道）不具备低通特性，无法直接传输基带信号，必须通过频带传输（调制到与信道特性匹配的载波上）才能实现有效传输，这正是无线通信、有线电视网络等宽带/无线场景普遍采用频带传输而非基带传输的根本原因。", "pitfall": ""}, {"type": "comprehensive", "points": 20, "question": "某有线信道带宽为4kHz。<br>（1）（6分）若信道无噪声，采用8进制（M=8）的调制技术，用奈奎斯特公式计算该信道的最大数据传输速率（kbps）。<br>（2）（6分）若该信道信噪比为1023（约合30dB），用香农公式估算该信道的理论信道容量上限（kbps），并比较(1)(2)的结果，说明为什么实际系统中调制的进制数M不能无限增大。<br>（3）（8分）若4个用户希望共享该4kHz信道进行通信，分别说明采用FDM、TDM两种复用方式时各用户具体如何分配信道资源；并说明若改用CDM方式，各用户之间是通过什么机制避免互相干扰的（不要求给出具体码片序列，只需说明原理）。", "options": [], "answer": "", "knowledge_point": "2.4/2.5 信道容量与信道共享（综合计算）", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><b>（1）奈奎斯特容量</b>：$M=8$，$C=2B\\log_2 M=2\\times4000\\times\\log_2 8=2\\times4000\\times3=24000$bps$=24$kbps。<br><br><b>（2）香农容量</b>：$S/N=1023$，$C=B\\log_2(1+S/N)=4000\\times\\log_2(1024)=4000\\times10=40000$bps$=40$kbps。<br>比较：(1)中采用$M=8$调制得到的24kbps低于(2)中香农理论上限40kbps，说明当前调制方案还留有余量、传输是可靠的。若想把速率进一步逼近40kbps的理论上限，需要增大进制数$M$（更密集的星座图），但$M$越大，星座点之间的间距越小，在信噪比一定（$S/N=1023$不变）的情况下更容易被噪声干扰导致误判，误码率会随之上升；因此实际系统必须在\"提高进制数以逼近香农极限\"与\"保证足够抗噪声余量\"之间权衡，不能无限增大M。<br><br><b>（3）多路复用比较</b>：<br>FDM：将4kHz总带宽划分为4个互不重叠的子频带（每份约1kHz，实际还需预留保护带），每个用户固定占用其中一个子频带的载波频率，四人可同时、不同频段通信。<br>TDM：将时间划分为周期性的TDM帧，每帧划分为4个等长时隙，每个用户固定占用其中一个时隙（占用全部4kHz带宽），四人在不同时刻、相同频段轮流通信。<br>CDM：4个用户使用完全相同的频率和时间进行通信，每人分配一个唯一且与其他用户码片序列相互正交的$m$ bit码片序列，发送时用码片序列对数据编码（1对应发码片序列本身，0对应发其反码），接收方用自己的码片序列与叠加接收信号做归一化内积即可精确提取出属于自己的数据，正交性保证了不同用户信号之间的内积近似为0，从而在同频同时叠加传输的条件下也不会相互干扰。", "pitfall": ""}];
+var LABELS = {"page_title": "章节测试", "section": {"choice": "一、选择题", "tf": "二、判断题", "short": "三、简答题", "essay": "四、问答题", "comprehensive": "五、综合题"}, "section_order": ["choice", "tf", "short", "essay", "comprehensive"], "points_suffix": "分", "true_label": "正确", "false_label": "错误", "placeholder": "在此作答...", "pitfall_prefix": "易错提醒：", "correct_label": "正确", "wrong_label": "错误", "answer_prefix": "正确答案：", "reference_label": "参考答案", "graded_label": "已批改", "grade_button": "提交批改", "unanswered_label": "未作答", "wrong_review_title": "错题分析文档", "wrong_review_intro": "本次收录 __COUNT__ 道客观题错题。可以下载 Markdown 文档，或复制整段内容交给模型做错因分析和二次学习规划。", "no_wrong_questions": "本次客观题没有错题。主观题请对照参考答案自行复盘。", "download_wrong_review": "下载错题文档", "copy_wrong_review_prompt": "复制错题分析 Prompt", "score_label": "总分", "duration_prefix": "满分 100 分 | 建议 ", "duration_suffix": " 分钟 | 选择答案后点击提交批改"};
+var WRONG_REVIEW_PROMPT = "";
+var LAST_WRONG_REVIEW = '';
+
+function pointsOf(q) {
+  return q.points || q.score || 0;
+}
+
+function stripHtml(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// Convert Markdown fenced code blocks (```lang\n...\n```) and inline `code`
+// to <pre><code> / <code> HTML, then convert \n to <br> for plain text lines.
+function formatQuestion(text) {
+  if (!text) return '';
+  // 1. Replace fenced code blocks: ```lang\ncode\n```
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    var escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    var cls = lang ? ' class="language-' + lang + '"' : '';
+    return '<pre><code' + cls + '>' + escaped + '</code></pre>';
+  });
+  // 2. Replace inline backtick `code`
+  text = text.replace(/`([^`\n]+)`/g, function(_, code) {
+    var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<code>' + escaped + '</code>';
+  });
+  // 3. Convert remaining \n to <br> (outside pre blocks already handled above)
+  // Split on <pre>...</pre> so we don't double-process code blocks
+  var parts = text.split(/(<pre>[\s\S]*?<\/pre>)/);
+  for (var i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      parts[i] = parts[i].replace(/\n/g, '<br>');
+    }
+  }
+  return parts.join('');
+}
+
+function answerText(q, value) {
+  if (value === null || value === undefined || value === '') return LABELS.unanswered_label;
+  var idx = parseInt(value);
+  if (q.type === 'choice') {
+    return String.fromCharCode(65 + idx) + '. ' + ((q.options && q.options[idx]) ? stripHtml(q.options[idx]) : '');
+  }
+  if (q.type === 'tf') {
+    return idx === 0 ? LABELS.true_label : LABELS.false_label;
+  }
+  return String(value);
+}
+
+function normalizedAnswer(q) {
+  if (q.type === 'tf') {
+    if (q.answer === LABELS.true_label || q.answer === true || q.answer === 'true') return 0;
+    if (q.answer === LABELS.false_label || q.answer === false || q.answer === 'false') return 1;
+  }
+  return parseInt(q.answer);
+}
+
+function questionTypeLabel(type) {
+  return LABELS.section[type] || type;
+}
+
+function build(){
+  var container = document.getElementById('questions-container');
+  if (!container) { console.error('ExamPass: questions-container not found'); return; }
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var s = q.type;
+    if (s !== sec) {
+      sec = s;
+      if (titles[s]) {
+        h += '<h3>' + titles[s] + '</h3>';
+      }
+    }
+
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i+1) + '. (' + pointsOf(q) + ' ' + LABELS.points_suffix + ')</div>';
+    h += '<div class="q-text">' + formatQuestion(q.question) + '</div>';
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65+j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">' + LABELS.true_label + '</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">' + LABELS.false_label + '</label>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="' + LABELS.placeholder + '" rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + q.explanation + '</div>';
+    if (q.pitfall) {
+      h += '<div class="pitfall">' + LABELS.pitfall_prefix + q.pitfall + '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+
+  // Re-render MathJax for dynamically inserted formulas
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  build();
+}
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('selected');
+  }
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) {
+    target.classList.add('selected');
+  }
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+function gradeAll() {
+  var score = 0;
+  var wrongItems = [];
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      var radio = document.querySelector('input[name="' + qid + '"]:checked');
+      var correctIndex = normalizedAnswer(q);
+      if (radio && parseInt(radio.value) === correctIndex) {
+        score += pointsOf(q);
+        card.classList.add('correct');
+        badge.className = 'badge badge-ok';
+        badge.textContent = LABELS.correct_label;
+        correctEl.innerHTML = '';
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+      } else {
+        card.classList.add('wrong');
+        badge.className = 'badge badge-no';
+        badge.textContent = LABELS.wrong_label;
+        var ansText = answerText(q, correctIndex);
+        correctEl.innerHTML = LABELS.answer_prefix + ansText;
+        if (radio) {
+          var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+          if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+        }
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+        wrongItems.push({
+          number: i + 1,
+          type: questionTypeLabel(q.type),
+          points: pointsOf(q),
+          question: stripHtml(q.question),
+          options: (q.options || []).map(stripHtml),
+          userAnswer: answerText(q, radio ? radio.value : null),
+          correctAnswer: ansText,
+          explanation: stripHtml(q.explanation),
+          pitfall: stripHtml(q.pitfall || ''),
+          knowledgePoint: stripHtml(q.knowledge_point || q.knowledgePoint || '')
+        });
+      }
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = LABELS.reference_label;
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = score;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+
+  var opts = document.querySelectorAll('.option');
+  for (var i = 0; i < opts.length; i++) opts[i].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var i = 0; i < tas.length; i++) tas[i].disabled = true;
+
+  var btn = document.getElementById('grade-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = LABELS.graded_label;
+  }
+
+  buildWrongReview(wrongItems);
+
+  // Re-render MathJax for revealed explanations
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise().catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+function buildWrongReview(wrongItems) {
+  var box = document.getElementById('wrong-review-box');
+  if (!box) return;
+
+  LAST_WRONG_REVIEW = renderWrongReviewMarkdown(wrongItems);
+
+  if (!wrongItems.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<h3>' + LABELS.wrong_review_title + '</h3><p>' + LABELS.no_wrong_questions + '</p>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = [
+    '<h3>' + LABELS.wrong_review_title + '</h3>',
+    '<p>' + LABELS.wrong_review_intro.replace('__COUNT__', wrongItems.length) + '</p>',
+    '<div class="wrong-review-actions">',
+    '<button type="button" onclick="downloadWrongReview()">' + LABELS.download_wrong_review + '</button>',
+    '<button type="button" onclick="copyWrongReviewPrompt()">' + LABELS.copy_wrong_review_prompt + '</button>',
+    '</div>',
+    '<textarea id="wrong-review-text" readonly rows="12">' + LAST_WRONG_REVIEW.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea>'
+  ].join('');
+}
+
+function renderWrongReviewMarkdown(wrongItems) {
+  var now = new Date().toLocaleString();
+  var lines = [];
+
+  lines.push('# ExamPass 错题分析文档');
+  lines.push('');
+  lines.push('- 生成时间：' + now);
+  lines.push('- 错题数量：' + wrongItems.length);
+  lines.push('');
+  lines.push('## 给模型的错题分析 Prompt');
+  lines.push('');
+  if (WRONG_REVIEW_PROMPT) {
+    lines.push(WRONG_REVIEW_PROMPT);
+  } else {
+    lines.push('请根据下面的错题记录，分析我的错因，并给出继续学习方案。要求：');
+    lines.push('1. 按知识模块归类错题，不要只逐题复述答案；');
+    lines.push('2. 判断每道题错在概念定义、公式推导、图表理解、条件适用、计算步骤、概念混淆还是审题；');
+    lines.push('3. 对涉及公式或推导的错题，补全从前提到结论的推导链条，不能跳步；');
+    lines.push('4. 对选择题，解释我选错选项为什么有迷惑性，以及正确选项和错误选项的关键边界；');
+    lines.push('5. 给出需要回看课件的具体知识点、图表、公式和页/章节线索；');
+    lines.push('6. 最后生成一份二次学习清单和 5 道针对这些薄弱点的进阶训练题。');
+  }
+  lines.push('');
+  lines.push('## 错题记录');
+  lines.push('');
+
+  if (!wrongItems.length) {
+    lines.push('本次没有客观题错题。');
+    return lines.join('\n');
+  }
+
+  for (var i = 0; i < wrongItems.length; i++) {
+    var item = wrongItems[i];
+    lines.push('### 错题 ' + (i + 1) + '：第 ' + item.number + ' 题');
+    lines.push('');
+    lines.push('- 题型：' + item.type);
+    lines.push('- 分值：' + item.points);
+    lines.push('- 题干：' + item.question);
+    if (item.options.length) {
+      lines.push('- 选项：');
+      for (var j = 0; j < item.options.length; j++) {
+        lines.push('  - ' + String.fromCharCode(65 + j) + '. ' + item.options[j]);
+      }
+    }
+    lines.push('- 我的答案：' + item.userAnswer);
+    lines.push('- 正确答案：' + item.correctAnswer);
+    lines.push('- 解析：' + item.explanation);
+    if (item.pitfall) lines.push('- 易错点：' + item.pitfall);
+    if (item.knowledgePoint) lines.push('- 对应知识点：' + item.knowledgePoint);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function downloadWrongReview() {
+  if (!LAST_WRONG_REVIEW) return;
+  var blob = new Blob([LAST_WRONG_REVIEW], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '错题分析文档.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyWrongReviewPrompt() {
+  var text = LAST_WRONG_REVIEW || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.getElementById('wrong-review-text');
+    if (ta) {
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+    }
+  }
+}
+
+</script>
+</body>
+</html>

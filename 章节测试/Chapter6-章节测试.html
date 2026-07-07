@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 6：应用层</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+/* === Interactive Test Styles === */
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.q-text pre {
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+  padding: 10px 14px; margin: 8px 0; overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  line-height: 1.5; white-space: pre;
+}
+.q-text code {
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+}
+
+/* ── Options (compact) ── */
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* ── Textareas (compact) ── */
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ── Result after grading ── */
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+/* ── Grading button ── */
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+/* ── Wrong-question review document ── */
+.wrong-review-box {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 18px 0;
+}
+.wrong-review-box h3 {
+  margin-top: 0;
+}
+.wrong-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-review-actions button {
+  font-size: 0.92em;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.wrong-review-actions button:hover {
+  background: #000;
+}
+#wrong-review-text {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  line-height: 1.5;
+  background: #fff;
+  resize: vertical;
+}
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 6：应用层</h1>
+<h2 style="text-align:center">章节测试</h2>
+<p style="text-align:center;color:var(--ink-light);font-size:0.95em">满分100分</p>
+
+<div id="score-box"><div class="score-num" id="score-num">0</div><div class="score-label">总分</div></div>
+<div id="questions-container"></div>
+<div class="grading-bar no-print"><button onclick="gradeAll()" id="grade-btn">提交批改</button></div>
+<div id="wrong-review-box" class="wrong-review-box no-print"></div>
+
+<script>
+var Q = [{"type": "choice", "points": 2, "question": "关于客户机/服务器（C/S）结构，下列说法错误的是？", "options": ["服务器拥有永久性可访问的地址，7×24小时提供服务", "客户机之间可以直接通信", "客户机可能使用动态IP地址", "服务器可通过大量服务器实现可扩展性"], "answer": 1, "knowledge_point": "6.1 网络应用体系结构", "diagnosis_hint": "混淆了C/S结构与P2P结构的特点", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：C/S结构中，客户机只与服务器通信，使用服务器提供的服务，不会与其他客户机直接通信；客户机之间直接通信是纯P2P结构的特点。", "pitfall": "C/S结构与P2P结构的核心区别就在于'节点之间是否直接通信'，做题时先判断这一点。"}, {"type": "choice", "points": 2, "question": "DNS不采用集中式设计的主要原因不包括？", "options": ["单点失效问题", "维护性问题", "域名无法转换为整数", "距离问题带来的传播时延"], "answer": 2, "knowledge_point": "6.3 域名解析系统(DNS)", "diagnosis_hint": "混入了与DNS集中式设计无关的干扰项", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：集中式DNS的问题是单点失效、流量/性能瓶颈、距离过远导致时延、维护性差；'域名无法转换为整数'与集中式与否无关（散列是DHT中的概念，且域名始终可以被hash为整数）。", "pitfall": "不要把DHT中'key需要转换为整数'的概念错误地套用到DNS集中式问题的讨论中。"}, {"type": "choice", "points": 2, "question": "若本地域名服务器无缓存，采用递归方法解析另一网络某主机域名时，用户主机、本地域名服务器发送的域名请求消息数分别为？", "options": ["一条、一条", "一条、多条", "多条、一条", "多条、多条"], "answer": 0, "knowledge_point": "6.3 域名解析系统(DNS)", "diagnosis_hint": "不理解递归查询中'代理'机制的含义", "explanation": "<strong>正确答案</strong>：A<br><br><strong>推理过程</strong>：递归查询时，主机只需向本地域名服务器发送一次查询，本地域名服务器代理后续的所有查询过程，最终把结果一次性返回给主机；因此主机和本地域名服务器彼此之间都只需要发送一次查询消息。", "pitfall": "容易忽略'代理'的含义，误以为本地服务器需要向主机多次转发中间查询结果。"}, {"type": "choice", "points": 2, "question": "关于FTP的连接机制，下列说法正确的是？", "options": ["控制连接和数据连接使用同一个TCP连接", "数据连接使用端口21，控制连接使用端口20", "控制连接贯穿会话全程，数据连接按需建立和关闭", "FTP服务器不需要维护任何客户端状态"], "answer": 2, "knowledge_point": "6.4 FTP应用", "diagnosis_hint": "记反了控制连接与数据连接的端口号和生命周期", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：FTP使用两条独立的TCP连接——控制连接（端口21）贯穿整个会话用于传递命令，数据连接（端口20）每次传输文件单独建立、传输完毕即关闭；FTP服务器需要维护当前目录、认证信息等状态。", "pitfall": "端口号容易记反：21是控制连接，20是数据连接。"}, {"type": "choice", "points": 2, "question": "SMTP协议使用的传输层协议和端口号分别是？", "options": ["UDP，25", "TCP，25", "TCP，80", "UDP，80"], "answer": 1, "knowledge_point": "6.5 Email应用", "diagnosis_hint": "混淆了SMTP与HTTP的端口，或误以为邮件协议使用UDP", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：SMTP需要可靠地传输邮件消息，因此使用面向连接的TCP协议，默认端口号为25；端口80是HTTP的默认端口。", "pitfall": "邮件传输要求可靠性，因此传输层协议必然是TCP而非UDP。"}, {"type": "choice", "points": 2, "question": "关于HTTP/1.1新增的方法，下列哪一项描述正确？", "options": ["GET方法要求服务器不要将对象放入响应消息中", "HEAD方法要求服务器不要将所请求的对象放入响应消息中", "PUT方法用于删除URL字段指定的文件", "DELETE方法用于将文件上传到服务器"], "answer": 1, "knowledge_point": "6.6 Web应用", "diagnosis_hint": "混淆了HEAD、PUT、DELETE三种HTTP/1.1新增方法各自的作用", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：HEAD方法要求服务器响应时不携带对象本身（常用于只获取首部信息）；PUT方法将消息体中的文件上传到URL指定路径；DELETE方法删除URL指定的文件。", "pitfall": "PUT是'上传'、DELETE是'删除'，与选项C、D的描述正好相反，做题时要仔细核对方向。"}, {"type": "choice", "points": 2, "question": "采用非持久HTTP连接（不考虑DNS解析时间），获取一个对象的响应时间约为？", "options": ["1×RTT + 文件传输时间", "2×RTT + 文件传输时间", "3×RTT + 文件传输时间", "仅为文件传输时间，不含RTT"], "answer": 1, "knowledge_point": "6.6 Web应用", "diagnosis_hint": "遗漏了TCP连接建立所占用的1个RTT", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：非持久连接下，1个RTT用于建立TCP连接，再1个RTT用于发送HTTP请求并收到响应消息的前几个字节，之后是响应消息本身的传输时间，因此总响应时间约为2×RTT+文件传输时间。", "pitfall": "很多同学只记得'发请求收响应'的1个RTT，忘记了建立TCP连接同样需要1个RTT。"}, {"type": "choice", "points": 2, "question": "关于HTTP/2相较HTTP/1.1的改进，下列描述正确的是？", "options": ["HTTP/2改用UDP作为传输层协议", "HTTP/2将对象分割为帧，允许不同对象的帧交替传输以缓解队首阻塞", "HTTP/2取消了首部行的使用", "HTTP/2不再支持服务器推送"], "answer": 1, "knowledge_point": "6.6 Web应用", "diagnosis_hint": "把HTTP/2和HTTP/3(QUIC)的特性弄混", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：HTTP/2仍基于TCP，通过将对象拆分为帧并交替传输不同对象的帧、按客户端定义的优先级调度（而非先来先服务）来缓解队首阻塞，并新增了服务器推送功能；改用UDP的是HTTP/3(QUIC)。", "pitfall": "'改用UDP'是HTTP/3(QUIC)的特征，不要张冠李戴到HTTP/2上。"}, {"type": "choice", "points": 2, "question": "Cookie机制的组成部分不包括？", "options": ["HTTP响应消息中的Set-cookie首部行", "保存在客户端主机上的cookie文件", "Web服务器端的后台数据库", "DNS服务器中的Cookie资源记录"], "answer": 3, "knowledge_point": "6.6 Web应用", "diagnosis_hint": "把DNS资源记录与Cookie机制混淆", "explanation": "<strong>正确答案</strong>：D<br><br><strong>推理过程</strong>：Cookie由HTTP响应/请求中的cookie首部行、客户端本地cookie文件、服务器端后台数据库四部分组成，与DNS资源记录无关。", "pitfall": "DNS的资源记录类型是A/NS/CNAME/MX，不存在'Cookie'类型记录。"}, {"type": "choice", "points": 2, "question": "在圆形DHT中，设n=4，节点集合为{1,3,4,5,8,10,12,14}，按照'key由其直接后继节点负责'的规则，key=15应由哪个节点负责？", "options": ["节点14", "节点12", "节点1", "节点8"], "answer": 2, "knowledge_point": "6.7 P2P应用", "diagnosis_hint": "没有处理key超过最大节点ID时的环绕(wrap-around)情况", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：DHT的标识符空间是环形的（[0, 2^4-1]=[0,15]），节点14之后按环形顺序的下一个节点是最小节点1，因此key=15的直接后继是节点1（环绕规则）。", "pitfall": "圆形DHT的标识符空间首尾相接，计算'直接后继'时必须考虑环绕，不能简单地认为超出最大节点就无解。"}, {"type": "tf", "points": 1, "question": "TCP提供面向连接的服务，UDP提供无连接的服务。", "options": [], "answer": true, "knowledge_point": "6.2 网络应用通信原理", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：这是TCP与UDP最基本的区别之一，TCP在传输数据前需要先建立连接，UDP则不需要。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "Socket是应用进程与传输层之间的接口。", "options": [], "answer": true, "knowledge_point": "6.2 网络应用通信原理", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：Socket是发送/接收消息所经过的接口，应用开发者控制其应用层一侧，操作系统控制其传输层一侧，正是应用进程与传输层之间的API。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "HTTP是一个有状态的协议，服务器会保存所有客户端过去请求的信息。", "options": [], "answer": false, "knowledge_point": "6.6 Web应用", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：HTTP是无状态（stateless）协议，服务器不维护任何有关客户端过去所发请求的信息；需要状态维护的功能（如购物车、登录状态）需要借助Cookie等机制在应用层之上实现。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "DNS查询过程中，客户端到本地域名服务器与本地域名服务器到上级服务器之间必须采用相同的查询方式（同为递归或同为迭代）。", "options": [], "answer": false, "knowledge_point": "6.3 域名解析系统(DNS)", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：常见做法是客户端到本地域名服务器采用递归查询，而本地域名服务器到根/顶级/权威域名服务器之间采用迭代查询，两段可以采用不同方式组合，并非必须相同。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "POP3协议支持用户跨会话在服务器上维护文件夹结构等状态信息。", "options": [], "answer": false, "knowledge_point": "6.5 Email应用", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：POP3是无状态协议，不支持跨会话维护文件夹等状态；能够支持跨会话维护用户状态（如文件夹名字、消息映射）的是IMAP协议。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "FTP的控制连接属于'带外（out of band）'控制。", "options": [], "answer": true, "knowledge_point": "6.4 FTP应用", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：FTP将控制信息（命令/响应）与实际文件数据分离，分别通过控制连接（端口21）和数据连接（端口20）传输，这种控制信息与数据分离传输的方式称为带外控制。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "HTTP/1.1默认使用非持久连接，每个对象都需要重新建立一次TCP连接。", "options": [], "answer": false, "knowledge_point": "6.6 Web应用", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：HTTP/1.0默认使用非持久连接，而HTTP/1.1默认使用持久连接（并且默认启用流水线机制），同一TCP连接上可传输多个对象。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "在BitTorrent中，'乐观疏通（optimistically unchoke）'机制使节点有机会发现比当前更好的交易伙伴。", "options": [], "answer": true, "knowledge_point": "6.7 P2P应用", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：节点每30秒随机选择一个其他节点进行乐观疏通并向其发送chunk，如果对方上传速率足够高，双方可能互相进入对方的top-four，从而建立更优的长期交易关系。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "在纯P2P架构中，仍然存在固定担任服务器角色、常年在线的节点。", "options": [], "answer": false, "knowledge_point": "6.7 P2P应用", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：纯P2P架构的定义特征之一就是'没有永远在线的服务器'，所有节点地位对等，且都是间歇性接入网络的。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "UDP协议提供拥塞控制机制以避免网络过载。", "options": [], "answer": false, "knowledge_point": "6.2 网络应用通信原理", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：UDP不提供拥塞控制、流量控制、可靠性保障，也不提供时延和带宽保障；拥塞控制是TCP的特性。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述DNS递归查询与迭代查询的区别。", "options": [], "answer": "", "knowledge_point": "6.3 域名解析系统(DNS)", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）递归查询：查询者（如用户主机，或本地域名服务器）向被查询的服务器发出请求后，全部后续的查询工作都由被查询服务器代为完成，查询者只需等待并直接获得最终结果，中间过程对查询者不可见；（2）迭代查询：被查询的服务器如果不能直接给出结果，只会返回'应该去问哪个下一级服务器'的提示，再由发起方自行向该下一级服务器发起新的查询，如此反复直到获得结果；（3）在实际DNS查询流程中，通常客户端到本地域名服务器采用递归方式，本地域名服务器到根/顶级/权威域名服务器之间采用迭代方式，两段可组合使用。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述FTP的控制连接与数据连接各自的作用及区别。", "options": [], "answer": "", "knowledge_point": "6.4 FTP应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）控制连接（端口21）：在客户端与服务器之间建立后贯穿整个会话，用于传输身份认证信息、目录浏览命令、文件传输命令等控制信息，属于'带外'传输；（2）数据连接（端口20）：每当需要传输一个文件时才由服务器单独建立一条，传输完该文件后立即关闭；（3）区别：控制连接生命周期长、承载控制信息，数据连接生命周期短（一文件一连接）、承载实际文件数据；此外FTP服务器需要维护当前目录、认证状态等会话状态，这与后面学习的HTTP无状态设计不同。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述POP3与IMAP两种邮件访问协议的主要区别。", "options": [], "answer": "", "knowledge_point": "6.5 Email应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）POP3（RFC 1939）：完成认证/授权和邮件下载，支持'下载并删除'和'下载并保持'两种模式；是无状态协议，若采用'下载并删除'模式，用户更换客户端后无法重新读取已下载的邮件；（2）IMAP（RFC 1730）：功能更丰富也更复杂，所有邮件消息统一保存在服务器端，允许用户利用文件夹组织邮件，并支持跨会话维护用户状态（如文件夹名称、文件夹与消息ID间的映射），因此用户在不同客户端、不同时间登录都能看到一致的邮件组织结构；（3）总体上IMAP提供了比POP3更强的服务器端状态管理能力，但实现也更复杂。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述非持久HTTP连接下获取一个Web对象的响应时间构成，并说明为什么是2个RTT。", "options": [], "answer": "", "knowledge_point": "6.6 Web应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）响应时间的构成：第1个RTT用于客户端与服务器建立TCP连接（三次握手）；第2个RTT用于客户端发送HTTP请求消息，并等待服务器响应消息的前几个字节到达；在此基础上还要加上服务器响应消息本身的传输时间（如文件较大，传输时间不可忽略）；（2）因此非持久连接下单个对象的响应时间约为：2×RTT + 响应消息发送时间；（3）之所以是'2个RTT'而非'1个RTT'，是因为非持久连接下每次请求一个新对象都必须重新建立一次全新的TCP连接，连接建立本身就要消耗1个RTT，这也是持久连接相较非持久连接能够显著优化响应时间的原因所在。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "论述Web缓存（代理服务器）的作用，并结合课程中的数值例子说明缓存命中率对平均访问时延的影响。", "options": [], "answer": "", "knowledge_point": "6.6 Web应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）Web缓存/代理服务器的目标是在不访问源服务器的前提下满足客户端的HTTP请求，其作用包括：缩短客户请求的响应时间（缓存更靠近客户端）、减少机构/组织对外访问链路上的流量、在Internet范围内实现更有效的内容分发（使内容提供商也能更高效地交付内容）。<br>（2）课程数值例子：假设平均对象大小为1Mbit，机构网络浏览器平均每秒发出10个请求，接入链路带宽10Mbps，往返时延RTT=2秒。<br>　- 不缓存时：10Mbps的带宽恰好被每秒10个1Mbit对象占满，接入链路利用率达到100%，根据排队时延与链路利用率的关系，利用率趋于100%时排队时延趋于无穷大，总时延可达'几分钟'量级，用户体验很差。<br>　- 部署本地Web缓存、假设命中率为0.4：40%的请求由缓存直接满足（时延可忽略，如10微秒），60%的请求仍需访问原始服务器（时延约2秒）；接入链路利用率下降到60%，排队时延变得可忽略；总平均时延 ≈ 0.6×2.0秒 + 0.4×(约0微秒) ≈ 1.2秒。<br>（3）结论：在不额外增加接入带宽（即不增加成本）的情况下，通过部署本地缓存并利用命中率，可以将总平均访问时延从'几分钟'级别降低到约1.2秒，充分体现了Web缓存对响应时间和链路利用率的显著优化作用。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "论述HTTP/1.1的持久连接与流水线机制相比HTTP/1.0如何优化响应时间，并说明HTTP/2与HTTP/3（QUIC）各自进一步解决了什么问题。", "options": [], "answer": "", "knowledge_point": "6.6 Web应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）HTTP/1.0非持久连接：每个TCP连接只传输一个对象，每获取一个新对象都要重新经历'建立连接+请求响应'的过程，每个对象耗时约2×RTT，且操作系统需要为每个TCP连接单独开销资源。<br>（2）HTTP/1.1持久连接：服务器发送响应后保持TCP连接打开，后续的HTTP消息可以复用同一连接传输多个对象，避免了重复建立连接的开销；进一步地，流水线（pipelining，HTTP/1.1默认开启）允许客户端只要遇到一个引用对象就立即发出请求而不必等待前一个响应返回，理想情况下获取页面全部引用对象总共只需约1个RTT，相比非持久连接和非流水持久连接都有显著优化。<br>（3）HTTP/2：进一步解决HTTP/1.1中'先来先服务(FCFS)调度导致大对象阻塞后续小对象'的队首阻塞（Head-of-Line blocking）问题——将每个对象分割为多个帧，不同对象的帧可以交替传输，并按客户端定义的优先级调度，同时支持服务器主动推送对象。<br>（4）HTTP/3（基于QUIC）：解决了HTTP/2仍使用单一TCP连接、一旦丢包整条连接上所有对象传输都会暂停的问题——QUIC建立在UDP之上，在应用层自行实现可靠性与拥塞控制，并将连接建立、身份验证、加密合并到约1个RTT内完成；多个应用级'流'复用一个QUIC连接，各流之间独立进行可靠传输，一个流的丢包不会阻塞其他流，从根本上消除了传输层级别的队首阻塞。", "pitfall": ""}, {"type": "essay", "points": 10, "question": "论述P2P文件分发相对于C/S架构在可扩展性上的优势，并结合BitTorrent说明其数据块获取与分发的激励机制。", "options": [], "answer": "", "knowledge_point": "6.7 P2P应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）C/S架构文件分发时间下界为 $D_{c\\text{-}s} \\geq \\max\\{NF/u_s,\\ F/d_{min}\\}$，其中服务器需要串行地向N个客户端各发送一份完整副本，$NF/u_s$随节点数N线性增长，意味着当节点数增多时，服务器上传带宽会成为严重瓶颈，分发时间随N近乎无限增长。<br>（2）P2P架构文件分发时间下界为 $D_{P2P} \\geq \\max\\{F/u_s,\\ F/d_{min},\\ NF/(u_s+\\sum u_i)\\}$，服务器只需上传1份副本，其余副本的分发依靠节点之间互相上传完成；虽然总量项 $NF/(u_s+\\sum u_i)$ 的分子同样随N增长，但每新增一个节点也会带来其自身的上传能力 $u_i$，使分母（总服务能力）同步增长，因此P2P方式的分发时间增长速度远慢于C/S方式——即节点越多，系统整体服务能力也越强，体现了P2P架构良好的可扩展性。<br>（3）BitTorrent的激励机制：文件被划分为256KB的chunk，节点按'稀缺优先'策略优先获取当前最少见的chunk，以保证系统中各类chunk分布均衡、避免关键chunk稀缺；数据发送则采用'互惠（tit-for-tat）'机制——节点将chunk优先发送给当前上传速率最快的4个邻居（top 4，每10秒重新评估），同时每30秒随机对一个其他节点进行'乐观疏通'尝试新的合作关系。若被乐观疏通的节点也愿意回报（将疏通者纳入其top-four），双方就能建立起互惠关系。这种机制的激励效果是：节点自身上传速率越高，越容易进入更多邻居的top-four名单，从而下载速度也越快，鼓励节点积极参与上传而不是'搭便车'，这正是P2P系统实现自扩展、自组织的关键设计。", "pitfall": ""}, {"type": "comprehensive", "points": 20, "question": "综合题（共20分，分为三部分）：<br><br>（1）【6分】某用户主机的本地域名服务器无缓存，需要解析域名 www.xyz.com。已知客户端到本地域名服务器采用递归查询，本地域名服务器到根域名服务器、顶级域名服务器、权威域名服务器之间均采用迭代查询。请画出/描述完整的查询消息交互过程，并说明总共产生了多少条DNS查询/响应消息（单向各算1条）。<br><br>（2）【7分】某机构网络：浏览器平均每秒发出10个到原始服务器的HTTP请求，平均对象大小为1Mbit，机构到原始服务器的往返时延RTT=2秒，接入链路带宽为10Mbps。若部署本地Web缓存后命中率提升到0.5，请计算部署缓存后的平均访问时延（假设未命中时的访问时延仍约为RTT=2秒，命中时缓存访问时延可忽略）。<br><br>（3）【7分】某文件大小F，共有N个节点参与下载，服务器上传能力为$u_s$，各节点上传能力之和为$\\sum u_i$，下行带宽最小的节点下载能力为$d_{min}$。请分别写出C/S方式与P2P方式的文件分发时间下界表达式，并说明当N持续增大时两种方式的分发时间将各自呈现怎样的变化趋势。", "options": [], "answer": "", "knowledge_point": "6.3/6.6/6.7 综合应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><br><strong>（1）DNS查询消息数</strong>：客户端到本地域名服务器采用递归查询，客户端只需发出1条查询、收到1条响应（共2条消息，即①请求 ⑧返回，对应课件中的编号①和⑧）；本地域名服务器到上级采用迭代查询，需要依次查询：根域名服务器（1去1回，②③）、顶级域名服务器dns.com（1去1回，④⑤）、权威域名服务器dns.xyz.com（1去1回，⑥⑦）。因此本地域名服务器一侧共产生 3次迭代查询 × 2条消息 = 6条消息，加上客户端与本地域名服务器之间的2条消息，总计 <strong>8条</strong> DNS查询/响应消息。<br><br><strong>（2）Web缓存平均时延计算</strong>：命中率0.5意味着50%的请求由本地缓存直接满足（时延可忽略，记为约0），50%的请求需要访问原始服务器（时延约为RTT=2秒）。平均访问时延 = 0.5×2秒 + 0.5×(约0秒) = <strong>1秒</strong>。相比未部署缓存时（接入链路利用率100%导致排队时延趋于无穷大、时延可达几分钟级别），部署命中率0.5的缓存后平均时延降至约1秒，显著改善了用户体验，且未增加接入带宽成本。<br><br><strong>（3）文件分发时间下界与增长趋势</strong>：C/S方式：$D_{c\\text{-}s} \\geq \\max\\{NF/u_s,\\ F/d_{min}\\}$；P2P方式：$D_{P2P} \\geq \\max\\{F/u_s,\\ F/d_{min},\\ NF/(u_s+\\sum u_i)\\}$。当N持续增大时：C/S方式中，$NF/u_s$随N线性增长且$u_s$固定不变，服务器上传带宽成为瓶颈，分发时间随N近乎无限制线性增长；P2P方式中，虽然$NF/(u_s+\\sum u_i)$的分子也随N增长，但每新加入一个节点都会带来自己的上传能力$u_i$，使分母（系统总上传能力）同步增长，因此P2P方式的分发时间增长速度远慢于C/S方式，体现出更好的可扩展性——这也是大规模文件分发场景（如BitTorrent）普遍采用P2P架构而非传统C/S架构的核心原因。", "pitfall": ""}];
+var LABELS = {"page_title": "章节测试", "section": {"choice": "一、选择题", "tf": "二、判断题", "short": "三、简答题", "essay": "四、问答题", "comprehensive": "五、综合题"}, "section_order": ["choice", "tf", "short", "essay", "comprehensive"], "points_suffix": "分", "true_label": "正确", "false_label": "错误", "placeholder": "在此作答...", "pitfall_prefix": "易错提醒：", "correct_label": "正确", "wrong_label": "错误", "answer_prefix": "正确答案：", "reference_label": "参考答案", "graded_label": "已批改", "grade_button": "提交批改", "unanswered_label": "未作答", "wrong_review_title": "错题分析文档", "wrong_review_intro": "本次收录 __COUNT__ 道客观题错题。可以下载 Markdown 文档，或复制整段内容交给模型做错因分析和二次学习规划。", "no_wrong_questions": "本次客观题没有错题。主观题请对照参考答案自行复盘。", "download_wrong_review": "下载错题文档", "copy_wrong_review_prompt": "复制错题分析 Prompt", "score_label": "总分", "duration_prefix": "满分 100 分 | 建议 ", "duration_suffix": " 分钟 | 选择答案后点击提交批改"};
+var WRONG_REVIEW_PROMPT = "";
+var LAST_WRONG_REVIEW = '';
+
+function pointsOf(q) {
+  return q.points || q.score || 0;
+}
+
+function stripHtml(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// Convert Markdown fenced code blocks (```lang\n...\n```) and inline `code`
+// to <pre><code> / <code> HTML, then convert \n to <br> for plain text lines.
+function formatQuestion(text) {
+  if (!text) return '';
+  // 1. Replace fenced code blocks: ```lang\ncode\n```
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    var escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    var cls = lang ? ' class="language-' + lang + '"' : '';
+    return '<pre><code' + cls + '>' + escaped + '</code></pre>';
+  });
+  // 2. Replace inline backtick `code`
+  text = text.replace(/`([^`\n]+)`/g, function(_, code) {
+    var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<code>' + escaped + '</code>';
+  });
+  // 3. Convert remaining \n to <br> (outside pre blocks already handled above)
+  // Split on <pre>...</pre> so we don't double-process code blocks
+  var parts = text.split(/(<pre>[\s\S]*?<\/pre>)/);
+  for (var i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      parts[i] = parts[i].replace(/\n/g, '<br>');
+    }
+  }
+  return parts.join('');
+}
+
+function answerText(q, value) {
+  if (value === null || value === undefined || value === '') return LABELS.unanswered_label;
+  var idx = parseInt(value);
+  if (q.type === 'choice') {
+    return String.fromCharCode(65 + idx) + '. ' + ((q.options && q.options[idx]) ? stripHtml(q.options[idx]) : '');
+  }
+  if (q.type === 'tf') {
+    return idx === 0 ? LABELS.true_label : LABELS.false_label;
+  }
+  return String(value);
+}
+
+function normalizedAnswer(q) {
+  if (q.type === 'tf') {
+    if (q.answer === LABELS.true_label || q.answer === true || q.answer === 'true') return 0;
+    if (q.answer === LABELS.false_label || q.answer === false || q.answer === 'false') return 1;
+  }
+  return parseInt(q.answer);
+}
+
+function questionTypeLabel(type) {
+  return LABELS.section[type] || type;
+}
+
+function build(){
+  var container = document.getElementById('questions-container');
+  if (!container) { console.error('ExamPass: questions-container not found'); return; }
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var s = q.type;
+    if (s !== sec) {
+      sec = s;
+      if (titles[s]) {
+        h += '<h3>' + titles[s] + '</h3>';
+      }
+    }
+
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i+1) + '. (' + pointsOf(q) + ' ' + LABELS.points_suffix + ')</div>';
+    h += '<div class="q-text">' + formatQuestion(q.question) + '</div>';
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65+j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">' + LABELS.true_label + '</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">' + LABELS.false_label + '</label>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="' + LABELS.placeholder + '" rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + q.explanation + '</div>';
+    if (q.pitfall) {
+      h += '<div class="pitfall">' + LABELS.pitfall_prefix + q.pitfall + '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+
+  // Re-render MathJax for dynamically inserted formulas
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  build();
+}
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('selected');
+  }
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) {
+    target.classList.add('selected');
+  }
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+function gradeAll() {
+  var score = 0;
+  var wrongItems = [];
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      var radio = document.querySelector('input[name="' + qid + '"]:checked');
+      var correctIndex = normalizedAnswer(q);
+      if (radio && parseInt(radio.value) === correctIndex) {
+        score += pointsOf(q);
+        card.classList.add('correct');
+        badge.className = 'badge badge-ok';
+        badge.textContent = LABELS.correct_label;
+        correctEl.innerHTML = '';
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+      } else {
+        card.classList.add('wrong');
+        badge.className = 'badge badge-no';
+        badge.textContent = LABELS.wrong_label;
+        var ansText = answerText(q, correctIndex);
+        correctEl.innerHTML = LABELS.answer_prefix + ansText;
+        if (radio) {
+          var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+          if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+        }
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+        wrongItems.push({
+          number: i + 1,
+          type: questionTypeLabel(q.type),
+          points: pointsOf(q),
+          question: stripHtml(q.question),
+          options: (q.options || []).map(stripHtml),
+          userAnswer: answerText(q, radio ? radio.value : null),
+          correctAnswer: ansText,
+          explanation: stripHtml(q.explanation),
+          pitfall: stripHtml(q.pitfall || ''),
+          knowledgePoint: stripHtml(q.knowledge_point || q.knowledgePoint || '')
+        });
+      }
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = LABELS.reference_label;
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = score;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+
+  var opts = document.querySelectorAll('.option');
+  for (var i = 0; i < opts.length; i++) opts[i].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var i = 0; i < tas.length; i++) tas[i].disabled = true;
+
+  var btn = document.getElementById('grade-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = LABELS.graded_label;
+  }
+
+  buildWrongReview(wrongItems);
+
+  // Re-render MathJax for revealed explanations
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise().catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+function buildWrongReview(wrongItems) {
+  var box = document.getElementById('wrong-review-box');
+  if (!box) return;
+
+  LAST_WRONG_REVIEW = renderWrongReviewMarkdown(wrongItems);
+
+  if (!wrongItems.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<h3>' + LABELS.wrong_review_title + '</h3><p>' + LABELS.no_wrong_questions + '</p>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = [
+    '<h3>' + LABELS.wrong_review_title + '</h3>',
+    '<p>' + LABELS.wrong_review_intro.replace('__COUNT__', wrongItems.length) + '</p>',
+    '<div class="wrong-review-actions">',
+    '<button type="button" onclick="downloadWrongReview()">' + LABELS.download_wrong_review + '</button>',
+    '<button type="button" onclick="copyWrongReviewPrompt()">' + LABELS.copy_wrong_review_prompt + '</button>',
+    '</div>',
+    '<textarea id="wrong-review-text" readonly rows="12">' + LAST_WRONG_REVIEW.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea>'
+  ].join('');
+}
+
+function renderWrongReviewMarkdown(wrongItems) {
+  var now = new Date().toLocaleString();
+  var lines = [];
+
+  lines.push('# ExamPass 错题分析文档');
+  lines.push('');
+  lines.push('- 生成时间：' + now);
+  lines.push('- 错题数量：' + wrongItems.length);
+  lines.push('');
+  lines.push('## 给模型的错题分析 Prompt');
+  lines.push('');
+  if (WRONG_REVIEW_PROMPT) {
+    lines.push(WRONG_REVIEW_PROMPT);
+  } else {
+    lines.push('请根据下面的错题记录，分析我的错因，并给出继续学习方案。要求：');
+    lines.push('1. 按知识模块归类错题，不要只逐题复述答案；');
+    lines.push('2. 判断每道题错在概念定义、公式推导、图表理解、条件适用、计算步骤、概念混淆还是审题；');
+    lines.push('3. 对涉及公式或推导的错题，补全从前提到结论的推导链条，不能跳步；');
+    lines.push('4. 对选择题，解释我选错选项为什么有迷惑性，以及正确选项和错误选项的关键边界；');
+    lines.push('5. 给出需要回看课件的具体知识点、图表、公式和页/章节线索；');
+    lines.push('6. 最后生成一份二次学习清单和 5 道针对这些薄弱点的进阶训练题。');
+  }
+  lines.push('');
+  lines.push('## 错题记录');
+  lines.push('');
+
+  if (!wrongItems.length) {
+    lines.push('本次没有客观题错题。');
+    return lines.join('\n');
+  }
+
+  for (var i = 0; i < wrongItems.length; i++) {
+    var item = wrongItems[i];
+    lines.push('### 错题 ' + (i + 1) + '：第 ' + item.number + ' 题');
+    lines.push('');
+    lines.push('- 题型：' + item.type);
+    lines.push('- 分值：' + item.points);
+    lines.push('- 题干：' + item.question);
+    if (item.options.length) {
+      lines.push('- 选项：');
+      for (var j = 0; j < item.options.length; j++) {
+        lines.push('  - ' + String.fromCharCode(65 + j) + '. ' + item.options[j]);
+      }
+    }
+    lines.push('- 我的答案：' + item.userAnswer);
+    lines.push('- 正确答案：' + item.correctAnswer);
+    lines.push('- 解析：' + item.explanation);
+    if (item.pitfall) lines.push('- 易错点：' + item.pitfall);
+    if (item.knowledgePoint) lines.push('- 对应知识点：' + item.knowledgePoint);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function downloadWrongReview() {
+  if (!LAST_WRONG_REVIEW) return;
+  var blob = new Blob([LAST_WRONG_REVIEW], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '错题分析文档.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyWrongReviewPrompt() {
+  var text = LAST_WRONG_REVIEW || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.getElementById('wrong-review-text');
+    if (ta) {
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+    }
+  }
+}
+
+</script>
+</body>
+</html>

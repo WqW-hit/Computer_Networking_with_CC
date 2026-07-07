@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 5：传输层</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+/* === Interactive Test Styles === */
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.q-text pre {
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+  padding: 10px 14px; margin: 8px 0; overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  line-height: 1.5; white-space: pre;
+}
+.q-text code {
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+}
+
+/* ── Options (compact) ── */
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* ── Textareas (compact) ── */
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ── Result after grading ── */
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+/* ── Grading button ── */
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+/* ── Wrong-question review document ── */
+.wrong-review-box {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 18px 0;
+}
+.wrong-review-box h3 {
+  margin-top: 0;
+}
+.wrong-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-review-actions button {
+  font-size: 0.92em;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.wrong-review-actions button:hover {
+  background: #000;
+}
+#wrong-review-text {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  line-height: 1.5;
+  background: #fff;
+  resize: vertical;
+}
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 5：传输层</h1>
+<h2 style="text-align:center">章节测试</h2>
+<p style="text-align:center;color:var(--ink-light);font-size:0.95em">满分100分</p>
+
+<div id="score-box"><div class="score-num" id="score-num">0</div><div class="score-label">总分</div></div>
+<div id="questions-container"></div>
+<div class="grading-bar no-print"><button onclick="gradeAll()" id="grade-btn">提交批改</button></div>
+<div id="wrong-review-box" class="wrong-review-box no-print"></div>
+
+<script>
+var Q = [{"type": "choice", "points": 2, "question": "关于传输层与网络层的区别，下列说法正确的是？", "options": ["网络层提供进程之间的逻辑通信，传输层提供主机之间的逻辑通信", "网络层提供主机之间的逻辑通信，传输层提供应用进程之间的逻辑通信", "网络层和传输层提供的逻辑通信对象完全相同，没有区别", "传输层位于网络层之下，依赖网络层提供的服务"], "answer": 1, "knowledge_point": "传输层服务", "diagnosis_hint": "把网络层和传输层各自服务对象（主机 vs 进程）弄反", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：网络层负责主机之间的逻辑通信（把分组从一台主机送到另一台主机），传输层建立在网络层之上，负责应用进程之间的逻辑通信（把数据准确交付给正确的进程）。", "pitfall": "网络层管\"主机到主机\"，传输层管\"进程到进程\"。"}, {"type": "choice", "points": 2, "question": "UDP 的 Socket 用于分用（demultiplexing）的标识是？", "options": ["（源 IP 地址，源端口号，目的 IP 地址，目的端口号）四元组", "（目的 IP 地址，目的端口号）二元组", "仅目的端口号一个值", "（源 IP 地址，目的 IP 地址）二元组"], "answer": 1, "knowledge_point": "无连接分用", "diagnosis_hint": "误以为 UDP 也像 TCP 一样用四元组标识 Socket", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：UDP 是无连接的，Socket 只用（目的 IP 地址，目的端口号）二元组标识，来自不同源 IP/源端口的数据包，只要目的二元组相同就会被导向同一个 Socket。", "pitfall": "UDP 用二元组分用，TCP 才用四元组分用，不能混用。"}, {"type": "choice", "points": 2, "question": "TCP 的 Socket 用于分用的标识是？", "options": ["（目的 IP 地址，目的端口号）二元组", "（源 IP 地址，源端口号，目的 IP 地址，目的端口号）四元组", "仅源端口号一个值", "TCP 不需要 Socket 分用机制"], "answer": 1, "knowledge_point": "面向连接的分用", "diagnosis_hint": "误以为 TCP 也只用目的地址二元组区分连接", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：TCP 面向连接，接收端要利用源 IP、源端口、目的 IP、目的端口这四个值共同确定唯一的连接（Socket），因此同一目的端口上可以并存多条来自不同客户端的连接。", "pitfall": "四元组任一项不同即视为不同的 TCP 连接。"}, {"type": "choice", "points": 2, "question": "关于 UDP 校验和的计算，下列说法正确的是？", "options": ["只对 UDP 首部计算校验和，不包含应用数据和伪首部", "将参与计算的内容视为 16 位整数序列求和，进位需回卷加到和的末尾，再取反码得到校验和", "校验和计算不需要用到源、目的 IP 地址信息", "接收方收到数据后无需重新计算校验和，只需比对发送方填写的数值"], "answer": 1, "knowledge_point": "UDP 校验和计算", "diagnosis_hint": "遗漏\"进位回卷\"这一步，或不清楚伪首部包含源/目的 IP 地址", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：UDP 校验和计算范围包括伪首部（含源/目的 IP 地址等）、UDP 首部和应用数据；计算方法是把这些内容视为 16 位整数序列求和，产生的进位要回卷加到和的末尾，然后取反码得到 checksum；接收方需要用同样方法重新计算，全 1 则判定无错。", "pitfall": "反码求和的进位必须回卷相加，且计算范围包含伪首部（源/目的 IP）。"}, {"type": "choice", "points": 2, "question": "TCP 段首部中\"首部长度\"字段占 4 位，其计算单位是？", "options": ["1 字节", "2 字节", "4 字节", "8 字节"], "answer": 2, "knowledge_point": "TCP 段结构", "diagnosis_hint": "与 IP 首部长度字段单位混淆，或直接理解为字节数", "explanation": "<strong>正确答案</strong>：C（4 字节）<br><br><strong>推理过程</strong>：TCP 首部长度字段占 4 位，以 4 字节为计算单位，无选项时该字段值为 5，表示首部长度为 5×4=20 字节。", "pitfall": "TCP 首部长度以 4 字节为单位，与 IP 首部长度字段单位一致，但不要与总长度等其他字段混淆。"}, {"type": "choice", "points": 2, "question": "关于 TCP 序号和确认序号，下列说法正确的是？", "options": ["序号是该段在整个连接中的\"第几个段\"编号", "序号是该段所携带数据第一个字节在字节流中的编号，确认序号采用累计确认方式", "确认序号表示已经收到的最后一个字节的序号", "序号与确认序号在连接建立时必须从 0 开始"], "answer": 1, "knowledge_point": "TCP 序号与确认号", "diagnosis_hint": "把\"序号\"理解为段的连续计数，而不是字节编号", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：TCP 序号是按字节编号的，指该段数据第一个字节在字节流中的位置；确认序号是期望收到的下一个字节的序号，代表该序号之前所有字节都已被正确接收（累计确认）。建立连接时双方随机选择各自的初始序号，并不从 0 开始。", "pitfall": "序号按\"字节\"编号，不是按\"段\"编号；初始序号是随机选择的。"}, {"type": "choice", "points": 2, "question": "TCP 触发\"快速重传\"的条件是？", "options": ["发送方收到对同一数据的 3 个冗余（重复）ACK", "发送方的重传定时器超时", "接收方连续收到 3 个乱序段", "发送方连续发送 3 个段都未收到任何 ACK"], "answer": 0, "knowledge_point": "快速重传", "diagnosis_hint": "把快速重传的触发条件与普通超时重传混淆", "explanation": "<strong>正确答案</strong>：A<br><br><strong>推理过程</strong>：快速重传的核心思想是：若发送方收到对同一数据的 3 个冗余 ACK，就认为该数据之后的段已经丢失，无需等待定时器超时即可立即重传，从而比纯粹依赖超时更快地检测并修复丢包。", "pitfall": "快速重传靠\"3 个重复 ACK\"触发，不需要等待超时。"}, {"type": "choice", "points": 2, "question": "TCP 流量控制中，接收窗口 RcvWindow 的计算公式是？", "options": ["RcvWindow = RcvBuffer + [LastByteRcvd - LastByteRead]", "RcvWindow = RcvBuffer - [LastByteRcvd - LastByteRead]", "RcvWindow = LastByteRcvd - LastByteRead", "RcvWindow 恒等于 RcvBuffer 的总大小，与已收数据无关"], "answer": 1, "knowledge_point": "TCP 流量控制", "diagnosis_hint": "把已占用空间与剩余空间的加减关系搞反", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：RcvWindow 表示接收缓存中的剩余可用空间，等于缓存总容量 RcvBuffer 减去已接收但尚未被上层应用读走的数据量 [LastByteRcvd - LastByteRead]。", "pitfall": "RcvWindow 是缓存的\"剩余空间\"，用总容量减去已占用部分。"}, {"type": "choice", "points": 2, "question": "TCP 三次握手的第二步中，服务器需要完成的动作是？", "options": ["直接进入 ESTABLISHED 状态，不回复任何段", "回复一个 SYNACK 段，其中包含自己选择的初始序号并确认客户端的 SYN，同时为该连接分配缓存", "回复一个只包含 ACK 标志、不含 SYN 标志的段", "等待客户端再次发送 SYN 段确认"], "answer": 1, "knowledge_point": "TCP 三次握手", "diagnosis_hint": "遗漏 SYNACK 段中\"既有 SYN（携带自身初始序号）又有 ACK（确认对方）\"的双重含义", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：三次握手第二步中，服务器收到客户端 SYN 后，为该连接分配缓存，并回复一个 SYNACK 段——该段既携带服务器自己选择的初始序号（SYN 部分），又确认了客户端的 SYN（ACK 部分），服务器随即进入 SYN_RCVD 状态。", "pitfall": "SYNACK 段同时承担\"我也有一个初始序号\"和\"确认收到你的 SYN\"两个作用。"}, {"type": "choice", "points": 2, "question": "TCP 拥塞控制中，当发生\"超时\"事件时，发送方应如何调整拥塞窗口和门限值？", "options": ["Threshold=CongWin/2，CongWin=1 MSS，重新进入慢启动", "Threshold=CongWin/2，CongWin=Threshold，直接进入拥塞避免", "CongWin 和 Threshold 都保持不变", "CongWin 加倍，Threshold 减半"], "answer": 0, "knowledge_point": "拥塞控制 Loss 事件处理", "diagnosis_hint": "把超时事件的处理方式和 3 个重复 ACK 事件的处理方式弄混", "explanation": "<strong>正确答案</strong>：A<br><br><strong>推理过程</strong>：超时被认为是比冗余 ACK 更严重的拥塞信号，因此 Threshold 设为超时前 CongWin 的一半，CongWin 直接降为 1 个 MSS，并重新进入慢启动阶段指数增长；而 3 个重复 ACK 事件只是把 CongWin 减半后直接进入拥塞避免（不降到 1 MSS）。", "pitfall": "超时 --> CongWin 降到 1 MSS 重新慢启动；3 个重复 ACK --> CongWin 减半后进入拥塞避免，两者处理力度不同。"}, {"type": "tf", "points": 1, "question": "传输层协议只运行在通信的端系统（主机）中，网络核心的路由器并不处理传输层报文段。", "options": [], "answer": true, "knowledge_point": "传输层服务", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：传输层负责端到端的进程间通信，其协议逻辑只在源和目的主机上实现，路由器只关心网络层及以下的转发，不解析传输层字段。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "UDP 和 TCP 都不保证端到端的时延和带宽。", "options": [], "answer": true, "knowledge_point": "Internet 传输层协议", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：无论是提供可靠交付的 TCP，还是提供不可靠交付的 UDP，二者都建立在\"尽力而为\"的网络层之上，均不对时延和带宽做出保证。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "UDP 段格式中包含源端口号、目的端口号、长度和校验和四个首部字段。", "options": [], "answer": true, "knowledge_point": "UDP 段格式", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：UDP 首部固定 8 字节，只包含源端口号、目的端口号、长度、校验和四个字段，随后紧跟应用数据，是所有传输层协议中首部最简单的一种。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "TCP 报文段中的\"确认序号\"字段表示接收方期望收到的下一个字节的序号，采用累计确认方式。", "options": [], "answer": true, "knowledge_point": "TCP 序号与确认号", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：确认序号指出接收方下一个期望收到的字节编号，同时隐含表示该序号之前的所有字节均已被正确接收，是一种累计（累积）确认机制。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "TCP 估计 RTT 时使用的指数加权移动平均公式中，α 的典型取值为 0.125，β（用于 DevRTT）的典型取值为 0.25。", "options": [], "answer": true, "knowledge_point": "RTT 估计", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：EstimatedRTT 更新公式中 α 典型值为 0.125，DevRTT 更新公式中 β 典型值为 0.25，这两个参数是 TCP RFC 中给出的经验默认值。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "TCP 计算 SampleRTT 时，对于发生过重传的段，其对应的 ACK 到达时间也会被计入 SampleRTT 的测量。", "options": [], "answer": false, "knowledge_point": "RTT 估计", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：由于无法判断收到的 ACK 究竟是确认原始发送的段还是确认后来的重传段（存在二义性），TCP 在测量 SampleRTT 时会忽略发生过重传的段，只用未重传段的往返时间进行采样。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "TCP 三次握手中，客户端在发送第一个 SYN 段之后立即进入 ESTABLISHED 状态。", "options": [], "answer": false, "knowledge_point": "TCP 连接管理", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：客户端发送 SYN 段后进入 SYN_SENT 状态，只有在收到服务器的 SYNACK 段并回复 ACK 之后，客户端才会进入 ESTABLISHED 状态，即三次握手全部完成后才建立连接。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "四次挥手结束时，主动关闭方（client）需要在 TIME_WAIT 状态等待 2 个最大段生存时间（2MSL）才真正关闭连接。", "options": [], "answer": true, "knowledge_point": "TCP 连接管理", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：client 在发送最后的 ACK 之后进入 TIME_WAIT 状态，等待 2MSL 是为了确保最后的 ACK 若丢失、server 重传 FIN 时 client 仍能正确响应，并让该连接使用过的序号在网络中充分老化。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "TCP 拥塞控制中，慢启动阶段拥塞窗口每收到一个 ACK 就增加 1 个 MSS，效果是每个 RTT 使拥塞窗口翻倍。", "options": [], "answer": true, "knowledge_point": "慢启动", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：慢启动阶段每收到一个 ACK，CongWin 就增加 1 个 MSS；由于一个 RTT 内会收到与当前窗口大小相当数量的 ACK，累积效果就是每个 RTT 使 CongWin 翻倍，呈指数增长。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "若 K 个 TCP 连接公平地共享一条带宽为 R 的瓶颈链路，理论上每个连接的平均速率应为 R/K，但若其中混有不参与拥塞控制的 UDP 流量，实际分配会偏离这一结果。", "options": [], "answer": true, "knowledge_point": "TCP 公平性", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：TCP 的 AIMD 机制能使同类型 TCP 连接的带宽趋于公平分配（约 R/K）；但 UDP 流量不受拥塞控制约束，会挤占带宽份额，导致实际分配偏离 R/K 的理想公平结果。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 UDP 无连接分用与 TCP 面向连接分用的区别。", "options": [], "answer": "", "knowledge_point": "传输层多路复用/分解", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：UDP 是无连接分用，Socket 仅由（目的 IP 地址，目的端口号）二元组标识，主机收到 UDP 段后只依据目的端口号将其导向对应 Socket，来自不同源 IP 地址和/或源端口号、只要目的二元组相同的数据都会被送入同一个 Socket。TCP 是面向连接分用，Socket 由（源 IP 地址，源端口号，目的 IP 地址，目的端口号）四元组共同标识，接收端要利用全部四个值才能确定唯一对应的连接，因此即便多个客户端访问服务器的同一个监听端口（如 80），由于源 IP/源端口不同，服务器也能为每个客户端建立并区分出各自独立的 Socket 连接。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 TCP 流量控制的目的以及接收窗口 RcvWindow 的计算方法。", "options": [], "answer": "", "knowledge_point": "TCP 流量控制", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：TCP 流量控制的目的是实现发送方与接收方之间的速度匹配，防止发送方发送数据的速度超过接收方应用进程从缓存中读取数据的速度，从而避免接收缓存溢出。接收方在其发送的 Segment 首部中携带接收窗口字段 RcvWindow，用以告知发送方自己接收缓存中的剩余可用空间：RcvWindow = RcvBuffer - [LastByteRcvd - LastByteRead]，即缓存总容量减去已收到但尚未被上层应用读走的数据量。发送方据此保证自己已发送但尚未被确认的数据总量不超过接收方通告的 RcvWindow，从而实现流量控制。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 TCP 快速重传机制的触发条件及其相比超时重传的优势。", "options": [], "answer": "", "knowledge_point": "快速重传", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：发送方通常会背靠背发送多个分组，若其中某个分组丢失，接收方收到该分组之后到达的后续分组时，会针对此前已确认过的数据重复发送 ACK（即冗余 ACK）。TCP 规定：若发送方收到对同一数据的 3 个冗余 ACK，就判定该数据之后的段很可能已经丢失，从而在重传定时器真正超时之前就立即重传该段，这就是快速重传。相比纯粹依赖超时检测丢包，快速重传能够更早地发现并修复丢包（不必等待通常设置得较长的 TimeoutInterval 到期），显著缩短了丢包恢复所需的时间，提高了传输效率。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 TCP 三次握手和四次挥手各自的步骤及所涉及的关键状态。", "options": [], "answer": "", "knowledge_point": "TCP 连接管理", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：三次握手：（1）客户端发送 SYN 段（携带自选初始序号），进入 SYN_SENT 状态；（2）服务器收到 SYN 后为连接分配缓存，回复携带自身初始序号并确认客户端 SYN 的 SYNACK 段，进入 SYN_RCVD 状态；（3）客户端收到 SYNACK 后回复 ACK 段（可携带数据），双方均进入 ESTABLISHED 状态，连接建立完成。四次挥手：（1）client 发送 FIN 段，进入 FIN_WAIT_1；（2）server 收到 FIN 回复 ACK 并进入 CLOSE_WAIT（仍可继续发送数据），client 收到 ACK 后进入 FIN_WAIT_2；（3）server 数据发送完毕后发送自己的 FIN，进入 LAST_ACK；（4）client 收到该 FIN 后回复 ACK，并进入 TIME_WAIT 状态等待 2MSL 后关闭；server 收到最终 ACK 后连接关闭。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "结合伪首部的构成，阐述 UDP 校验和的计算过程，并说明为何伪首部要包含源、目的 IP 地址等网络层信息。", "options": [], "answer": "", "knowledge_point": "UDP 校验和计算", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<u>伪首部构成</u>：源 IP 地址（32 位）、目的 IP 地址（32 位）、一个全 0 字节、协议号（UDP 为 17）、UDP 总长度，伪首部本身不会被真正发送，只是在计算校验和时临时参与运算。<u>计算过程</u>：发送方将伪首部、UDP 首部、应用数据三部分依次视为若干个 16 位整数，对这些整数求和（sum），若产生进位则将进位值回卷加到 sum 的末尾，最终把 sum 按位取反（反码）得到校验和 checksum，并填入 UDP 首部的校验和字段；接收方收到报文后，按同样方法对（伪首部+首部+数据）重新计算 16 位整数序列之和，若结果各位全为 1（即为 1111111111111111），说明传输过程中没有发生差错，否则认为数据已损坏。<u>伪首部包含网络层信息的原因</u>：UDP 本身并不知道数据报的源、目的 IP 地址，把这些信息纳入校验和计算范围，可以在传输层额外校验\"这个 UDP 段确实是发给正确目的主机、来自正确源主机\"这一关联信息，从而检测出因路由错误或地址篡改等原因导致的段被误投递到错误 IP 地址的情况，弥补了 UDP 首部本身不包含 IP 地址字段的不足。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "阐述 TCP 三次握手和四次挥手为何分别需要\"三次\"和\"四次\"报文交互，而不能减少一次。", "options": [], "answer": "", "knowledge_point": "TCP 连接管理", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<u>三次握手</u>：建立连接需要双方各自确认\"对方的初始序号\"并确保\"双方都已就绪、且这一就绪状态被对方感知\"。第一次（SYN）让服务器获知客户端的初始序号；第二次（SYNACK）让客户端获知服务器的初始序号，同时确认收到了客户端的 SYN；第三次（ACK）让服务器确认客户端也收到了服务器的初始序号。如果只有两次握手，服务器在发出 SYNACK 后就直接进入 ESTABLISHED 状态并可能开始处理连接，但如果这个 SYNACK 或者客户端最后的确认在网络中丢失或延迟，会导致服务器为一个实际上未被客户端确认的连接分配了资源，也无法防止历史失效的 SYN 请求被误认为是新的连接请求，因此至少需要三次交互才能让双方都确认\"对方已经收到我的初始序号\"。<u>四次挥手</u>：因为 TCP 是全双工的，连接的两个方向需要独立关闭。当 client 发送 FIN 后，只表示 client 不再发送数据，但 server 可能仍有数据要发给 client，因此 server 收到 FIN 后先回复 ACK（此时只是确认收到关闭请求，自己方向的数据尚未发完），待 server 自己的数据也发送完毕后才发送自己的 FIN 请求关闭反方向。因此\"server 收到 FIN\"和\"server 自己关闭\"是两个可能不同时发生的独立事件，必须用两次报文（ACK 和之后的 FIN）分别表示，再加上 client 一侧的 FIN 和最终 ACK，一共需要四次交互，这与三次握手中服务器的确认和自身初始化可以合并在同一个 SYNACK 段中完成（因而只需三次）有所不同。", "pitfall": ""}, {"type": "essay", "points": 10, "question": "系统阐述 TCP 拥塞控制的完整机制，包括 AIMD、慢启动、拥塞避免的切换条件、Threshold 更新规则、以及 3 个重复 ACK 与超时两种丢包检测方式下发送方动作的区别。", "options": [], "answer": "", "knowledge_point": "TCP 拥塞控制", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：TCP 拥塞控制的总体思路是发送方用拥塞窗口 CongWin 限制自己已发送但未被确认的数据量，通过感知丢包事件（超时或 3 个冗余 ACK）来判断网络是否拥塞，并动态调整 CongWin。<u>AIMD（加性增、乘性减）</u>：在拥塞避免阶段，每个 RTT 将 CongWin 增大 1 个 MSS（加性增，谨慎探测可用带宽）；一旦发生丢包，将 CongWin 减半（乘性减，快速回避拥塞），二者共同作用使 CongWin 随时间呈锯齿状变化。<u>慢启动</u>：连接刚建立或超时后重新开始时，CongWin 初始为 1 个 MSS，每收到一个 ACK 就增加 1 个 MSS，效果是每个 RTT 使 CongWin 翻倍，指数增长，目的是快速逼近可用带宽。<u>切换条件</u>：变量 Threshold 决定何时从慢启动切换到拥塞避免——当 CongWin 达到（大于等于）Threshold 时，由指数增长切换为线性增长（拥塞避免）。<u>Threshold 更新规则</u>：每当发生 Loss 事件，都将 Threshold 设为该事件发生前 CongWin 值的一半。<u>两种丢包检测方式的区别</u>：若通过 3 个重复 ACK 检测到丢包，说明网络仍能传输部分后续分组，拥塞程度相对较轻，因此令 Threshold=CongWin/2，CongWin=Threshold，直接进入拥塞避免阶段线性增长（快速恢复，TCP Reno 的做法）；若通过超时检测到丢包，说明拥塞更为严重（网络长时间没有任何确认返回），因此令 Threshold=CongWin/2，同时将 CongWin 直接降到 1 个 MSS，重新进入慢启动阶段指数增长（TCP Tahoe 对两种情况均如此处理，不加区分）。这种\"分级响应\"机制使 TCP 既能在轻度拥塞时快速恢复吞吐率，又能在严重拥塞时果断退避，避免火上浇油。", "pitfall": ""}, {"type": "comprehensive", "points": 20, "question": "某 TCP 连接的 MSS=1KB，α=0.125，β=0.25。<br><br>(1) 【6分】已知当前 EstimatedRTT=100ms，DevRTT=20ms，某次测得的新 SampleRTT=180ms。请计算更新后的 EstimatedRTT、DevRTT，以及本次应设置的 TimeoutInterval。<br>(2) 【7分】该连接在拥塞窗口 CongWin=32KB 时发生了一次超时。请问：①超时后 Threshold 与 CongWin 应分别被设为多少？②若接下来连续 5 个 RTT 内所有段都被成功确认（未再发生丢包），请逐个 RTT 给出 CongWin 的大小，并指出从第几个 RTT 开始进入拥塞避免阶段。<br>(3) 【7分】若该连接经历长期稳定传输，丢包率 L=4×10⁻⁸，RTT=80ms。请用 TCP 吞吐率近似公式估算其平均吞吐率（结果用 Mbps 或 Gbps 表示，1KB=1024字节，可取 √(1/L)≈5000）。", "options": [], "answer": "", "knowledge_point": "RTT估计、拥塞窗口演化追踪、TCP吞吐率公式综合应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><u>(1) RTT 估计</u>：$EstimatedRTT=(1-0.125)\\times100+0.125\\times180=87.5+22.5=110$ ms。$DevRTT=(1-0.25)\\times20+0.25\\times|180-110|=15+0.25\\times70=15+17.5=32.5$ ms。$TimeoutInterval=EstimatedRTT+4\\times DevRTT=110+4\\times32.5=110+130=240$ ms。<br><u>(2) 拥塞窗口追踪</u>：①超时事件属于严重拥塞信号：$Threshold=CongWin/2=32/2=16$ KB，$CongWin$ 直接降为 $1$ MSS $=1$ KB，重新进入慢启动。②慢启动阶段每个 RTT 使 CongWin 翻倍，直至达到 Threshold=16KB：第 1 个 RTT 后 CongWin=2KB；第 2 个 RTT 后 CongWin=4KB；第 3 个 RTT 后 CongWin=8KB；第 4 个 RTT 后 CongWin=16KB（达到 Threshold，慢启动结束，从第 5 个 RTT 起进入拥塞避免线性增长阶段）；第 5 个 RTT 后（拥塞避免阶段每 RTT 只增加 1 个 MSS）CongWin=17KB。综上：CongWin 依次为 2KB、4KB、8KB、16KB、17KB，从<span class=\\\"kp\\\">第 5 个 RTT</span>开始进入拥塞避免阶段。<br><u>(3) 吞吐率估算</u>：$Throughput \\approx \\dfrac{1.22\\times MSS}{RTT\\sqrt{L}}$。其中 $MSS=1KB=8192$ bit，$RTT=0.08$ s，$\\sqrt{1/L}=\\sqrt{1/(4\\times10^{-8})}=\\sqrt{2.5\\times10^{7}}\\approx 5000$（题目已给出近似值，本质是 $\\sqrt{1/L}=\\sqrt{1/L}$，即 $1/\\sqrt{L}\\approx5000$）。代入：$Throughput\\approx\\dfrac{1.22\\times8192\\text{ bit}\\times5000}{0.08\\text{ s}}\\approx\\dfrac{1.22\\times8192\\times5000}{0.08}\\approx 6.25\\times10^{8}$ bit/s $\\approx 625$ Mbps（约 0.6 Gbps）。该结果表明：即使丢包率低至 $4\\times10^{-8}$ 这样的量级，经典基于丢包的 TCP 拥塞控制在 80ms RTT 下也只能支撑约几百 Mbps 的吞吐率，若要达到 10Gbps 级别的吞吐率，所需的丢包率将比这更低几个数量级，这正是高速网络场景下需要 CUBIC、基于时延的拥塞控制等改进算法的原因。", "pitfall": ""}];
+var LABELS = {"page_title": "章节测试", "section": {"choice": "一、选择题", "tf": "二、判断题", "short": "三、简答题", "essay": "四、问答题", "comprehensive": "五、综合题"}, "section_order": ["choice", "tf", "short", "essay", "comprehensive"], "points_suffix": "分", "true_label": "正确", "false_label": "错误", "placeholder": "在此作答...", "pitfall_prefix": "易错提醒：", "correct_label": "正确", "wrong_label": "错误", "answer_prefix": "正确答案：", "reference_label": "参考答案", "graded_label": "已批改", "grade_button": "提交批改", "unanswered_label": "未作答", "wrong_review_title": "错题分析文档", "wrong_review_intro": "本次收录 __COUNT__ 道客观题错题。可以下载 Markdown 文档，或复制整段内容交给模型做错因分析和二次学习规划。", "no_wrong_questions": "本次客观题没有错题。主观题请对照参考答案自行复盘。", "download_wrong_review": "下载错题文档", "copy_wrong_review_prompt": "复制错题分析 Prompt", "score_label": "总分", "duration_prefix": "满分 100 分 | 建议 ", "duration_suffix": " 分钟 | 选择答案后点击提交批改"};
+var WRONG_REVIEW_PROMPT = "";
+var LAST_WRONG_REVIEW = '';
+
+function pointsOf(q) {
+  return q.points || q.score || 0;
+}
+
+function stripHtml(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// Convert Markdown fenced code blocks (```lang\n...\n```) and inline `code`
+// to <pre><code> / <code> HTML, then convert \n to <br> for plain text lines.
+function formatQuestion(text) {
+  if (!text) return '';
+  // 1. Replace fenced code blocks: ```lang\ncode\n```
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    var escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    var cls = lang ? ' class="language-' + lang + '"' : '';
+    return '<pre><code' + cls + '>' + escaped + '</code></pre>';
+  });
+  // 2. Replace inline backtick `code`
+  text = text.replace(/`([^`\n]+)`/g, function(_, code) {
+    var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<code>' + escaped + '</code>';
+  });
+  // 3. Convert remaining \n to <br> (outside pre blocks already handled above)
+  // Split on <pre>...</pre> so we don't double-process code blocks
+  var parts = text.split(/(<pre>[\s\S]*?<\/pre>)/);
+  for (var i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      parts[i] = parts[i].replace(/\n/g, '<br>');
+    }
+  }
+  return parts.join('');
+}
+
+function answerText(q, value) {
+  if (value === null || value === undefined || value === '') return LABELS.unanswered_label;
+  var idx = parseInt(value);
+  if (q.type === 'choice') {
+    return String.fromCharCode(65 + idx) + '. ' + ((q.options && q.options[idx]) ? stripHtml(q.options[idx]) : '');
+  }
+  if (q.type === 'tf') {
+    return idx === 0 ? LABELS.true_label : LABELS.false_label;
+  }
+  return String(value);
+}
+
+function normalizedAnswer(q) {
+  if (q.type === 'tf') {
+    if (q.answer === LABELS.true_label || q.answer === true || q.answer === 'true') return 0;
+    if (q.answer === LABELS.false_label || q.answer === false || q.answer === 'false') return 1;
+  }
+  return parseInt(q.answer);
+}
+
+function questionTypeLabel(type) {
+  return LABELS.section[type] || type;
+}
+
+function build(){
+  var container = document.getElementById('questions-container');
+  if (!container) { console.error('ExamPass: questions-container not found'); return; }
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var s = q.type;
+    if (s !== sec) {
+      sec = s;
+      if (titles[s]) {
+        h += '<h3>' + titles[s] + '</h3>';
+      }
+    }
+
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i+1) + '. (' + pointsOf(q) + ' ' + LABELS.points_suffix + ')</div>';
+    h += '<div class="q-text">' + formatQuestion(q.question) + '</div>';
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65+j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">' + LABELS.true_label + '</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">' + LABELS.false_label + '</label>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="' + LABELS.placeholder + '" rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + q.explanation + '</div>';
+    if (q.pitfall) {
+      h += '<div class="pitfall">' + LABELS.pitfall_prefix + q.pitfall + '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+
+  // Re-render MathJax for dynamically inserted formulas
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  build();
+}
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('selected');
+  }
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) {
+    target.classList.add('selected');
+  }
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+function gradeAll() {
+  var score = 0;
+  var wrongItems = [];
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      var radio = document.querySelector('input[name="' + qid + '"]:checked');
+      var correctIndex = normalizedAnswer(q);
+      if (radio && parseInt(radio.value) === correctIndex) {
+        score += pointsOf(q);
+        card.classList.add('correct');
+        badge.className = 'badge badge-ok';
+        badge.textContent = LABELS.correct_label;
+        correctEl.innerHTML = '';
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+      } else {
+        card.classList.add('wrong');
+        badge.className = 'badge badge-no';
+        badge.textContent = LABELS.wrong_label;
+        var ansText = answerText(q, correctIndex);
+        correctEl.innerHTML = LABELS.answer_prefix + ansText;
+        if (radio) {
+          var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+          if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+        }
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+        wrongItems.push({
+          number: i + 1,
+          type: questionTypeLabel(q.type),
+          points: pointsOf(q),
+          question: stripHtml(q.question),
+          options: (q.options || []).map(stripHtml),
+          userAnswer: answerText(q, radio ? radio.value : null),
+          correctAnswer: ansText,
+          explanation: stripHtml(q.explanation),
+          pitfall: stripHtml(q.pitfall || ''),
+          knowledgePoint: stripHtml(q.knowledge_point || q.knowledgePoint || '')
+        });
+      }
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = LABELS.reference_label;
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = score;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+
+  var opts = document.querySelectorAll('.option');
+  for (var i = 0; i < opts.length; i++) opts[i].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var i = 0; i < tas.length; i++) tas[i].disabled = true;
+
+  var btn = document.getElementById('grade-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = LABELS.graded_label;
+  }
+
+  buildWrongReview(wrongItems);
+
+  // Re-render MathJax for revealed explanations
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise().catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+function buildWrongReview(wrongItems) {
+  var box = document.getElementById('wrong-review-box');
+  if (!box) return;
+
+  LAST_WRONG_REVIEW = renderWrongReviewMarkdown(wrongItems);
+
+  if (!wrongItems.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<h3>' + LABELS.wrong_review_title + '</h3><p>' + LABELS.no_wrong_questions + '</p>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = [
+    '<h3>' + LABELS.wrong_review_title + '</h3>',
+    '<p>' + LABELS.wrong_review_intro.replace('__COUNT__', wrongItems.length) + '</p>',
+    '<div class="wrong-review-actions">',
+    '<button type="button" onclick="downloadWrongReview()">' + LABELS.download_wrong_review + '</button>',
+    '<button type="button" onclick="copyWrongReviewPrompt()">' + LABELS.copy_wrong_review_prompt + '</button>',
+    '</div>',
+    '<textarea id="wrong-review-text" readonly rows="12">' + LAST_WRONG_REVIEW.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea>'
+  ].join('');
+}
+
+function renderWrongReviewMarkdown(wrongItems) {
+  var now = new Date().toLocaleString();
+  var lines = [];
+
+  lines.push('# ExamPass 错题分析文档');
+  lines.push('');
+  lines.push('- 生成时间：' + now);
+  lines.push('- 错题数量：' + wrongItems.length);
+  lines.push('');
+  lines.push('## 给模型的错题分析 Prompt');
+  lines.push('');
+  if (WRONG_REVIEW_PROMPT) {
+    lines.push(WRONG_REVIEW_PROMPT);
+  } else {
+    lines.push('请根据下面的错题记录，分析我的错因，并给出继续学习方案。要求：');
+    lines.push('1. 按知识模块归类错题，不要只逐题复述答案；');
+    lines.push('2. 判断每道题错在概念定义、公式推导、图表理解、条件适用、计算步骤、概念混淆还是审题；');
+    lines.push('3. 对涉及公式或推导的错题，补全从前提到结论的推导链条，不能跳步；');
+    lines.push('4. 对选择题，解释我选错选项为什么有迷惑性，以及正确选项和错误选项的关键边界；');
+    lines.push('5. 给出需要回看课件的具体知识点、图表、公式和页/章节线索；');
+    lines.push('6. 最后生成一份二次学习清单和 5 道针对这些薄弱点的进阶训练题。');
+  }
+  lines.push('');
+  lines.push('## 错题记录');
+  lines.push('');
+
+  if (!wrongItems.length) {
+    lines.push('本次没有客观题错题。');
+    return lines.join('\n');
+  }
+
+  for (var i = 0; i < wrongItems.length; i++) {
+    var item = wrongItems[i];
+    lines.push('### 错题 ' + (i + 1) + '：第 ' + item.number + ' 题');
+    lines.push('');
+    lines.push('- 题型：' + item.type);
+    lines.push('- 分值：' + item.points);
+    lines.push('- 题干：' + item.question);
+    if (item.options.length) {
+      lines.push('- 选项：');
+      for (var j = 0; j < item.options.length; j++) {
+        lines.push('  - ' + String.fromCharCode(65 + j) + '. ' + item.options[j]);
+      }
+    }
+    lines.push('- 我的答案：' + item.userAnswer);
+    lines.push('- 正确答案：' + item.correctAnswer);
+    lines.push('- 解析：' + item.explanation);
+    if (item.pitfall) lines.push('- 易错点：' + item.pitfall);
+    if (item.knowledgePoint) lines.push('- 对应知识点：' + item.knowledgePoint);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function downloadWrongReview() {
+  if (!LAST_WRONG_REVIEW) return;
+  var blob = new Blob([LAST_WRONG_REVIEW], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '错题分析文档.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyWrongReviewPrompt() {
+  var text = LAST_WRONG_REVIEW || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.getElementById('wrong-review-text');
+    if (ta) {
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+    }
+  }
+}
+
+</script>
+</body>
+</html>

@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 3：数据链路层与局域网</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+/* === Interactive Test Styles === */
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.q-text pre {
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+  padding: 10px 14px; margin: 8px 0; overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  line-height: 1.5; white-space: pre;
+}
+.q-text code {
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+}
+
+/* ── Options (compact) ── */
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* ── Textareas (compact) ── */
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ── Result after grading ── */
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+/* ── Grading button ── */
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+/* ── Wrong-question review document ── */
+.wrong-review-box {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 18px 0;
+}
+.wrong-review-box h3 {
+  margin-top: 0;
+}
+.wrong-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-review-actions button {
+  font-size: 0.92em;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.wrong-review-actions button:hover {
+  background: #000;
+}
+#wrong-review-text {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  line-height: 1.5;
+  background: #fff;
+  resize: vertical;
+}
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 3：数据链路层与局域网</h1>
+<h2 style="text-align:center">章节测试</h2>
+<p style="text-align:center;color:var(--ink-light);font-size:0.95em">满分100分</p>
+
+<div id="score-box"><div class="score-num" id="score-num">0</div><div class="score-label">总分</div></div>
+<div id="questions-container"></div>
+<div class="grading-bar no-print"><button onclick="gradeAll()" id="grade-btn">提交批改</button></div>
+<div id="wrong-review-box" class="wrong-review-box no-print"></div>
+
+<script>
+var Q = [{"type": "choice", "points": 2, "question": "在字节填充（byte stuffing）组帧方法中，若原始数据中出现了与转义字符 ESC 完全相同的字节，发送方应如何处理？", "options": ["直接删除该字节", "在其前面插入一个 ESC 字符", "将其替换为 FLAG 字符", "无需处理，接收方会自动识别"], "answer": 1, "knowledge_point": "组帧方法-字节填充", "diagnosis_hint": "容易只记得对 FLAG 字节转义，忘记 ESC 字节本身出现时也需要转义", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：字节填充规则中，不仅数据中出现的 FLAG 字节需要在前面插入 ESC 转义，ESC 字节本身出现在数据中时也必须在其前插入一个 ESC，否则接收方无法区分该 ESC 是转义符还是数据本身，会导致后续解析错乱。", "pitfall": "只记得处理 FLAG 冲突，漏掉 ESC 自身冲突的情况。"}, {"type": "choice", "points": 2, "question": "关于 CRC 校验码，若生成比特模式 G 占 r+1 位，则计算出的余数 R 应占多少位？", "options": ["r-1 位", "r 位", "r+1 位", "2r 位"], "answer": 1, "knowledge_point": "差错检测-CRC", "diagnosis_hint": "把 G 与 R 的位数搞混，误以为二者位数相同", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：模2除法中，余数的位数总是比除数（生成模式 G）少 1 位。G 占 r+1 位，因此余数 R 恰好占 r 位，发送时在数据 D 后面补上这 r 位 R 一起发送。", "pitfall": "误认为 R 与 G 位数相同，实际二者相差 1 位。"}, {"type": "choice", "points": 2, "question": "某编码方案的码字集合为 {000000, 010101, 101010, 111111}，其最小汉明距离为 3。该编码最多能纠正几位比特差错？", "options": ["0 位", "1 位", "2 位", "3 位"], "answer": 1, "knowledge_point": "汉明距离与纠错能力", "diagnosis_hint": "混淆检错位数与纠错位数的公式，误用 d_min=r+1 而非 d_min=2r+1", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：纠正 r 位差错需要最小汉明距离 $d_{min}\\ge 2r+1$。已知 $d_{min}=3$，代入 $3=2r+1$ 解得 $r=1$，即该编码最多能纠正 1 位比特差错（同时能检测 2 位差错）。", "pitfall": "误用检错公式 d_min≥r+1 计算，得到错误的纠错位数。"}, {"type": "choice", "points": 2, "question": "rdt2.1 协议相比 rdt2.0，最主要的改进是什么？", "options": ["引入了超时重传定时器", "为分组和确认消息添加了序号以应对 ACK/NAK 本身受损的情况", "改用累积确认机制", "允许发送方连续发送多个分组"], "answer": 1, "knowledge_point": "rdt协议演进", "diagnosis_hint": "把 rdt2.1 的改进误认为是引入定时器（那是 rdt3.0 的改进）", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：rdt2.0 的缺陷在于 ACK/NAK 本身可能受损，发送方无法判断该重传还是继续发送。rdt2.1 通过为分组和 ACK/NAK 添加 0/1 序号，使发送方在收到含糊的确认时可以直接重传当前序号分组，接收方也能借助序号去重，从而解决该问题。引入定时器是 rdt3.0 应对丢包问题的改进。", "pitfall": "将 rdt2.1、rdt2.2、rdt3.0 三次改进的动机和手段互相混淆。"}, {"type": "choice", "points": 2, "question": "在 GBN 协议中，发送方按序号 0~9 连续发送了 10 个分组，之后依次收到了对分组 0、2、4 的累积确认 ACK。此时发送方应重传哪些分组？", "options": ["只重传分组 1 和 3", "重传分组 5、6、7、8、9", "重传分组 0 到 9 全部分组", "无需重传，等待后续确认"], "answer": 1, "knowledge_point": "GBN累积确认", "diagnosis_hint": "误以为GBN会对失序确认单独处理，忽略累积确认的含义", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：GBN 使用累积确认，ACK(n) 表示序号 n 及之前的分组均已正确按序收到。收到 ACK(4) 意味着分组 0~4 全部确认，窗口基序号移动到 5。若此后超时，发送方需要重传窗口内所有已发送但未确认的分组，即分组 5、6、7、8、9。", "pitfall": "误以为 ACK 2、ACK 4 分别只确认单个分组（那是 SR 的做法）。"}, {"type": "choice", "points": 2, "question": "若选择重传（SR）协议使用 4 比特作为序号字段，那么发送窗口大小最大可以是多少？", "options": ["4", "8", "15", "16"], "answer": 1, "knowledge_point": "滑动窗口大小约束", "diagnosis_hint": "误用 GBN 的窗口公式 2^k-1，或忘记除以2", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：序号占 k=4 位，序号空间为 $2^4=16$。SR 协议要求 $W \\le 2^{k-1} = 2^{4-1} = 8$，所以窗口最大为 8。若误用 GBN 公式 $2^k-1=15$ 则是错误答案。", "pitfall": "混淆 GBN（2^k-1）与 SR（2^(k-1)）两种窗口上限公式。"}, {"type": "choice", "points": 2, "question": "某以太网使用 CSMA/CD，发送速率 R=10Mbps，网络中两节点间最大距离 d=1000m，信号传播速度 V=2×10^8 m/s，则理论上的最小帧长约为多少比特？", "options": ["10 比特", "50 比特", "100 比特", "1000 比特"], "answer": 2, "knowledge_point": "CSMA/CD最小帧长计算", "diagnosis_hint": "单位换算出错，或忘记乘以2（往返传播时延）", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：$L_{min} \\ge R \\times \\dfrac{2d}{V} = 10\\times10^6 \\times \\dfrac{2\\times1000}{2\\times10^8} = 10\\times10^6 \\times 10^{-5} = 100$ 比特。计算时要注意距离需要乘以 2（信号需要一个往返传播时延才能保证发送方检测到碰撞）。", "pitfall": "忘记乘以 2（单程距离误当作往返距离），或速率与时间单位换算错误。"}, {"type": "choice", "points": 2, "question": "关于时隙 ALOHA 协议的最大信道利用率，以下说法正确的是？", "options": ["接近 100%", "约为 37%（1/e）", "约为 18%（1/2e）", "恒为 50%"], "answer": 1, "knowledge_point": "随机访问协议效率", "diagnosis_hint": "把时隙ALOHA与纯ALOHA的效率数值搞反或搞混", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：当 N 个节点都以最优概率 $p=1/N$ 在时隙 ALOHA 中发送时，随着 N 增大，最大信道利用率趋近于 $1/e\\approx37\\%$。纯 ALOHA 的最大利用率是其一半，约为 $1/2e\\approx18\\%$。", "pitfall": "把 37% 和 18% 分别对应的协议（时隙ALOHA / 纯ALOHA）记反。"}, {"type": "choice", "points": 2, "question": "关于 MAC 地址与 IP 地址的区别，以下描述正确的是？", "options": ["MAC 地址是层次化地址，IP 地址是平面地址", "MAC 地址是平面地址，IP 地址是层次化地址", "两者都是层次化地址，只是长度不同", "两者都是平面地址，只是长度不同"], "answer": 1, "knowledge_point": "MAC地址特性", "diagnosis_hint": "把两种地址的层次性描述搞反", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：MAC 地址是固化在网卡上的 48 位全局唯一平面地址，不具有地理或拓扑上的层次结构，无法聚合路由；IP 地址由网络号和主机号组成，具有层次结构，支持路由聚合，这也是网络层能够在大规模互联网中高效路由的关键原因之一。", "pitfall": "把\"平面地址\"和\"层次化地址\"对应的地址类型记反。"}, {"type": "choice", "points": 2, "question": "当同一个 VLAN 的成员分布在多台交换机上时，交换机之间通常通过什么方式实现跨交换机的 VLAN 帧转发？", "options": ["普通接入端口（Access Port）直接转发", "干道端口（Trunk Port）配合 802.1Q 帧格式", "直接使用 IP 路由转发", "必须为每个 VLAN 单独布线连接"], "answer": 1, "knowledge_point": "VLAN跨交换机转发", "diagnosis_hint": "不清楚trunk端口与access端口的区别，或误以为VLAN转发依赖网络层路由", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：跨交换机的同一 VLAN 通信依赖交换机之间的干道端口（Trunk Port），该链路上传输的帧采用 802.1Q 格式，在标准以太网帧中插入 4 字节 Tag（含 TPID 和 TCI 字段，TCI 中 12 比特标识 VLAN ID），使得下一台交换机能够识别该帧所属的 VLAN 并正确转发到对应的接入端口。", "pitfall": "把跨交换机VLAN转发与三层路由转发混淆。"}, {"type": "tf", "points": 1, "question": "在低误码率的有线链路（如光纤）上，数据链路层通常仍然会实现完整的可靠数据传输机制，而不是交给传输层处理。", "options": [], "answer": false, "knowledge_point": "链路层服务模型", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：低误码率链路（如光纤、双绞线）通常将可靠交付交给传输层完成，链路层不重复实现完整的可靠传输机制，以避免不必要的开销；无线等高误码率链路才更倾向于在链路层直接实现可靠传输或纠错。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "比特填充法中，发送方每检测到连续 5 个 1，就在其后插入一个 0，以避免数据中出现与帧边界标志相同的比特模式。", "options": [], "answer": true, "knowledge_point": "组帧方法-比特填充", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：比特填充法以 01111110 作为帧边界标志，为避免该模式在数据中意外出现，发送方每遇到连续 5 个 1 就插入一个 0，接收方收到连续 5 个 1 后面跟着 0 时则将该 0 删除还原数据。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "二维奇偶校验不仅能检测差错，还能在恰好发生单比特差错时定位并纠正该差错。", "options": [], "answer": true, "knowledge_point": "奇偶校验", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：二维奇偶校验对每一行和每一列都设置校验位，当只发生单比特差错时，出错的行校验和列校验会同时报错，二者的交叉点即为出错比特的位置，从而实现纠错。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "因特网校验和（Internet Checksum）的检错能力强于 CRC 校验码。", "options": [], "answer": false, "knowledge_point": "差错检测方法比较", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：三种差错检测方法的检错能力从弱到强依次为：奇偶校验 < 因特网校验和 < CRC。CRC 的检错能力最强，因此被广泛用于链路层（如以太网），而因特网校验和计算开销小，多用于网络层/传输层首部检验。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "rdt2.2 是一个\"无 NAK\"协议，接收方通过对上一个正确接收分组的冗余 ACK 来隐式地告知发送方需要重传。", "options": [], "answer": true, "knowledge_point": "rdt2.2协议", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：rdt2.2 取消了 NAK 消息，接收方对失序或受损分组直接重发上一个正确接收分组的 ACK（冗余 ACK），发送方收到两个相同序号的 ACK 即判断需要重传下一个分组，效果与显式 NAK 相同。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "选择重传（SR）协议中，接收方允许缓存失序到达的分组，并对每个正确接收的分组单独发送确认。", "options": [], "answer": true, "knowledge_point": "选择重传SR", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：这正是 SR 与 GBN 的关键区别：SR 接收方逐个确认并缓存失序分组，发送方超时只需重传该特定未确认分组，而不必重传窗口内的全部分组。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "TDMA 和 FDMA 协议中，即使某个节点当前没有数据要发送，分配给它的时隙或频段也不能被其他节点使用，存在信道利用率浪费的问题。", "options": [], "answer": true, "knowledge_point": "信道划分协议", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：TDMA、FDMA 属于静态信道划分协议，资源按节点固定分配，负载不均衡时会造成部分时隙/频段闲置浪费，这也是随机访问协议被提出的动机之一。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "以太网帧中的类型字段用于标识该帧数据部分对应的上层协议，例如 IP 或 ARP。", "options": [], "answer": true, "knowledge_point": "以太网帧结构", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：以太网帧的 2 字节类型字段标识数据字段封装的网络层协议类型，接收方据此将数据字段正确交付给对应的上层协议处理模块（如 IP 或 ARP）。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "交换机进行\"自学习\"时，依据的是每个到达帧的目的 MAC 地址与到达接口的对应关系。", "options": [], "answer": false, "knowledge_point": "交换机自学习", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：自学习依据的是帧的<strong>源</strong> MAC 地址与到达接口的对应关系，交换机据此更新交换表；而转发/过滤时才依据帧的<strong>目的</strong> MAC 地址查表决定转发接口，两者不可混淆。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "PPP 协议在同步链路上一般采用零比特填充实现透明传输，而在异步链路上采用字节填充。", "options": [], "answer": true, "knowledge_point": "PPP透明传输", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：PPP 帧以 0x7E 作为边界标志，同步链路上使用零比特填充（连续5个1后插0）保证透明传输，异步链路上则使用字节填充（遇到 0x7E 或 0x7D 时插入转义字符 0x7D 并对原字节做异或变换）。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述数据链路层组帧的四种基本方法及各自的核心思想。", "options": [], "answer": "", "knowledge_point": "组帧方法", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：①字节计数法：在帧首部用一个计数字段说明帧内字节数，接收方据此确定帧尾，缺点是计数字段出错会导致差错传播；②字节填充法：用 FLAG 字节标识帧首尾，数据中出现 FLAG 或 ESC 时在其前插入 ESC 转义；③比特填充法：以特定比特模式（如01111110）作为边界，数据中连续5个1后插入一个0；④物理层编码违禁法：利用物理层编码中不会在正常数据中出现的信号模式（如曼彻斯特编码的非法跳变）作为帧边界，不占用额外比特开销。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 CRC 循环冗余校验码的基本计算原理（生成余数 R 的过程）以及接收方如何利用 R 判断是否出错。", "options": [], "answer": "", "knowledge_point": "CRC原理", "disgnosis_hint": "", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：发送方与接收方事先约定一个 r+1 位的生成比特模式 G（首末位均为1）。发送方将 D 比特数据左移 r 位（相当于乘以 $2^r$），再用模2除法（异或代替减法）除以 G，所得的 r 位余数即为 R。发送方将 D 与 R 拼接后一起发送。接收方收到比特串后同样用 G 做模2除法，若余数为 0 则判定无差错，否则判定传输过程中发生了差错。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 CSMA/CD 协议的完整工作流程（从网卡获得数据报到成功发送或退避重试）。", "options": [], "answer": "", "knowledge_point": "CSMA/CD算法", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：①网卡从网络层获得数据报并封装成帧；②若检测信道空闲则立即开始发送，若信道忙则持续等待直到空闲；③在发送过程中持续监听信道，检测是否发生碰撞；④若检测到碰撞，立即停止发送并发出一段阻塞信号（jam signal），通知其他节点也发生了碰撞；⑤中止发送后，执行二进制指数退避算法，等待一段随机时间（第n次碰撞后从{0,...,2^min(n,10)-1}中随机选K，等待K×512比特时间）后返回步骤②重新尝试发送。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述交换机自学习（self-learning）与转发/过滤（forward/filter）的工作机制。", "options": [], "answer": "", "knowledge_point": "交换机自学习", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：自学习：交换机检查每个到达帧的源 MAC 地址及其到达接口，将 {MAC地址, 接口, 时间戳} 记录/更新到交换表中，以此了解各主机所在的接口位置。转发/过滤：交换机查表判断帧的目的 MAC 地址对应的接口——若表中无该地址记录或目的地址为广播地址，则向除入口外的所有接口转发（flooding）；若查到的接口与入口相同，说明目的主机与源主机在同一网段，直接丢弃（过滤）该帧；否则只向查到的对应接口转发，从而实现有选择的高效转发。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "论述 rdt 协议从 rdt1.0 演进到 rdt3.0 的过程中，每一步分别针对信道的哪种缺陷进行了改进，以及采用了什么机制解决。", "options": [], "answer": "", "knowledge_point": "rdt协议演进", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：rdt1.0 假设信道完全可靠，无需任何机制。rdt2.0 针对信道可能出现比特差错，引入 ACK/NAK 反馈机制，接收方正确则回 ACK，出错则回 NAK 要求重传，但存在 ACK/NAK 本身受损时发送方无法判断的缺陷。rdt2.1 针对该缺陷，为分组和确认消息添加 0/1 序号，使发送方在收到含糊确认时可直接重传当前序号分组，接收方凭序号去重。rdt2.2 在 rdt2.1 基础上取消 NAK，改用对上一个正确接收分组的冗余 ACK 隐式表达&ldquo;需要重传&rdquo;，简化协议。rdt3.0 进一步针对信道可能丢包的缺陷，引入倒计时定时器，发送方发出分组后启动定时器，超时未收到确认即重传，同时依赖序号避免冗余分组被重复交付。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "论述流水线技术相较于停等协议的优势，并说明 GBN 与 SR 两种滑动窗口协议在窗口大小上限（与序号位数 k 的关系）方面的区别及其原因。", "options": [], "answer": "", "knowledge_point": "滑动窗口协议", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：停等协议每发送一个分组必须等待确认才能发送下一个，发送方利用率 $U=t_{trans}/(RTT+t_{trans})$，在高时延带宽积链路上效率极低。流水线技术允许发送方连续发送多个分组而不必逐一等待确认，显著提高了信道利用率。设序号占 k 比特，GBN 接收窗口恒为1（只按序接收，失序丢弃），发送窗口上限为 $2^k-1$；SR 允许失序缓存，发送窗口与接收窗口相等，上限为 $2^{k-1}$，是 GBN 的一半。原因在于 SR 允许接收方缓存超前到达的分组，若窗口大小超过序号空间的一半，新一轮分组序号会与仍滞留在接收窗口中的上一轮旧分组序号重叠，接收方将无法区分新旧分组，从而错误地接受重复的旧分组或丢弃新分组；GBN 由于接收方不缓存失序分组，不存在该重叠风险，因此窗口上限可以更大。", "pitfall": ""}, {"type": "essay", "points": 10, "question": "论述引入 VLAN 的动机，并说明基于端口的 VLAN 划分方式以及跨交换机 VLAN 通信所依赖的 802.1Q 帧格式的组成。", "options": [], "answer": "", "knowledge_point": "VLAN与802.1Q", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：动机：在传统交换式局域网中，所有接口默认属于同一个广播域，随着网络规模扩大会带来广播风暴、安全隔离性差、部门间流量无法逻辑隔离等问题。VLAN 允许在物理上同一台（或多台）交换机上，将不同接口逻辑划分为多个相互隔离的广播域，同一 VLAN 内的主机可以二层直接通信，不同 VLAN 之间默认二层隔离（需三层路由才能互通），从而提升安全性、简化管理、减小广播域范围。基于端口的 VLAN 划分方式由管理员静态地将交换机的每个接口分配给某个 VLAN 编号，同一 VLAN 编号下的接口构成一个逻辑局域网。当同一 VLAN 成员跨越多台交换机时，交换机间通过干道端口（Trunk Port）互连，链路上传输的帧采用 802.1Q 格式：在标准以太网帧的源地址字段后插入 4 字节 Tag，包含 2 字节 TPID（固定为 0x8100，标识这是一个 802.1Q 帧）和 2 字节 TCI（其中 3 比特为优先级、1 比特为 CFI 标志位、12 比特为 VLAN ID，可标识最多 4096 个 VLAN），下游交换机据此识别帧所属 VLAN 并转发到正确的接入端口。", "pitfall": ""}, {"type": "comprehensive", "points": 20, "question": "综合题（共20分，含3小问）：<br>(1)（6分）某以太网使用 CSMA/CD 协议，发送速率 R=100Mbps，网络中两节点间最大距离 d_max=2000m，信号传播速度 V=2×10^5 km/s，求理论上的最小帧长（分别用比特和字节表示）。<br>(2)（6分）某链路层协议使用 3 比特作为分组序号字段，分别求出在 GBN 协议和 SR 协议下发送窗口的最大取值。<br>(3)（8分）一台 6 接口交换机连接主机 A（接口1）、B（接口2）、C（接口3），交换表初始为空。依次发生以下事件：①A 向 C 发送一帧；②C 向 A 发送一帧；③B 向 A 发送一帧。请说明每一步交换机交换表的更新情况，以及该帧是被&ldquo;洪泛（flooding）&rdquo;还是&ldquo;选择性转发&rdquo;。", "options": [], "answer": "", "knowledge_point": "CSMA/CD计算、滑动窗口计算、交换机自学习综合应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><strong>(1)</strong> 传播时延 $2d_{max}/V = 2\\times2000\\text{m} / (2\\times10^5\\text{km/s}) = 4000\\text{m}/(2\\times10^8\\text{m/s}) = 2\\times10^{-5}\\text{s} = 20\\mu s$。最小帧长 $L_{min}=R\\times 20\\mu s = 100\\times10^6 \\times 20\\times10^{-6} = 2000$ 比特 $= 250$ 字节。<br><br><strong>(2)</strong> 序号占 k=3 位，序号空间为 $2^3=8$。GBN：接收窗口为1，发送窗口上限 $W_s\\le 2^3-1=7$。SR：$W\\le 2^{3-1}=4$，即发送窗口（等于接收窗口）最大为 4。<br><br><strong>(3)</strong> ①A--&gt;C：交换机在接口1收到帧，学习到 {A, 接口1}；查表中无 C 的记录，故向除接口1外的所有接口（接口2、接口3等）洪泛转发。②C--&gt;A：交换机在接口3收到帧，学习到 {C, 接口3}；查表中已有 A 对应接口1的记录，故只向接口1选择性转发（过滤掉其他接口）。③B--&gt;A：交换机在接口2收到帧，学习到 {B, 接口2}；查表中已有 A 对应接口1的记录，故只向接口1选择性转发。最终交换表包含 {A:接口1, C:接口3, B:接口2} 三条记录。", "pitfall": ""}];
+var LABELS = {"page_title": "章节测试", "section": {"choice": "一、选择题", "tf": "二、判断题", "short": "三、简答题", "essay": "四、问答题", "comprehensive": "五、综合题"}, "section_order": ["choice", "tf", "short", "essay", "comprehensive"], "points_suffix": "分", "true_label": "正确", "false_label": "错误", "placeholder": "在此作答...", "pitfall_prefix": "易错提醒：", "correct_label": "正确", "wrong_label": "错误", "answer_prefix": "正确答案：", "reference_label": "参考答案", "graded_label": "已批改", "grade_button": "提交批改", "unanswered_label": "未作答", "wrong_review_title": "错题分析文档", "wrong_review_intro": "本次收录 __COUNT__ 道客观题错题。可以下载 Markdown 文档，或复制整段内容交给模型做错因分析和二次学习规划。", "no_wrong_questions": "本次客观题没有错题。主观题请对照参考答案自行复盘。", "download_wrong_review": "下载错题文档", "copy_wrong_review_prompt": "复制错题分析 Prompt", "score_label": "总分", "duration_prefix": "满分 100 分 | 建议 ", "duration_suffix": " 分钟 | 选择答案后点击提交批改"};
+var WRONG_REVIEW_PROMPT = "";
+var LAST_WRONG_REVIEW = '';
+
+function pointsOf(q) {
+  return q.points || q.score || 0;
+}
+
+function stripHtml(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// Convert Markdown fenced code blocks (```lang\n...\n```) and inline `code`
+// to <pre><code> / <code> HTML, then convert \n to <br> for plain text lines.
+function formatQuestion(text) {
+  if (!text) return '';
+  // 1. Replace fenced code blocks: ```lang\ncode\n```
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    var escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    var cls = lang ? ' class="language-' + lang + '"' : '';
+    return '<pre><code' + cls + '>' + escaped + '</code></pre>';
+  });
+  // 2. Replace inline backtick `code`
+  text = text.replace(/`([^`\n]+)`/g, function(_, code) {
+    var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<code>' + escaped + '</code>';
+  });
+  // 3. Convert remaining \n to <br> (outside pre blocks already handled above)
+  // Split on <pre>...</pre> so we don't double-process code blocks
+  var parts = text.split(/(<pre>[\s\S]*?<\/pre>)/);
+  for (var i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      parts[i] = parts[i].replace(/\n/g, '<br>');
+    }
+  }
+  return parts.join('');
+}
+
+function answerText(q, value) {
+  if (value === null || value === undefined || value === '') return LABELS.unanswered_label;
+  var idx = parseInt(value);
+  if (q.type === 'choice') {
+    return String.fromCharCode(65 + idx) + '. ' + ((q.options && q.options[idx]) ? stripHtml(q.options[idx]) : '');
+  }
+  if (q.type === 'tf') {
+    return idx === 0 ? LABELS.true_label : LABELS.false_label;
+  }
+  return String(value);
+}
+
+function normalizedAnswer(q) {
+  if (q.type === 'tf') {
+    if (q.answer === LABELS.true_label || q.answer === true || q.answer === 'true') return 0;
+    if (q.answer === LABELS.false_label || q.answer === false || q.answer === 'false') return 1;
+  }
+  return parseInt(q.answer);
+}
+
+function questionTypeLabel(type) {
+  return LABELS.section[type] || type;
+}
+
+function build(){
+  var container = document.getElementById('questions-container');
+  if (!container) { console.error('ExamPass: questions-container not found'); return; }
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var s = q.type;
+    if (s !== sec) {
+      sec = s;
+      if (titles[s]) {
+        h += '<h3>' + titles[s] + '</h3>';
+      }
+    }
+
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i+1) + '. (' + pointsOf(q) + ' ' + LABELS.points_suffix + ')</div>';
+    h += '<div class="q-text">' + formatQuestion(q.question) + '</div>';
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65+j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">' + LABELS.true_label + '</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">' + LABELS.false_label + '</label>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="' + LABELS.placeholder + '" rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + q.explanation + '</div>';
+    if (q.pitfall) {
+      h += '<div class="pitfall">' + LABELS.pitfall_prefix + q.pitfall + '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+
+  // Re-render MathJax for dynamically inserted formulas
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  build();
+}
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('selected');
+  }
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) {
+    target.classList.add('selected');
+  }
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+function gradeAll() {
+  var score = 0;
+  var wrongItems = [];
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      var radio = document.querySelector('input[name="' + qid + '"]:checked');
+      var correctIndex = normalizedAnswer(q);
+      if (radio && parseInt(radio.value) === correctIndex) {
+        score += pointsOf(q);
+        card.classList.add('correct');
+        badge.className = 'badge badge-ok';
+        badge.textContent = LABELS.correct_label;
+        correctEl.innerHTML = '';
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+      } else {
+        card.classList.add('wrong');
+        badge.className = 'badge badge-no';
+        badge.textContent = LABELS.wrong_label;
+        var ansText = answerText(q, correctIndex);
+        correctEl.innerHTML = LABELS.answer_prefix + ansText;
+        if (radio) {
+          var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+          if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+        }
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+        wrongItems.push({
+          number: i + 1,
+          type: questionTypeLabel(q.type),
+          points: pointsOf(q),
+          question: stripHtml(q.question),
+          options: (q.options || []).map(stripHtml),
+          userAnswer: answerText(q, radio ? radio.value : null),
+          correctAnswer: ansText,
+          explanation: stripHtml(q.explanation),
+          pitfall: stripHtml(q.pitfall || ''),
+          knowledgePoint: stripHtml(q.knowledge_point || q.knowledgePoint || '')
+        });
+      }
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = LABELS.reference_label;
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = score;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+
+  var opts = document.querySelectorAll('.option');
+  for (var i = 0; i < opts.length; i++) opts[i].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var i = 0; i < tas.length; i++) tas[i].disabled = true;
+
+  var btn = document.getElementById('grade-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = LABELS.graded_label;
+  }
+
+  buildWrongReview(wrongItems);
+
+  // Re-render MathJax for revealed explanations
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise().catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+function buildWrongReview(wrongItems) {
+  var box = document.getElementById('wrong-review-box');
+  if (!box) return;
+
+  LAST_WRONG_REVIEW = renderWrongReviewMarkdown(wrongItems);
+
+  if (!wrongItems.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<h3>' + LABELS.wrong_review_title + '</h3><p>' + LABELS.no_wrong_questions + '</p>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = [
+    '<h3>' + LABELS.wrong_review_title + '</h3>',
+    '<p>' + LABELS.wrong_review_intro.replace('__COUNT__', wrongItems.length) + '</p>',
+    '<div class="wrong-review-actions">',
+    '<button type="button" onclick="downloadWrongReview()">' + LABELS.download_wrong_review + '</button>',
+    '<button type="button" onclick="copyWrongReviewPrompt()">' + LABELS.copy_wrong_review_prompt + '</button>',
+    '</div>',
+    '<textarea id="wrong-review-text" readonly rows="12">' + LAST_WRONG_REVIEW.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea>'
+  ].join('');
+}
+
+function renderWrongReviewMarkdown(wrongItems) {
+  var now = new Date().toLocaleString();
+  var lines = [];
+
+  lines.push('# ExamPass 错题分析文档');
+  lines.push('');
+  lines.push('- 生成时间：' + now);
+  lines.push('- 错题数量：' + wrongItems.length);
+  lines.push('');
+  lines.push('## 给模型的错题分析 Prompt');
+  lines.push('');
+  if (WRONG_REVIEW_PROMPT) {
+    lines.push(WRONG_REVIEW_PROMPT);
+  } else {
+    lines.push('请根据下面的错题记录，分析我的错因，并给出继续学习方案。要求：');
+    lines.push('1. 按知识模块归类错题，不要只逐题复述答案；');
+    lines.push('2. 判断每道题错在概念定义、公式推导、图表理解、条件适用、计算步骤、概念混淆还是审题；');
+    lines.push('3. 对涉及公式或推导的错题，补全从前提到结论的推导链条，不能跳步；');
+    lines.push('4. 对选择题，解释我选错选项为什么有迷惑性，以及正确选项和错误选项的关键边界；');
+    lines.push('5. 给出需要回看课件的具体知识点、图表、公式和页/章节线索；');
+    lines.push('6. 最后生成一份二次学习清单和 5 道针对这些薄弱点的进阶训练题。');
+  }
+  lines.push('');
+  lines.push('## 错题记录');
+  lines.push('');
+
+  if (!wrongItems.length) {
+    lines.push('本次没有客观题错题。');
+    return lines.join('\n');
+  }
+
+  for (var i = 0; i < wrongItems.length; i++) {
+    var item = wrongItems[i];
+    lines.push('### 错题 ' + (i + 1) + '：第 ' + item.number + ' 题');
+    lines.push('');
+    lines.push('- 题型：' + item.type);
+    lines.push('- 分值：' + item.points);
+    lines.push('- 题干：' + item.question);
+    if (item.options.length) {
+      lines.push('- 选项：');
+      for (var j = 0; j < item.options.length; j++) {
+        lines.push('  - ' + String.fromCharCode(65 + j) + '. ' + item.options[j]);
+      }
+    }
+    lines.push('- 我的答案：' + item.userAnswer);
+    lines.push('- 正确答案：' + item.correctAnswer);
+    lines.push('- 解析：' + item.explanation);
+    if (item.pitfall) lines.push('- 易错点：' + item.pitfall);
+    if (item.knowledgePoint) lines.push('- 对应知识点：' + item.knowledgePoint);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function downloadWrongReview() {
+  if (!LAST_WRONG_REVIEW) return;
+  var blob = new Blob([LAST_WRONG_REVIEW], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '错题分析文档.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyWrongReviewPrompt() {
+  var text = LAST_WRONG_REVIEW || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.getElementById('wrong-review-text');
+    if (ta) {
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+    }
+  }
+}
+
+</script>
+</body>
+</html>

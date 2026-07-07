@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 4：网络层</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+/* === Interactive Test Styles === */
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.q-text pre {
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+  padding: 10px 14px; margin: 8px 0; overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  line-height: 1.5; white-space: pre;
+}
+.q-text code {
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+}
+
+/* ── Options (compact) ── */
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* ── Textareas (compact) ── */
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ── Result after grading ── */
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+/* ── Grading button ── */
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+/* ── Wrong-question review document ── */
+.wrong-review-box {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 18px 0;
+}
+.wrong-review-box h3 {
+  margin-top: 0;
+}
+.wrong-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-review-actions button {
+  font-size: 0.92em;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.wrong-review-actions button:hover {
+  background: #000;
+}
+#wrong-review-text {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  line-height: 1.5;
+  background: #fff;
+  resize: vertical;
+}
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 4：网络层</h1>
+<h2 style="text-align:center">章节测试</h2>
+<p style="text-align:center;color:var(--ink-light);font-size:0.95em">满分100分</p>
+
+<div id="score-box"><div class="score-num" id="score-num">0</div><div class="score-label">总分</div></div>
+<div id="questions-container"></div>
+<div class="grading-bar no-print"><button onclick="gradeAll()" id="grade-btn">提交批改</button></div>
+<div id="wrong-review-box" class="wrong-review-box no-print"></div>
+
+<script>
+var Q = [{"type": "choice", "points": 2, "question": "关于路由器的\"转发\"和\"路由选择\"，下列说法正确的是？", "options": ["转发是指确定分组从源到目的经过的路径，路由是指将分组从输入端口转移到输出端口", "转发是指将分组从路由器的输入端口转移到合适的输出端口，路由是指确定分组从源到目的经过的路径", "转发和路由是同一个概念的两种叫法，没有区别", "转发只发生在源主机，路由只发生在路由器"], "answer": 1, "knowledge_point": "数据平面与控制平面", "diagnosis_hint": "混淆了转发（数据平面，路由器本地查表动作）与路由选择（控制平面，全局路径计算）的定义", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：转发（forwarding）属于数据平面，是路由器根据本地转发表把分组从输入端口送到合适输出端口的硬件级动作；路由选择（routing）属于控制平面，是运行路由算法计算全网路径、生成转发表的过程。二者层次不同，不可颠倒。", "pitfall": "转发＝本地查表送出分组；路由＝全局计算路径，不要弄反。"}, {"type": "choice", "points": 2, "question": "关于虚电路（VC）网络，下列说法错误的是？", "options": ["虚电路网络在传送数据前需要经过建立连接的过程", "同一条虚电路在其经过的每段链路上使用的 VCID 通常相同", "路由器需要为每条虚电路维护连接状态信息", "路由器会根据 VC 转发表将分组的 VCID 字段重写后再转发"], "answer": 1, "knowledge_point": "虚电路网络", "diagnosis_hint": "误以为 VCID 全程不变，忽略了 VCID 是逐链路本地分配并由路由器重写的", "explanation": "<strong>正确答案</strong>：B（此说法错误，是本题应选项）<br><br><strong>推理过程</strong>：VCID 只具有本地链路意义，同一条虚电路在不同链路段上使用的 VCID 通常并不相同，路由器需要查 VC 表将输入 VCID 重写为输出链路对应的 VCID 后再转发，因此 B 项说法是错误的，应选 B。", "pitfall": "VCID 是逐段重写的，不是全程唯一不变的标识。"}, {"type": "choice", "points": 2, "question": "关于路由器的\"队头阻塞（HOL blocking）\"，下列描述正确的是？", "options": ["指输出端口缓存耗尽导致分组被丢弃的现象", "指输入端口采用 FIFO 队列时，排在队首因目的端口忙而无法转发的分组，阻塞了后面本可转发到其他空闲端口的分组", "指交换结构因采用共享总线导致的带宽瓶颈", "指路由选择处理器计算路径过慢导致的转发延迟"], "answer": 1, "knowledge_point": "路由器体系结构", "diagnosis_hint": "将队头阻塞与输出端口拥塞、总线带宽瓶颈等其他概念混淆", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：HOL 阻塞特指输入端口 FIFO 队列排队时，队首分组因其目的输出端口繁忙而阻塞了后面原本可转发到其他空闲输出端口的分组，是一种输入排队带来的性能损失。", "pitfall": "HOL 阻塞发生在输入端口排队环节，而非输出端口本身。"}, {"type": "choice", "points": 2, "question": "IP 数据报首部中的 TTL 字段的主要作用是？", "options": ["标记数据报的服务质量等级", "防止数据报在网络中无限循环转发", "标识数据报所属的上层协议", "记录数据报经过的总时间（秒）"], "answer": 1, "knowledge_point": "IPv4 首部字段", "diagnosis_hint": "将 TTL 理解为真实计时的\"生存时间\"，而非跳数限制", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：TTL 每经过一台路由器减 1，减到 0 时数据报被丢弃，其本质作用是限制数据报可经过的最大路由器跳数，从而防止分组在路由环路中无限转发。", "pitfall": "TTL 是跳数计数器，不是真实的秒级计时器。"}, {"type": "choice", "points": 2, "question": "一个 IP 数据报总长度（含 20 字节首部，无选项）为 2400 字节，要经过 MTU 为 620 字节的链路转发，最少需要分成多少片？", "options": ["3 片", "4 片", "5 片", "6 片"], "answer": 1, "knowledge_point": "IP 分片计算", "diagnosis_hint": "忘记先计算每片最大数据长度 d，直接用总长度除以 MTU", "explanation": "<strong>正确答案</strong>：B（4 片）<br><br><strong>推理过程</strong>：$d=\\lfloor(620-20)/8\\rfloor\\times8=600$ 字节；数据部分总长度 $=2400-20=2380$ 字节；分片数 $n=\\lceil 2380/600\\rceil=\\lceil 3.97\\rceil=4$ 片。", "pitfall": "必须先扣除 20 字节首部得到数据部分长度，再除以 d，且要向上取整。"}, {"type": "choice", "points": 2, "question": "某主机 IP 地址为 140.20.34.100，子网掩码为 255.255.240.0，该主机所在的子网地址是？", "options": ["140.20.0.0", "140.20.32.0", "140.20.34.0", "140.20.48.0"], "answer": 1, "knowledge_point": "子网掩码与子网划分", "diagnosis_hint": "直接对第三字节做四舍五入或截断，而不是按位与运算", "explanation": "<strong>正确答案</strong>：B（140.20.32.0）<br><br><strong>推理过程</strong>：掩码 255.255.240.0 的第三字节为 240=11110000。IP 第三字节 34=00100010，与 11110000 按位与得 00100000=32，因此子网地址为 140.20.32.0。", "pitfall": "子网地址计算必须是按位\"与\"运算，不能简单按十进制取整。"}, {"type": "choice", "points": 2, "question": "路由器转发表中存在两条路由：200.23.16.0/20 和 200.23.18.0/23，若目的地址为 200.23.18.5 的分组同时匹配这两条路由，应采用哪条路由转发？", "options": ["200.23.16.0/20，因为它在表中排在前面", "200.23.18.0/23，因为其前缀更长", "两条路由同时使用，负载均衡转发", "都不使用，丢弃该分组"], "answer": 1, "knowledge_point": "最长前缀匹配", "diagnosis_hint": "误以为按路由表条目顺序或按前缀较短（覆盖范围更大）的路由优先匹配", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：CIDR 转发遵循最长前缀匹配原则，/23 比 /20 前缀更长、更精确，因此应选择 200.23.18.0/23 这条路由转发，与路由表书写顺序无关。", "pitfall": "最长前缀匹配只看前缀长度，不看路由表条目排列顺序。"}, {"type": "choice", "points": 2, "question": "关于 ARP 协议的工作机制，下列说法正确的是？", "options": ["ARP 查询报文以单播方式发送，回答报文以广播方式发送", "ARP 查询报文以广播方式发送，只有匹配的目的主机以单播方式回答", "ARP 只能用于解析不同局域网之间主机的 MAC 地址", "ARP 表项永久有效，不需要超时更新"], "answer": 1, "knowledge_point": "ARP 协议", "diagnosis_hint": "混淆了 ARP 查询和回复各自使用的广播/单播方式", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：ARP 查询以目的 MAC 地址全 1（FF-FF-FF-FF-FF-FF）的广播帧发送，局域网内所有主机都会收到；只有 IP 地址匹配的目的主机才以单播方式回复自己的 MAC 地址。ARP 只用于同一局域网内的地址解析，且 ARP 表项有约 20 分钟的生存时间限制。", "pitfall": "查询广播、回答单播，且 ARP 仅作用于同一局域网内。"}, {"type": "choice", "points": 2, "question": "NAT 路由器利用端口号字段进行地址转换，理论上一个公网 IP 地址最多可支持约多少个并发映射连接？", "options": ["约 1000 个", "约 60000 多个", "约 100 万个", "没有数量限制"], "answer": 1, "knowledge_point": "NAT 机制", "diagnosis_hint": "不清楚端口号字段为 16 位，误估算连接数量级", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：TCP/UDP 端口号字段为 16 位，理论上可表示 $2^{16}=65536$ 个不同端口，因此一个公网 IP 地址搭配 NAT 端口转换最多可支持约 6 万多个并发连接映射。", "pitfall": "端口号是 16 位字段，2^16≈65536，而不是任意大。"}, {"type": "choice", "points": 2, "question": "在链路状态路由选择算法（Dijkstra）的朴素实现中，对于有 n 个节点的网络，其时间复杂度为？", "options": ["O(n)", "O(n log n)", "O(n^2)", "O(2^n)"], "answer": 2, "knowledge_point": "Dijkstra 算法复杂度", "diagnosis_hint": "不了解朴素实现每轮都要线性扫描寻找最小 D(v)，共需 n 轮", "explanation": "<strong>正确答案</strong>：C（O(n^2)）<br><br><strong>推理过程</strong>：Dijkstra 算法需要进行 n 轮迭代，每一轮都要在未确定节点集合中线性查找 D(v) 最小的节点，因此朴素实现的时间复杂度为 O(n^2)（若采用堆优化可降为 O(n log n)）。", "pitfall": "朴素实现是 O(n^2)，堆优化后才是 O(n log n)，两者不要混用。"}, {"type": "tf", "points": 1, "question": "路由器的数据平面通常由硬件实现、以纳秒级速度处理分组，而控制平面通常由软件实现、以毫秒或秒级完成路由计算。", "options": [], "answer": true, "knowledge_point": "数据平面与控制平面", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：数据平面完成的是逐分组的转发动作，要求极高速率，通常用专用硬件实现；控制平面完成路由计算等相对低频的任务，通常由软件完成，时间尺度也更长。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "在虚电路网络中，同一条虚电路上的所有链路都使用相同的 VCID 标识。", "options": [], "answer": false, "knowledge_point": "虚电路网络", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：VCID 只具有本地链路意义，路由器会依据 VC 转发表将分组的 VCID 字段逐链路重写，因此同一条虚电路在不同链路段上的 VCID 通常并不相同。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "\"经内存交换\"是第一代路由器采用的交换方式，分组需要在 CPU 控制下两次穿越系统总线（输入端口到内存，内存到输出端口）。", "options": [], "answer": true, "knowledge_point": "路由器交换结构", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：经内存交换是最早期（第一代）路由器的实现方式，分组由 CPU 控制先从输入端口拷贝到内存，再从内存拷贝到目的输出端口，需要两次穿越总线，速率受限于内存带宽。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "IP 首部中的\"区分服务\"（TOS/DiffServ）字段自 1998 年后被重新定义，实际使用中该字段大多数情况下取值为 0。", "options": [], "answer": true, "knowledge_point": "IPv4 首部字段", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：该字段最初设计用于服务类型（TOS）标记，1998 年被重新定义为区分服务（DiffServ），在实际网络中大多数普通流量该字段仍置为 0，只有需要区分服务质量的场景才会设置具体值。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "由于 IP 数据报的 TTL 字段每经过一台路由器都会变化，因此路由器需要逐跳重新计算首部校验和。", "options": [], "answer": true, "knowledge_point": "IPv4 首部字段", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：首部校验和覆盖整个 IP 首部，TTL 每跳递减会导致首部内容变化，因此每台路由器转发时都必须重新计算并填写首部校验和字段。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "根据 RFC 1918，A 类私有 IP 地址的范围是 172.16.0.0 – 172.31.255.255。", "options": [], "answer": false, "knowledge_point": "私有 IP 地址范围", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：172.16.0.0–172.31.255.255 是 B 类私有地址范围；A 类私有地址范围是 10.0.0.0–10.255.255.255（即 10.0.0.0/8）。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "IPv6 数据报采用固定 40 字节首部，不支持路径中间路由器分片，也没有首部校验和字段。", "options": [], "answer": true, "knowledge_point": "IPv6 首部特点", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：IPv6 为提高路由器处理效率简化了首部，固定为 40 字节；取消了首部校验和字段（由其他层保证）；分片只能由源主机完成，中间路由器不再执行分片。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "根据 ICMP 协议规定，对于 ICMP 差错报文本身，路由器不会再发送新的 ICMP 差错报文。", "options": [], "answer": true, "knowledge_point": "ICMP 协议", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：这是四种不发送 ICMP 差错报文的例外情形之一，目的是防止 ICMP 差错报文互相触发形成无限循环。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "距离向量路由算法中的\"毒性逆转\"技术可以彻底解决无穷计数问题，无论环路涉及多少个节点。", "options": [], "answer": false, "knowledge_point": "无穷计数问题", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：毒性逆转只能解决两个节点之间互相成环的情形，对于涉及三个及以上节点的更大环路，无穷计数问题仍可能发生，并不能被彻底根治。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "BGP 中，eBGP 会话运行在不同自治系统的网关路由器之间，iBGP 会话运行在同一自治系统内部的路由器之间，用于扩散外部可达性信息。", "options": [], "answer": true, "knowledge_point": "BGP 协议", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：eBGP 用于在不同 AS 的边界路由器之间学习外部网络的可达性信息；iBGP 则将这些从 eBGP 学到的路由信息在本 AS 内部所有路由器之间传播扩散，两者分工明确。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述\"转发\"与\"路由选择\"的区别，并说明转发表与路由选择算法之间的关系。", "options": [], "answer": "", "knowledge_point": "数据平面与控制平面", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：转发是指路由器将一个分组从输入端口转移到合适的输出端口的本地动作，属于数据平面，通常由硬件实现，处理速度达纳秒级；路由选择是指确定分组从源到目的所经过路径的全局计算过程，属于控制平面，通常由软件（路由协议）实现，处理速度为毫秒到秒级。二者的联系是：路由选择算法通过计算全网拓扑得到最优路径，并将结果写入路由器的转发表；转发动作则直接依据这张已经算好的转发表进行本地查表和分组分发，不需要在转发时重新计算路径。因此转发表是路由选择算法运行的产物，转发依赖路由选择的输出结果。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述路由器交换结构的三种实现方式（经内存交换、经总线交换、经互联网络交换）及其各自特点。", "options": [], "answer": "", "knowledge_point": "路由器交换结构", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）经内存交换：分组在 CPU 控制下先从输入端口拷贝到路由器内存，再从内存拷贝到目的输出端口，属于第一代路由器方案，需要两次穿越总线，交换速率受限于内存带宽和 CPU 处理能力。（2）经总线交换：输入端口通过一条共享总线直接将分组发送到输出端口，不经过路由选择处理器，避免了内存交换的两次拷贝，但同一时刻总线只能传送一个分组，交换带宽受总线带宽限制，是共享资源的瓶颈。（3）经互联网络交换：采用纵横式（crossbar）等多路径互联网络结构，允许多个分组在不冲突的输入输出对之间并行传输，克服了总线单一通路的限制，具有更高的并行交换能力，是高性能路由器普遍采用的方案。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 IP 数据报中标识（Identification）、标志（DF/MF）、片偏移三个字段在分片与重组过程中各自的作用。", "options": [], "answer": "", "knowledge_point": "IP 分片重组", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：标识字段：同一原始数据报分片后，所有分片都携带相同的标识值，目的主机据此判断哪些分片属于同一个原始数据报，是重组时匹配分片的依据。标志字段：其中 DF（Don't Fragment）位置 1 表示不允许对该数据报分片，若链路 MTU 不足则该数据报会被丢弃；MF（More Fragment）位置 1 表示后面还有更多分片，置 0 表示这是最后一个分片，是重组时判断是否已收齐所有分片的依据。片偏移字段：以 8 字节为单位，记录该分片数据部分在原始数据报数据流中的相对位置，目的主机据此将各个分片按正确顺序拼接还原为原始数据报。三者协同工作，共同支持了 IP 数据报跨越不同 MTU 链路时的分片与在目的主机的重组。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 DHCP 协议获取 IP 地址配置的四条报文交互过程。", "options": [], "answer": "", "knowledge_point": "DHCP 协议", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：DHCP 基于 UDP 并采用广播方式，共经历四步：（1）DHCP discover：新加入网络的主机广播发送发现报文，寻找可用的 DHCP 服务器；（2）DHCP offer：一个或多个 DHCP 服务器收到发现报文后，各自广播回复一个包含可分配 IP 地址、子网掩码、默认网关、租期等信息的提供报文；（3）DHCP request：主机从收到的多个提供中选择一个，广播发送请求报文确认接受该配置（同时告知网络上未被选中的服务器可以释放对应地址）；（4）DHCP ACK：被选中的服务器广播发送确认报文，正式将该配置租约分配给主机，主机自此获得可用的 IP 地址等网络配置。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "比较虚电路网络与数据报网络在建立连接、路由器状态维护、分组头部内容、路径稳定性等方面的差异，并说明因特网属于哪一类。", "options": [], "answer": "", "knowledge_point": "VC 与数据报网络对比", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：（1）建立连接：虚电路网络在传送数据前需要经历建立连接的过程，源到目的的路径在此阶段确定；数据报网络不需要建立连接，每个分组独立转发。（2）路由器状态：虚电路网络中路径上每台路由器都要为每条虚电路维护连接状态（如 VC 转发表项）；数据报网络中路由器不维护针对某条流的状态，只维护通用的按目的地址组织的转发表。（3）分组头部内容：虚电路分组头部携带 VCID（虚电路号），路由器据此查表转发并重写 VCID；数据报分组头部携带完整的目的地址，路由器按目的地址前缀查表转发。（4）路径稳定性：虚电路网络中同一条连接的所有分组走固定路径；数据报网络中同一条流的不同分组可能经过不同路径，路径不固定。因特网的网络层（IP 层）采用的是数据报网络模式：不需要建立连接，每个 IP 分组携带完整目的地址，独立地按最长前缀匹配转发。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "阐述 NAT（网络地址转换）的工作机制及其存在的主要争议，并列举至少两种解决 NAT 穿越问题的方法。", "options": [], "answer": "", "knowledge_point": "NAT 机制", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<u>工作机制</u>：NAT 路由器维护一张 NAT 转换表，记录内部主机的（私有 IP:端口）与对外呈现的（公网 IP:端口）之间的映射关系；内部主机发出的分组经过 NAT 路由器时，其源 IP 和源端口被替换为公网 IP 和一个分配的端口号，并记录该映射；外部返回的分组到达后，NAT 路由器依据目的端口号查表，将目的地址和端口还原为对应内部主机的私有 IP 和端口，再转发进内网。<u>动机</u>：缓解公网 IPv4 地址短缺、内部网络可自由重新编址而不影响外部访问、在一定程度上隐藏内部网络拓扑结构以提升安全性。<u>争议</u>：（1）违反了因特网端到端设计原则，中间设备不应修改分组内容；（2）路由器本应只工作在网络层（第三层），NAT 却需要读写传输层的端口号，破坏了分层设计；（3）使得外部主机难以主动发起连接到内部主机，破坏了 P2P 应用直接互联的能力；（4）部分人认为应通过全面部署 IPv6 从根本上解决地址短缺问题，而不是依赖 NAT 这种\"补丁\"方案。<u>NAT 穿越解决方法</u>（列举至少两种）：①静态端口转发，在 NAT 路由器上手动配置外部端口到内部主机固定端口的映射；②基于 UPnP/IGD 协议，让内网主机自动向 NAT 设备请求端口映射配置；③借助公网上的中继（Relay）服务器进行数据转发中转（如早期 Skype 的做法），双方都主动连接到该中继服务器完成通信。", "pitfall": ""}, {"type": "essay", "points": 10, "question": "为什么因特网需要采用层次化路由（划分自治系统）？请说明域内路由选择协议与域间路由选择协议为何要分开设计，并按顺序列出 BGP 在存在多条候选路由时的路由选择准则。", "options": [], "answer": "", "knowledge_point": "层次路由与 BGP", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<u>层次化路由的必要性</u>：一方面因特网规模极其庞大，若所有路由器运行统一的路由算法，路由表规模和路由信息交换量将随网络规模呈爆炸式增长，超出单一算法的处理能力（规模问题）；另一方面因特网由众多独立运营的网络组成，各网络管理者希望自主决定内部路由策略、不愿受制于统一的全局路由算法（管理自治性问题）。为此，因特网被划分为许多自治系统（AS），每个 AS 内部自主选择并运行域内路由选择协议，AS 之间再通过网关路由器运行域间路由选择协议，二者共同决定最终转发表。<u>分开设计的原因</u>：域内路由更关注在自身网络内部快速、高效地找到最优路径（性能优先，可自由选择 RIP、OSPF 等具体算法）；域间路由则更关注不同商业实体之间基于策略和商业关系的可达性控制（策略优先，而非单纯的最短路径），并且要应对远超单一 AS 内部的巨大网络规模，因此两者的设计目标（性能 vs. 策略）、规模需求和信任模型都不同，适合独立设计、分层协作。<u>BGP 路由选择准则（按顺序）</u>：①本地偏好值（local preference）最高者优先，体现网络管理者的策略偏好；②若本地偏好相同，选择 AS-PATH（所经过自治系统数）最短的路由；③若仍相同，选择到达 NEXT-HOP 路由器域内路径代价最小的路由（即热土豆路由，尽快离开本 AS）；④若以上均无法区分，则依据一组附加准则（如 BGP 标识符大小等）做最终决定。", "pitfall": ""}, {"type": "comprehensive", "points": 20, "question": "某企业路由器 R 通过接口 E1、E2、E3 分别连接局域网 LAN1、LAN2、LAN3，并通过接口 L0 连接到 ISP（互联网）。企业获得的地址块为 210.30.16.0/24。已知 LAN1 需要容纳至少 100 台主机，LAN2 需要容纳至少 50 台主机，LAN3 需要容纳至少 20 台主机。<br><br>(1) 【6分】源主机向 R 发送一个总长度 L=3800 字节（含 20 字节首部，无选项）、标识 ID=1234、DF=0 的 IP 数据报，R 需要将其通过 MTU=1400 字节的链路 L0 转发给 ISP。请计算分片数，并给出每个分片的总长度、片偏移（以 8 字节为单位的偏移值）和 MF 标志。<br>(2) 【7分】请给出一种合理的子网划分方案，将 210.30.16.0/24 划分给 LAN1、LAN2、LAN3（写出每个子网的网络地址、子网掩码、可用主机地址范围、广播地址），并说明是否还有剩余未分配的地址空间。<br>(3) 【7分】写出路由器 R 的转发表（包含 LAN1/LAN2/LAN3 的直连路由及到 ISP 的默认路由），并说明 ISP 一侧的上游路由器为何可以将这三个（及预留）子网聚合为一条 210.30.16.0/24 的路由对外通告。", "options": [], "answer": "", "knowledge_point": "IP分片、子网划分、转发表与路由聚合综合应用", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><u>(1) 分片计算</u>：$d=\\lfloor(1400-20)/8\\rfloor\\times8=1376$ 字节；数据部分总长度 $=3800-20=3780$ 字节；分片数 $n=\\lceil 3780/1376\\rceil=\\lceil 2.75\\rceil=3$ 片。各分片（均携带 ID=1234）：分片1：总长度 $=1376+20=1396$ 字节，片偏移 $=0$，MF=1；分片2：总长度 $=1396$ 字节，片偏移 $=1376/8\\times1=172$，MF=1；分片3：总长度 $=3800-2\\times1376=1048$ 字节，片偏移 $=1376/8\\times2=344$，MF=0。<br><u>(2) 子网划分方案</u>（按需求从大到小分配，采用变长子网掩码 VLSM）：LAN1（≥100 台主机，需 7 位主机位，2^7-2=126≥100）：210.30.16.0/25，掩码 255.255.255.128，可用地址 210.30.16.1–210.30.16.126，广播地址 210.30.16.127。LAN2（≥50 台主机，需 6 位主机位，2^6-2=62≥50）：210.30.16.128/26，掩码 255.255.255.192，可用地址 210.30.16.129–210.30.16.190，广播地址 210.30.16.191。LAN3（≥20 台主机，需 5 位主机位，2^5-2=30≥20）：210.30.16.192/27，掩码 255.255.255.224，可用地址 210.30.16.193–210.30.16.222，广播地址 210.30.16.223。剩余 210.30.16.224/27（210.30.16.224–210.30.16.255）尚未分配，可作为预留地址空间供未来扩展使用。<br><u>(3) 转发表与路由聚合</u>：R 的转发表应包含以下条目：目的网络 210.30.16.0/25，掩码 255.255.255.128，接口 E1（直连 LAN1）；目的网络 210.30.16.128/26，掩码 255.255.255.192，接口 E2（直连 LAN2）；目的网络 210.30.16.192/27，掩码 255.255.255.224，接口 E3（直连 LAN3）；默认路由 0.0.0.0/0.0.0.0，接口 L0，下一跳为 ISP 网关（用于所有非本企业内部地址的转发）。ISP 一侧的上游路由器之所以能够将 LAN1、LAN2、LAN3 及预留地址聚合为一条 210.30.16.0/24 路由对外通告，是因为：这四段地址共享相同的 24 位网络前缀 210.30.16.0/24；它们通往因特网其他部分的下一跳和出接口完全相同（都要经由路由器 R 才能到达）；将其聚合为一条 /24 路由既能显著减少上游路由表的条目数量，又不会产生\"黑洞\"问题——因为整个 210.30.16.0/24 地址块（包括预留部分）确实都合法地属于并路由至 R，聚合不会导致本不该转发到 R 的流量被错误地送到 R。", "pitfall": ""}];
+var LABELS = {"page_title": "章节测试", "section": {"choice": "一、选择题", "tf": "二、判断题", "short": "三、简答题", "essay": "四、问答题", "comprehensive": "五、综合题"}, "section_order": ["choice", "tf", "short", "essay", "comprehensive"], "points_suffix": "分", "true_label": "正确", "false_label": "错误", "placeholder": "在此作答...", "pitfall_prefix": "易错提醒：", "correct_label": "正确", "wrong_label": "错误", "answer_prefix": "正确答案：", "reference_label": "参考答案", "graded_label": "已批改", "grade_button": "提交批改", "unanswered_label": "未作答", "wrong_review_title": "错题分析文档", "wrong_review_intro": "本次收录 __COUNT__ 道客观题错题。可以下载 Markdown 文档，或复制整段内容交给模型做错因分析和二次学习规划。", "no_wrong_questions": "本次客观题没有错题。主观题请对照参考答案自行复盘。", "download_wrong_review": "下载错题文档", "copy_wrong_review_prompt": "复制错题分析 Prompt", "score_label": "总分", "duration_prefix": "满分 100 分 | 建议 ", "duration_suffix": " 分钟 | 选择答案后点击提交批改"};
+var WRONG_REVIEW_PROMPT = "";
+var LAST_WRONG_REVIEW = '';
+
+function pointsOf(q) {
+  return q.points || q.score || 0;
+}
+
+function stripHtml(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// Convert Markdown fenced code blocks (```lang\n...\n```) and inline `code`
+// to <pre><code> / <code> HTML, then convert \n to <br> for plain text lines.
+function formatQuestion(text) {
+  if (!text) return '';
+  // 1. Replace fenced code blocks: ```lang\ncode\n```
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    var escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    var cls = lang ? ' class="language-' + lang + '"' : '';
+    return '<pre><code' + cls + '>' + escaped + '</code></pre>';
+  });
+  // 2. Replace inline backtick `code`
+  text = text.replace(/`([^`\n]+)`/g, function(_, code) {
+    var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<code>' + escaped + '</code>';
+  });
+  // 3. Convert remaining \n to <br> (outside pre blocks already handled above)
+  // Split on <pre>...</pre> so we don't double-process code blocks
+  var parts = text.split(/(<pre>[\s\S]*?<\/pre>)/);
+  for (var i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      parts[i] = parts[i].replace(/\n/g, '<br>');
+    }
+  }
+  return parts.join('');
+}
+
+function answerText(q, value) {
+  if (value === null || value === undefined || value === '') return LABELS.unanswered_label;
+  var idx = parseInt(value);
+  if (q.type === 'choice') {
+    return String.fromCharCode(65 + idx) + '. ' + ((q.options && q.options[idx]) ? stripHtml(q.options[idx]) : '');
+  }
+  if (q.type === 'tf') {
+    return idx === 0 ? LABELS.true_label : LABELS.false_label;
+  }
+  return String(value);
+}
+
+function normalizedAnswer(q) {
+  if (q.type === 'tf') {
+    if (q.answer === LABELS.true_label || q.answer === true || q.answer === 'true') return 0;
+    if (q.answer === LABELS.false_label || q.answer === false || q.answer === 'false') return 1;
+  }
+  return parseInt(q.answer);
+}
+
+function questionTypeLabel(type) {
+  return LABELS.section[type] || type;
+}
+
+function build(){
+  var container = document.getElementById('questions-container');
+  if (!container) { console.error('ExamPass: questions-container not found'); return; }
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var s = q.type;
+    if (s !== sec) {
+      sec = s;
+      if (titles[s]) {
+        h += '<h3>' + titles[s] + '</h3>';
+      }
+    }
+
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i+1) + '. (' + pointsOf(q) + ' ' + LABELS.points_suffix + ')</div>';
+    h += '<div class="q-text">' + formatQuestion(q.question) + '</div>';
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65+j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">' + LABELS.true_label + '</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">' + LABELS.false_label + '</label>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="' + LABELS.placeholder + '" rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + q.explanation + '</div>';
+    if (q.pitfall) {
+      h += '<div class="pitfall">' + LABELS.pitfall_prefix + q.pitfall + '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+
+  // Re-render MathJax for dynamically inserted formulas
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  build();
+}
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('selected');
+  }
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) {
+    target.classList.add('selected');
+  }
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+function gradeAll() {
+  var score = 0;
+  var wrongItems = [];
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      var radio = document.querySelector('input[name="' + qid + '"]:checked');
+      var correctIndex = normalizedAnswer(q);
+      if (radio && parseInt(radio.value) === correctIndex) {
+        score += pointsOf(q);
+        card.classList.add('correct');
+        badge.className = 'badge badge-ok';
+        badge.textContent = LABELS.correct_label;
+        correctEl.innerHTML = '';
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+      } else {
+        card.classList.add('wrong');
+        badge.className = 'badge badge-no';
+        badge.textContent = LABELS.wrong_label;
+        var ansText = answerText(q, correctIndex);
+        correctEl.innerHTML = LABELS.answer_prefix + ansText;
+        if (radio) {
+          var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+          if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+        }
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+        wrongItems.push({
+          number: i + 1,
+          type: questionTypeLabel(q.type),
+          points: pointsOf(q),
+          question: stripHtml(q.question),
+          options: (q.options || []).map(stripHtml),
+          userAnswer: answerText(q, radio ? radio.value : null),
+          correctAnswer: ansText,
+          explanation: stripHtml(q.explanation),
+          pitfall: stripHtml(q.pitfall || ''),
+          knowledgePoint: stripHtml(q.knowledge_point || q.knowledgePoint || '')
+        });
+      }
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = LABELS.reference_label;
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = score;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+
+  var opts = document.querySelectorAll('.option');
+  for (var i = 0; i < opts.length; i++) opts[i].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var i = 0; i < tas.length; i++) tas[i].disabled = true;
+
+  var btn = document.getElementById('grade-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = LABELS.graded_label;
+  }
+
+  buildWrongReview(wrongItems);
+
+  // Re-render MathJax for revealed explanations
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise().catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+function buildWrongReview(wrongItems) {
+  var box = document.getElementById('wrong-review-box');
+  if (!box) return;
+
+  LAST_WRONG_REVIEW = renderWrongReviewMarkdown(wrongItems);
+
+  if (!wrongItems.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<h3>' + LABELS.wrong_review_title + '</h3><p>' + LABELS.no_wrong_questions + '</p>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = [
+    '<h3>' + LABELS.wrong_review_title + '</h3>',
+    '<p>' + LABELS.wrong_review_intro.replace('__COUNT__', wrongItems.length) + '</p>',
+    '<div class="wrong-review-actions">',
+    '<button type="button" onclick="downloadWrongReview()">' + LABELS.download_wrong_review + '</button>',
+    '<button type="button" onclick="copyWrongReviewPrompt()">' + LABELS.copy_wrong_review_prompt + '</button>',
+    '</div>',
+    '<textarea id="wrong-review-text" readonly rows="12">' + LAST_WRONG_REVIEW.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea>'
+  ].join('');
+}
+
+function renderWrongReviewMarkdown(wrongItems) {
+  var now = new Date().toLocaleString();
+  var lines = [];
+
+  lines.push('# ExamPass 错题分析文档');
+  lines.push('');
+  lines.push('- 生成时间：' + now);
+  lines.push('- 错题数量：' + wrongItems.length);
+  lines.push('');
+  lines.push('## 给模型的错题分析 Prompt');
+  lines.push('');
+  if (WRONG_REVIEW_PROMPT) {
+    lines.push(WRONG_REVIEW_PROMPT);
+  } else {
+    lines.push('请根据下面的错题记录，分析我的错因，并给出继续学习方案。要求：');
+    lines.push('1. 按知识模块归类错题，不要只逐题复述答案；');
+    lines.push('2. 判断每道题错在概念定义、公式推导、图表理解、条件适用、计算步骤、概念混淆还是审题；');
+    lines.push('3. 对涉及公式或推导的错题，补全从前提到结论的推导链条，不能跳步；');
+    lines.push('4. 对选择题，解释我选错选项为什么有迷惑性，以及正确选项和错误选项的关键边界；');
+    lines.push('5. 给出需要回看课件的具体知识点、图表、公式和页/章节线索；');
+    lines.push('6. 最后生成一份二次学习清单和 5 道针对这些薄弱点的进阶训练题。');
+  }
+  lines.push('');
+  lines.push('## 错题记录');
+  lines.push('');
+
+  if (!wrongItems.length) {
+    lines.push('本次没有客观题错题。');
+    return lines.join('\n');
+  }
+
+  for (var i = 0; i < wrongItems.length; i++) {
+    var item = wrongItems[i];
+    lines.push('### 错题 ' + (i + 1) + '：第 ' + item.number + ' 题');
+    lines.push('');
+    lines.push('- 题型：' + item.type);
+    lines.push('- 分值：' + item.points);
+    lines.push('- 题干：' + item.question);
+    if (item.options.length) {
+      lines.push('- 选项：');
+      for (var j = 0; j < item.options.length; j++) {
+        lines.push('  - ' + String.fromCharCode(65 + j) + '. ' + item.options[j]);
+      }
+    }
+    lines.push('- 我的答案：' + item.userAnswer);
+    lines.push('- 正确答案：' + item.correctAnswer);
+    lines.push('- 解析：' + item.explanation);
+    if (item.pitfall) lines.push('- 易错点：' + item.pitfall);
+    if (item.knowledgePoint) lines.push('- 对应知识点：' + item.knowledgePoint);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function downloadWrongReview() {
+  if (!LAST_WRONG_REVIEW) return;
+  var blob = new Blob([LAST_WRONG_REVIEW], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '错题分析文档.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyWrongReviewPrompt() {
+  var text = LAST_WRONG_REVIEW || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.getElementById('wrong-review-text');
+    if (ta) {
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+    }
+  }
+}
+
+</script>
+</body>
+</html>

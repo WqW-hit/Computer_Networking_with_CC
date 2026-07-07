@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 1：计算机网络概述</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+/* === Interactive Test Styles === */
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.q-text pre {
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+  padding: 10px 14px; margin: 8px 0; overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  line-height: 1.5; white-space: pre;
+}
+.q-text code {
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+}
+
+/* ── Options (compact) ── */
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* ── Textareas (compact) ── */
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ── Result after grading ── */
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+/* ── Grading button ── */
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+/* ── Wrong-question review document ── */
+.wrong-review-box {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 18px 0;
+}
+.wrong-review-box h3 {
+  margin-top: 0;
+}
+.wrong-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-review-actions button {
+  font-size: 0.92em;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.wrong-review-actions button:hover {
+  background: #000;
+}
+#wrong-review-text {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  line-height: 1.5;
+  background: #fff;
+  resize: vertical;
+}
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 1：计算机网络概述</h1>
+<h2 style="text-align:center">章节测试</h2>
+<p style="text-align:center;color:var(--ink-light);font-size:0.95em">满分100分</p>
+
+<div id="score-box"><div class="score-num" id="score-num">0</div><div class="score-label">总分</div></div>
+<div id="questions-container"></div>
+<div class="grading-bar no-print"><button onclick="gradeAll()" id="grade-btn">提交批改</button></div>
+<div id="wrong-review-box" class="wrong-review-box no-print"></div>
+
+<script>
+var Q = [{"type": "choice", "points": 2, "question": "关于计算机网络的定义，下列描述最准确的是？", "options": ["计算机网络是主机与终端组成的主从式集中系统", "计算机网络就是互连的、自治的计算机集合", "计算机网络专指广域网范围内的互连系统", "计算机网络是指若干台计算机共用一台打印机的系统"], "answer": 1, "knowledge_point": "1.1 计算机网络基本概念", "diagnosis_hint": "混淆网络与主从式终端系统", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：教材定义计算机网络为\"互连的、自治的计算机集合\"，其中\"自治\"指主机间无主从关系，\"互连\"指通过通信链路互联互通。A描述的是主从式集中系统，不满足\"自治\"；C、D均只是网络的特例或片面描述。", "pitfall": "网络的\"自治\"不是\"互不通信\"，而是\"无主从关系\"。"}, {"type": "choice", "points": 2, "question": "网络协议的三要素是语法、语义和时序，其中\"语义\"规定的是？", "options": ["数据与控制信息的结构或格式", "需要发出何种控制信息、完成何种动作以及做出何种响应", "事件发生的顺序与速度匹配", "信号在物理介质上的电平表示"], "answer": 1, "knowledge_point": "1.1 计算机网络基本概念", "diagnosis_hint": "混淆语法与语义的定义", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：语法管\"长什么样\"（数据格式、信号电平），语义管\"该做什么\"（控制信息、动作、响应、差错控制），时序管\"什么时候做\"（事件顺序、速度匹配）。A是语法的定义，C是时序的定义。", "pitfall": "记忆口诀：语法=格式，语义=动作响应，时序=顺序/速度。"}, {"type": "choice", "points": 2, "question": "按网络覆盖范围分类，覆盖范围约为1公里的网络类型是？", "options": ["个人区域网 PAN", "局域网 LAN", "城域网 MAN", "广域网 WAN"], "answer": 1, "knowledge_point": "1.1 计算机网络基本概念", "diagnosis_hint": "混淆PAN/LAN/MAN/WAN的覆盖范围", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：PAN约10米，LAN约1公里，MAN约5-50公里，WAN约几十至几千公里，覆盖范围依次递增。", "pitfall": "PAN(10米)&lt;LAN(1公里)&lt;MAN(5-50公里)&lt;WAN(几十-几千公里)。"}, {"type": "choice", "points": 2, "question": "下列关于网络边缘与网络核心的说法，正确的是？", "options": ["路由器和交换机属于网络边缘的组成部分", "主机（端系统）位于网络边缘，运行网络应用程序", "网络核心是指所有运行网络应用的终端主机的集合", "网络边缘只包含有线接入设备，不包含无线设备"], "answer": 1, "knowledge_point": "1.2 计算机网络的结构", "diagnosis_hint": "把路由器/交换机误归为网络边缘", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：网络边缘由主机（端系统）及其上运行的网络应用构成；网络核心由互联的路由器（分组转发设备）构成。路由器、交换机属于网络核心/接入网络中的转发设备，不属于网络边缘。", "pitfall": "端系统(主机)=网络边缘；路由器=网络核心。"}, {"type": "choice", "points": 2, "question": "关于DSL接入与电缆网络（HFC）接入的区别，下列说法正确的是？", "options": ["DSL用户共享至中心局的接入线路，电缆网络用户独占至头端的线路", "DSL用户独占至中心局的接入线路，电缆网络用户共享至头端的接入网络", "两者带宽共享方式完全相同，均为独占式", "两者均不使用频分多路复用技术"], "answer": 1, "knowledge_point": "1.2 计算机网络的结构", "diagnosis_hint": "混淆DSL与HFC的带宽共享方式", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：DSL利用已有电话线独占连接到中心局DSLAM；电缆网络（HFC）中各家庭共享家庭至电缆头端的接入网络，这是二者的核心区别，二者都使用频分多路复用（FDM）来分离不同信号。", "pitfall": "DSL=独占线路；HFC电缆=共享线路。"}, {"type": "choice", "points": 2, "question": "电路交换的三个阶段依次是？", "options": ["通信 --&gt; 建立连接 --&gt; 释放连接", "建立连接 --&gt; 释放连接 --&gt; 通信", "建立连接 --&gt; 通信 --&gt; 释放连接", "释放连接 --&gt; 建立连接 --&gt; 通信"], "answer": 2, "knowledge_point": "1.3 数据交换", "diagnosis_hint": "记错电路交换三阶段顺序", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：电路交换需先建立连接（呼叫/电路建立），然后进行通信，最后释放连接（拆除电路）。通信期间双方独占所分配的电路资源。", "pitfall": "顺序：建立连接 --&gt; 通信 --&gt; 释放连接。"}, {"type": "choice", "points": 2, "question": "在存储转发分组交换中，报文长度为M bits，链路带宽为R bps，共经过h段链路（n=h-1个路由器），分组长度为L bits，则报文的交付时间为？", "options": ["$h \\times M/R$", "$M/R + (h-1)\\times L/R$", "$M/R \\times h \\times L$", "$L/R \\times h$"], "answer": 1, "knowledge_point": "1.3 数据交换", "diagnosis_hint": "混淆报文交换与分组交换的交付时间公式", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：分组交换报文交付时间 $T=M/R+(h-1)L/R$：第一项是把整份报文送上第一段链路所需时间，第二项是最后一个分组还需经过剩余(h-1)段链路的传输时间。选项A是报文交换（$h\\times M/R$）的公式。", "pitfall": "报文交换=h×M/R（串行等待）；分组交换=M/R+(h-1)×L/R（流水线）。"}, {"type": "choice", "points": 2, "question": "关于传输延迟与传播延迟，下列说法正确的是？", "options": ["传输延迟$d_{trans}=L/R$，只与分组长度和链路带宽有关，与链路物理长度无关", "传播延迟$d_{prop}=d/s$，与分组长度和链路带宽有关", "传输延迟和传播延迟本质相同，可以互相替换计算", "传播延迟只取决于分组长度，与信号传播速度无关"], "answer": 0, "knowledge_point": "1.4 计算机网络性能指标", "diagnosis_hint": "混淆传输延迟与传播延迟的决定因素", "explanation": "<strong>正确答案</strong>：A<br><br><strong>推理过程</strong>：传输延迟$d_{trans}=L/R$，只与分组长度L和链路带宽R有关；传播延迟$d_{prop}=d/s$，只与物理链路长度d和信号传播速度s有关，二者互相独立，不能混用公式。", "pitfall": "传输延迟看\"分组长度和带宽\"；传播延迟看\"物理距离和信号速度\"。"}, {"type": "choice", "points": 2, "question": "端到端路径上有三段链路，带宽分别为10Mbps、100Mbps、5Mbps，该路径的瓶颈链路及最大吞吐量分别是？", "options": ["第一段链路，10Mbps", "第二段链路，100Mbps", "第三段链路，5Mbps", "三段链路的平均值，38.3Mbps"], "answer": 2, "knowledge_point": "1.4 计算机网络性能指标", "diagnosis_hint": "误以为瓶颈链路是带宽最大的链路", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：瓶颈链路是端到端路径上限制最大吞吐量的链路，即带宽<strong>最小</strong>的链路。$\\min(10,100,5)=5$Mbps，因此瓶颈链路是第三段链路，最大吞吐量为5Mbps。", "pitfall": "瓶颈链路=带宽最小的链路，不是最大的。"}, {"type": "choice", "points": 2, "question": "关于OSI七层参考模型与五层参考模型的关系，下列说法正确的是？", "options": ["五层模型删除了OSI的表示层和会话层的全部功能", "五层模型将OSI的应用层、表示层、会话层合并为统一的应用层，功能并未消失", "五层模型比OSI多了一层，用于兼容TCP/IP", "OSI与五层模型在网络层和传输层的划分上完全不同"], "answer": 1, "knowledge_point": "1.5 计算机网络体系结构", "diagnosis_hint": "误认为五层模型丢弃了表示层/会话层的功能", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：五层参考模型综合OSI与TCP/IP的优点，将OSI的应用层、表示层、会话层合并为一层（应用层），这些功能仍然存在，只是不再作为独立分层；网络层、传输层、链路层、物理层的划分与OSI基本一致。", "pitfall": "合并≠删除功能，表示层/会话层的功能仍在应用层内部实现。"}, {"type": "tf", "points": 1, "question": "计算机网络中\"自治\"是指网络内主机之间无主从关系。", "options": [], "answer": true, "knowledge_point": "1.1 计算机网络基本概念", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：教材定义计算机网络就是互连的、自治的计算机集合，\"自治\"即主机间无主从关系，\"互连\"即通过通信链路互联互通。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "Internet的协议标准是由IETF通过RFC文档发布的。", "options": [], "answer": true, "knowledge_point": "1.1 计算机网络基本概念", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：IETF（Internet Engineering Task Force，互联网工程任务组）负责制定Internet协议标准，标准文档以RFC（Request for Comments）形式发布。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "电路交换中，通信双方在通信期间独占所分配的电路资源，直至释放连接。", "options": [], "answer": true, "knowledge_point": "1.3 数据交换", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：电路交换的核心特点即为\"独占资源\"，通信期间即使没有数据传输，所分配的电路资源也不会分给他人使用，直到释放连接。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "分组交换绝对优于电路交换，任何应用场景下都应优先采用分组交换。", "options": [], "answer": false, "knowledge_point": "1.3 数据交换", "diagnosis_hint": "误以为分组交换在所有场景下都更优", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：分组交换适用于突发式数据传输、资源共享场景，但可能产生拥塞、延迟和丢包，难以像电路交换那样提供确定性的带宽/时延保障（如传统电话对音质的严格要求）。二者是权衡取舍关系，并非绝对优劣。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "报文交换的报文交付时间通常比分组交换更长，因为报文交换必须等待完整报文到达每一个中间节点后才能转发。", "options": [], "answer": true, "knowledge_point": "1.3 数据交换", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：报文交换每跳都需完整报文到达才能转发（$T=h\\times M/R$），而分组交换可以流水线式转发（$T=M/R+(h-1)L/R$），后者显著更短，如例题中15s对比5.002s。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "排队延迟$d_{queue}$主要取决于路由器的拥塞程度，而不是链路的物理长度。", "options": [], "answer": true, "knowledge_point": "1.4 计算机网络性能指标", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：排队延迟取决于流量强度$La/R$，即分组到达速率与链路带宽的关系，反映的是路由器拥塞程度，与链路的物理长度（决定传播延迟）无关。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "传播延迟$d_{prop}=d/s$与分组长度L和链路带宽R有关。", "options": [], "answer": false, "knowledge_point": "1.4 计算机网络性能指标", "diagnosis_hint": "混淆传播延迟与传输延迟的公式", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：传播延迟$d_{prop}=d/s$只与物理链路长度d和信号传播速度s有关，与分组长度L和链路带宽R无关；后两者决定的是传输延迟$d_{trans}=L/R$。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "不同教材对RTT（往返时间）的具体定义可能存在差异，例如是否包含接收方的处理延迟。", "options": [], "answer": true, "knowledge_point": "1.4 计算机网络性能指标", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：PPT特别注明\"不同教材对RTT定义有差异\"，部分教材的RTT公式$RTT=2t_P+t_{PRC}$包含接收方处理延迟$t_{PRC}$，部分教材（如某些版本Kurose&amp;Ross）的RTT定义可能不包含该项，做题时应以题目/教材给出的定义为准。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "OSI参考模型是由IETF于1984年提出的分层网络体系结构标准。", "options": [], "answer": false, "knowledge_point": "1.5 计算机网络体系结构", "diagnosis_hint": "混淆ISO与IETF的角色", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：OSI参考模型是由国际标准化组织（ISO）于1984年提出的，目的是支持异构网络系统互联互通。IETF负责制定Internet的具体协议标准（通过RFC发布），二者角色不同，不要混淆。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "路由器工作时需要拆解到网络层数据报（datagram）才能确定转发路径，而交换机只需拆解到链路层帧（frame）。", "options": [], "answer": true, "knowledge_point": "1.5 计算机网络体系结构", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：交换机工作在数据链路层，只需解析帧头中的物理地址即可转发；路由器工作在网络层，需要解析数据报中的逻辑地址（如IP地址）以确定转发路径，这是二者转发原理的本质区别。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述网络协议的定义及其三要素，并各举一个例子说明。", "options": [], "answer": "", "knowledge_point": "1.1 计算机网络基本概念", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br>网络协议是为进行网络中的数据交换而建立的规则、标准或约定，规定了通信实体之间交换消息的格式、意义、顺序以及针对收到信息或发生事件所采取的动作。<br>三要素：<br>①<b>语法（Syntax）</b>：数据与控制信息的结构或格式，如某协议规定报文头部字段的排列顺序和长度。<br>②<b>语义（Semantics）</b>：需要发出何种控制信息、完成何种动作及做出何种响应，如收到差错校验失败的帧后请求重传。<br>③<b>时序（Timing）</b>：事件发生顺序、速度匹配，如发送方必须等待确认帧后才能发送下一帧。", "pitfall": ""}, {"type": "short", "points": 6, "question": "比较电路交换、报文交换、分组交换三种数据交换方式的基本原理及各自优缺点。", "options": [], "answer": "", "knowledge_point": "1.3 数据交换", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br>①<b>电路交换</b>：通信前需建立连接（呼叫/电路建立），通信期间独占所分配资源，通信结束释放连接。优点：时延确定、服务质量有保障；缺点：资源利用率低（空闲时仍占用资源），不适合突发数据。<br>②<b>报文交换</b>：以完整报文为单位存储-转发，每个中间节点必须收到完整报文才能转发。优点：无需预先建立连接、可共享链路；缺点：转发粒度粗，交付时延长（$T=h\\times M/R$）。<br>③<b>分组交换</b>：将报文拆分为较小分组，逐个独立转发，利用统计多路复用共享链路。优点：资源共享充分、流水线转发使交付时延显著缩短（$T=M/R+(h-1)L/R$），支持更多用户接入；缺点：产生分组头部开销，可能发生拥塞、延迟和丢包，需要额外的可靠传输和拥塞控制机制。", "pitfall": ""}, {"type": "short", "points": 6, "question": "阐述四种分组延迟（节点处理延迟、排队延迟、传输延迟、传播延迟）各自的成因，并分别写出传输延迟和传播延迟的计算公式。", "options": [], "answer": "", "knowledge_point": "1.4 计算机网络性能指标", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br>①<b>节点处理延迟$d_{proc}$</b>：路由器进行差错检测、确定输出链路等所需时间，通常&lt;1微秒，一般忽略。<br>②<b>排队延迟$d_{queue}$</b>：分组在路由器输出缓存中等待输出链路可用的时间，取决于路由器的拥塞程度（流量强度$La/R$）。<br>③<b>传输延迟$d_{trans}=L/R$</b>：把分组全部比特推向链路所需时间，L为分组长度(bits)，R为链路带宽(bps)，只与分组长度和链路带宽有关。<br>④<b>传播延迟$d_{prop}=d/s$</b>：比特从链路一端传播到另一端所需时间，d为物理链路长度，s为信号传播速度（约$2\\times10^8$m/s），只与物理距离和传播速度有关。<br>节点总延迟：$d_{nodal}=d_{proc}+d_{queue}+d_{trans}+d_{prop}$。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述OSI七层参考模型和TCP/IP四层模型各层的划分，并说明教学中常用的五层参考模型是如何整合二者的。", "options": [], "answer": "", "knowledge_point": "1.5 计算机网络体系结构", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><b>OSI七层</b>（从上到下）：应用层、表示层、会话层、传输层、网络层、数据链路层、物理层。<br><b>TCP/IP四层</b>：应用层、传输层、网际层（IP）、网络接口层。<br><b>五层参考模型</b>综合两者优点：应用层（合并OSI的应用层+表示层+会话层）、传输层（对应TCP/传输层）、网络层（对应网际层/IP）、链路层（对应数据链路层）、物理层。五层模型既保留了OSI对下三层（网络层、链路层、物理层）的清晰划分，又采纳了TCP/IP将上层功能合并简化为应用层的实践做法。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "结合存储转发时延公式，分析报文交换与分组交换在文件传输时延上的差异，并说明为什么分组交换在现代网络中被优先采用。", "options": [], "answer": "", "knowledge_point": "1.3 数据交换", "diagnosis_hint": "", "explanation": "<strong>参考答案（要点）</strong>：<br><b>时延差异</b>：报文交换以完整报文为单位存储-转发，每跳都需等待完整报文到达，$h$跳的交付时间为$T_{message}=h\\times M/R$，各跳时延串行叠加；分组交换将报文拆分为多个小分组，各分组可流水线式在不同链路上同时传输，交付时间为$T_{packet}=M/R+(h-1)L/R$，只需为最后一个分组多付出$(h-1)$段链路的传输时间。以教材例题（$M=7.5$Mbits，$R=1.5$Mbps，$h=3$）为例：报文交换需15s，分组交换仅需5.002s，差距悬殊。<br><b>为何优先采用分组交换</b>：①流水线转发大幅降低大文件的端到端交付时延；②统计多路复用允许更多用户共享链路资源（如1Mbps链路配合10%活动率，电路交换仅支持10用户，分组交换可支持35用户且拥塞概率&lt;0.0004）；③无需像电路交换那样预先建立连接，简单灵活，适合突发式数据流量为主的现代互联网应用场景。代价是需要额外的拥塞控制和可靠传输机制来应对可能的排队延迟与丢包。", "pitfall": ""}, {"type": "essay", "points": 8, "question": "结合航空旅行的分层类比，论述计算机网络采用分层体系结构的意义，并说明实体、协议、服务、SAP这几个基本概念之间的关系。", "options": [], "answer": "", "knowledge_point": "1.5 计算机网络体系结构", "diagnosis_hint": "", "explanation": "<strong>参考答案（要点）</strong>：<br><b>分层的意义</b>：计算机网络涉及主机、路由器、链路、应用、协议、硬件软件等极其复杂的组成部分。借鉴航空旅行的类比（票务-行李-登机口-飞机路由飞行），每层完成一种特定的服务/功能，且依赖下层提供的服务实现本层功能：①结构清晰，便于识别复杂系统各部件及其关系（形成\"参考模型\"）；②模块化：任一层内部实现方式的改变（如登机流程改变）对其它层是透明的，不影响系统其它部分，便于独立更新维护；③有利于标准化，使不同厂商的设备/软件可以互操作。<br><b>基本概念关系</b>：\"实体\"是任何可发送或接收信息的硬件或软件进程，存在于每一层中；同一层的两个对等实体之间通过\"协议\"（水平的规则集合）通信；某一层的实体使用下一层提供的\"服务\"（垂直方向），在遵循本层协议、实现本层功能后，再向上一层提供服务；同系统内相邻层实体之间通过接口交互，通过\"SAP（服务访问点）\"交换原语，指定所请求的具体服务。四者共同构成了\"协议是水平的，服务是垂直的\"这一分层通信的核心逻辑。", "pitfall": ""}, {"type": "essay", "points": 10, "question": "论述接入网络的几种主要技术（DSL、电缆网络HFC、光纤到户FTTH、机构以太网、无线接入）的基本原理，并从带宽共享方式的角度比较它们的特点。", "options": [], "answer": "", "knowledge_point": "1.2 计算机网络的结构", "diagnosis_hint": "", "explanation": "<strong>参考答案（要点）</strong>：<br>①<b>DSL</b>：利用已有电话线连接中心局的DSLAM，通过频分复用在不同载频上分别传输语音和数据，上行3.5-16Mbps，下行24-52Mbps。<b>用户独占</b>至中心局的线路。<br>②<b>电缆网络（HFC）</b>：混合光纤同轴电缆，通过频分多路复用在不同频道上传输数据、电视信号，下行40Mbps-1.2Gbps，上行30-100Mbps。各家庭<b>共享</b>家庭至电缆头端的接入网络，这与DSL的独占方式形成对比。<br>③<b>光纤到户（FTTH）</b>：采用无源光纤网络（PON），局端光线路终端（OLT）通过一个或多个无源分光器连接到多个用户端的光网络单元（ONU/光猫），带宽大、线路稳定，是当前我国及全球先进地区的主流接入技术。<br>④<b>机构以太网接入</b>：端系统直接连接以太网交换机，再通过机构路由器接入ISP，典型速率10Mbps-10Gbps，多用于企业、高校等场景。<br>⑤<b>无线接入</b>：通过基站/接入点共享无线信道，分为局域无线接入（WiFi，如802.11ac达866Mbps，WiFi6可达9.6Gbps）和广域无线接入（3G/4G/5G蜂窝网）。<br><b>带宽共享方式比较</b>：DSL和光纤到户（点到点连接场景）偏向独占式接入；电缆网络（HFC）和无线接入本质上是共享介质，多个用户竞争同一段接入链路的带宽，因此在用户数增多时更容易出现带宽下降或排队现象；机构以太网接入则视具体拓扑（共享式Hub或交换式Switch）而定，现代网络多为交换式独占端口带宽。", "pitfall": ""}, {"type": "comprehensive", "points": 20, "question": "主机A通过路由器R1、R2以存储-转发分组交换方式向主机B发送一个大文件，三段链路带宽依次为：A-R1为10Mbps，R1-R2为100Mbps，R2-B为100Mbps。文件大小为1,960,000B，每个分组大小为1000B（其中20B为分组头部，980B为有效载荷），不考虑分组拆装时间和传播延迟。请回答：<br>（1）（6分）计算该文件从A发送开始到B接收完毕所需的最短时间。<br>（2）（6分）计算该路径在无其他流量时可达到的最大吞吐量，并说明其与(1)结果在数值上的内在联系。<br>（3）（8分）判断分组在传输过程中是否会在某个路由器发生持续性排队？请说明原理。进一步地，若将R2-B链路的带宽改为5Mbps（其余不变），是否会在某路由器发生持续性排队？为什么？", "options": [], "answer": "", "knowledge_point": "1.3/1.4 数据交换与性能指标（综合计算）", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：<br><b>（1）总传输时间</b>：文件1,960,000B按每个分组980B有效载荷拆分，共 $1,960,000/980=2000$ 个分组，每个分组含头部后为1000B=8000bits。<br>该文件在瓶颈链路（A-R1，10Mbps）上发送全部比特（含头部）所需时间：总比特数 $=2000\\times8000=16,000,000$ bits，$t_1=16,000,000/(10\\times10^6)=1.6$s。<br>最后一个分组还需经过剩余2段链路（R1-R2、R2-B，各100Mbps）的传输延迟：$t_2=2\\times(8000/(100\\times10^6))=2\\times0.00008=0.00016$s=0.16ms。<br>总时间 $=1.6\\text{s}+0.00016\\text{s}\\approx1.60016$s（约1600.16ms）。<br><br><b>（2）最大吞吐量</b>：$Throughput=\\min(10\\text{Mbps},100\\text{Mbps},100\\text{Mbps})=10\\text{Mbps}$（瓶颈链路为A-R1）。<br>内在联系：(1)中总时间的主项 $t_1=1.6$s 正好等于\"总比特数/瓶颈链路带宽\"=$16,000,000/(10\\times10^6)=1.6$s，与吞吐量计算一致——因为端到端总耗时本质上由瓶颈链路的带宽决定，后续更快的链路只贡献可忽略的额外逐跳传输延迟(0.16ms)。<br><br><b>（3）排队分析</b>：<br>原始场景（10Mbps --&gt; 100Mbps --&gt; 100Mbps）：链路带宽沿路径<strong>非递减</strong>，A-R1是全程最慢的链路（瓶颈在最前端），R1和R2的输出链路带宽均不低于其输入端能维持的到达速率（最高10Mbps），因此分组到达R1、R2后能够立即以更快的速度转发出去，<strong>不会发生持续性排队</strong>，只存在可忽略的逐跳store-and-forward传输延迟。<br>修改场景（R2-B改为5Mbps）：此时路径带宽为10Mbps --&gt; 100Mbps --&gt; 5Mbps，R2的输出链路带宽（5Mbps）低于其输入端能够维持的到达速率（上游A-R1为10Mbps，经R1-R2的100Mbps几乎无延迟地转发到R2，故到达R2的速率仍接近10Mbps）。由于R2的输出速率（5Mbps）小于其输入速率（约10Mbps），<strong>会在R2持续排队</strong>，队列长度随发送持续增长，若发送时间足够长或缓存有限，将导致排队延迟不断增大甚至发生丢包。<br><b>一般规律</b>：若沿路径各段链路带宽依次不递减，通常不会发生持续性排队；一旦某段链路的带宽低于其上游能够维持的到达速率，就会在该路由器处发生持续性排队。", "pitfall": ""}];
+var LABELS = {"page_title": "章节测试", "section": {"choice": "一、选择题", "tf": "二、判断题", "short": "三、简答题", "essay": "四、问答题", "comprehensive": "五、综合题"}, "section_order": ["choice", "tf", "short", "essay", "comprehensive"], "points_suffix": "分", "true_label": "正确", "false_label": "错误", "placeholder": "在此作答...", "pitfall_prefix": "易错提醒：", "correct_label": "正确", "wrong_label": "错误", "answer_prefix": "正确答案：", "reference_label": "参考答案", "graded_label": "已批改", "grade_button": "提交批改", "unanswered_label": "未作答", "wrong_review_title": "错题分析文档", "wrong_review_intro": "本次收录 __COUNT__ 道客观题错题。可以下载 Markdown 文档，或复制整段内容交给模型做错因分析和二次学习规划。", "no_wrong_questions": "本次客观题没有错题。主观题请对照参考答案自行复盘。", "download_wrong_review": "下载错题文档", "copy_wrong_review_prompt": "复制错题分析 Prompt", "score_label": "总分", "duration_prefix": "满分 100 分 | 建议 ", "duration_suffix": " 分钟 | 选择答案后点击提交批改"};
+var WRONG_REVIEW_PROMPT = "";
+var LAST_WRONG_REVIEW = '';
+
+function pointsOf(q) {
+  return q.points || q.score || 0;
+}
+
+function stripHtml(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// Convert Markdown fenced code blocks (```lang\n...\n```) and inline `code`
+// to <pre><code> / <code> HTML, then convert \n to <br> for plain text lines.
+function formatQuestion(text) {
+  if (!text) return '';
+  // 1. Replace fenced code blocks: ```lang\ncode\n```
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    var escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    var cls = lang ? ' class="language-' + lang + '"' : '';
+    return '<pre><code' + cls + '>' + escaped + '</code></pre>';
+  });
+  // 2. Replace inline backtick `code`
+  text = text.replace(/`([^`\n]+)`/g, function(_, code) {
+    var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<code>' + escaped + '</code>';
+  });
+  // 3. Convert remaining \n to <br> (outside pre blocks already handled above)
+  // Split on <pre>...</pre> so we don't double-process code blocks
+  var parts = text.split(/(<pre>[\s\S]*?<\/pre>)/);
+  for (var i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      parts[i] = parts[i].replace(/\n/g, '<br>');
+    }
+  }
+  return parts.join('');
+}
+
+function answerText(q, value) {
+  if (value === null || value === undefined || value === '') return LABELS.unanswered_label;
+  var idx = parseInt(value);
+  if (q.type === 'choice') {
+    return String.fromCharCode(65 + idx) + '. ' + ((q.options && q.options[idx]) ? stripHtml(q.options[idx]) : '');
+  }
+  if (q.type === 'tf') {
+    return idx === 0 ? LABELS.true_label : LABELS.false_label;
+  }
+  return String(value);
+}
+
+function normalizedAnswer(q) {
+  if (q.type === 'tf') {
+    if (q.answer === LABELS.true_label || q.answer === true || q.answer === 'true') return 0;
+    if (q.answer === LABELS.false_label || q.answer === false || q.answer === 'false') return 1;
+  }
+  return parseInt(q.answer);
+}
+
+function questionTypeLabel(type) {
+  return LABELS.section[type] || type;
+}
+
+function build(){
+  var container = document.getElementById('questions-container');
+  if (!container) { console.error('ExamPass: questions-container not found'); return; }
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var s = q.type;
+    if (s !== sec) {
+      sec = s;
+      if (titles[s]) {
+        h += '<h3>' + titles[s] + '</h3>';
+      }
+    }
+
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i+1) + '. (' + pointsOf(q) + ' ' + LABELS.points_suffix + ')</div>';
+    h += '<div class="q-text">' + formatQuestion(q.question) + '</div>';
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65+j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">' + LABELS.true_label + '</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">' + LABELS.false_label + '</label>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="' + LABELS.placeholder + '" rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + q.explanation + '</div>';
+    if (q.pitfall) {
+      h += '<div class="pitfall">' + LABELS.pitfall_prefix + q.pitfall + '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+
+  // Re-render MathJax for dynamically inserted formulas
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  build();
+}
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('selected');
+  }
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) {
+    target.classList.add('selected');
+  }
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+function gradeAll() {
+  var score = 0;
+  var wrongItems = [];
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      var radio = document.querySelector('input[name="' + qid + '"]:checked');
+      var correctIndex = normalizedAnswer(q);
+      if (radio && parseInt(radio.value) === correctIndex) {
+        score += pointsOf(q);
+        card.classList.add('correct');
+        badge.className = 'badge badge-ok';
+        badge.textContent = LABELS.correct_label;
+        correctEl.innerHTML = '';
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+      } else {
+        card.classList.add('wrong');
+        badge.className = 'badge badge-no';
+        badge.textContent = LABELS.wrong_label;
+        var ansText = answerText(q, correctIndex);
+        correctEl.innerHTML = LABELS.answer_prefix + ansText;
+        if (radio) {
+          var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+          if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+        }
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+        wrongItems.push({
+          number: i + 1,
+          type: questionTypeLabel(q.type),
+          points: pointsOf(q),
+          question: stripHtml(q.question),
+          options: (q.options || []).map(stripHtml),
+          userAnswer: answerText(q, radio ? radio.value : null),
+          correctAnswer: ansText,
+          explanation: stripHtml(q.explanation),
+          pitfall: stripHtml(q.pitfall || ''),
+          knowledgePoint: stripHtml(q.knowledge_point || q.knowledgePoint || '')
+        });
+      }
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = LABELS.reference_label;
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = score;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+
+  var opts = document.querySelectorAll('.option');
+  for (var i = 0; i < opts.length; i++) opts[i].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var i = 0; i < tas.length; i++) tas[i].disabled = true;
+
+  var btn = document.getElementById('grade-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = LABELS.graded_label;
+  }
+
+  buildWrongReview(wrongItems);
+
+  // Re-render MathJax for revealed explanations
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise().catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+function buildWrongReview(wrongItems) {
+  var box = document.getElementById('wrong-review-box');
+  if (!box) return;
+
+  LAST_WRONG_REVIEW = renderWrongReviewMarkdown(wrongItems);
+
+  if (!wrongItems.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<h3>' + LABELS.wrong_review_title + '</h3><p>' + LABELS.no_wrong_questions + '</p>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = [
+    '<h3>' + LABELS.wrong_review_title + '</h3>',
+    '<p>' + LABELS.wrong_review_intro.replace('__COUNT__', wrongItems.length) + '</p>',
+    '<div class="wrong-review-actions">',
+    '<button type="button" onclick="downloadWrongReview()">' + LABELS.download_wrong_review + '</button>',
+    '<button type="button" onclick="copyWrongReviewPrompt()">' + LABELS.copy_wrong_review_prompt + '</button>',
+    '</div>',
+    '<textarea id="wrong-review-text" readonly rows="12">' + LAST_WRONG_REVIEW.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea>'
+  ].join('');
+}
+
+function renderWrongReviewMarkdown(wrongItems) {
+  var now = new Date().toLocaleString();
+  var lines = [];
+
+  lines.push('# ExamPass 错题分析文档');
+  lines.push('');
+  lines.push('- 生成时间：' + now);
+  lines.push('- 错题数量：' + wrongItems.length);
+  lines.push('');
+  lines.push('## 给模型的错题分析 Prompt');
+  lines.push('');
+  if (WRONG_REVIEW_PROMPT) {
+    lines.push(WRONG_REVIEW_PROMPT);
+  } else {
+    lines.push('请根据下面的错题记录，分析我的错因，并给出继续学习方案。要求：');
+    lines.push('1. 按知识模块归类错题，不要只逐题复述答案；');
+    lines.push('2. 判断每道题错在概念定义、公式推导、图表理解、条件适用、计算步骤、概念混淆还是审题；');
+    lines.push('3. 对涉及公式或推导的错题，补全从前提到结论的推导链条，不能跳步；');
+    lines.push('4. 对选择题，解释我选错选项为什么有迷惑性，以及正确选项和错误选项的关键边界；');
+    lines.push('5. 给出需要回看课件的具体知识点、图表、公式和页/章节线索；');
+    lines.push('6. 最后生成一份二次学习清单和 5 道针对这些薄弱点的进阶训练题。');
+  }
+  lines.push('');
+  lines.push('## 错题记录');
+  lines.push('');
+
+  if (!wrongItems.length) {
+    lines.push('本次没有客观题错题。');
+    return lines.join('\n');
+  }
+
+  for (var i = 0; i < wrongItems.length; i++) {
+    var item = wrongItems[i];
+    lines.push('### 错题 ' + (i + 1) + '：第 ' + item.number + ' 题');
+    lines.push('');
+    lines.push('- 题型：' + item.type);
+    lines.push('- 分值：' + item.points);
+    lines.push('- 题干：' + item.question);
+    if (item.options.length) {
+      lines.push('- 选项：');
+      for (var j = 0; j < item.options.length; j++) {
+        lines.push('  - ' + String.fromCharCode(65 + j) + '. ' + item.options[j]);
+      }
+    }
+    lines.push('- 我的答案：' + item.userAnswer);
+    lines.push('- 正确答案：' + item.correctAnswer);
+    lines.push('- 解析：' + item.explanation);
+    if (item.pitfall) lines.push('- 易错点：' + item.pitfall);
+    if (item.knowledgePoint) lines.push('- 对应知识点：' + item.knowledgePoint);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function downloadWrongReview() {
+  if (!LAST_WRONG_REVIEW) return;
+  var blob = new Blob([LAST_WRONG_REVIEW], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '错题分析文档.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyWrongReviewPrompt() {
+  var text = LAST_WRONG_REVIEW || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.getElementById('wrong-review-text');
+    if (ta) {
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+    }
+  }
+}
+
+</script>
+</body>
+</html>

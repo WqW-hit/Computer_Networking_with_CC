@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 7：无线与移动网络</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+/* === Interactive Test Styles === */
+
+/* ── Score box ── */
+#score-box {
+  display: none; background: var(--paper-dark); color: var(--ink);
+  padding: 16px 20px; border-radius: var(--radius); margin: 14px 0;
+  text-align: center; border: 1px solid var(--card-border);
+}
+#score-box .score-num { font-size: 2.2em; font-weight: 700; }
+#score-box .score-label { font-size: 0.85em; color: var(--ink-light); }
+
+/* ── Question card ── */
+.q-card {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: var(--radius); padding: 12px 14px; margin: 10px 0;
+  transition: all 0.15s;
+}
+.q-card.correct { border-left: 3px solid var(--correct); background: #f7fdf4; }
+.q-card.wrong   { border-left: 3px solid var(--wrong); background: #fef9f9; }
+
+.q-num  { font-weight: 700; font-size: 0.98em; margin-bottom: 4px; }
+.q-text { margin-bottom: 8px; font-size: 0.98em; }
+.q-text pre {
+  background: #f5f5f5; border: 1px solid #ddd; border-radius: 4px;
+  padding: 10px 14px; margin: 8px 0; overflow-x: auto;
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  line-height: 1.5; white-space: pre;
+}
+.q-text code {
+  font-family: 'Consolas', 'Courier New', monospace; font-size: 0.9em;
+  background: #f0f0f0; padding: 1px 4px; border-radius: 3px;
+}
+
+/* ── Options (compact) ── */
+.option {
+  display: block; padding: 4px 10px; margin: 3px 0;
+  border: 1px solid var(--card-border); border-radius: 4px;
+  cursor: pointer; transition: all 0.12s; font-size: 0.93em;
+  background: #fefcf5;
+}
+.option:hover            { background: #f0ede0; }
+.option input            { margin-right: 6px; }
+.option.selected         { border-color: var(--accent); background: #eff6ff; }
+.option.correct-answer   { border-color: var(--correct); background: var(--correct-bg); }
+.option.wrong-answer     { border-color: var(--wrong); background: var(--wrong-bg); }
+
+/* ── Textareas (compact) ── */
+.q-textarea {
+  width: 100%; min-height: 56px; border: 1px solid var(--card-border);
+  border-radius: 4px; padding: 6px 10px; font-family: inherit;
+  font-size: 0.93em; background: #fefcf5; resize: vertical;
+}
+.q-textarea:focus { outline: none; border-color: var(--accent); }
+
+/* ── Result after grading ── */
+.result {
+  display: none; margin-top: 8px; padding: 8px 12px;
+  background: #fefcf5; border: 1px solid var(--card-border);
+  border-radius: 4px; font-size: 0.9em; line-height: 1.6;
+}
+.result .badge {
+  display: inline-block; padding: 1px 9px; border-radius: 3px;
+  font-weight: 700; font-size: 0.82em; margin-right: 6px;
+}
+.badge-ok  { background: var(--correct-bg); color: #166534; }
+.badge-no  { background: var(--wrong-bg); color: #991b1b; }
+.badge-ref { background: #dbeafe; color: #1e40af; }
+
+.result .explanation { margin-top: 4px; color: var(--ink); }
+.result .pitfall { color: #b45309; margin-top: 3px; font-size: 0.9em; }
+
+/* ── Grading button ── */
+.grading-bar { text-align: center; margin: 20px 0; }
+.grading-bar button {
+  font-size: 1em; padding: 8px 32px; background: var(--accent);
+  color: #fff; border: none; border-radius: var(--radius);
+  cursor: pointer; font-weight: 600; letter-spacing: 0.3px;
+}
+.grading-bar button:hover     { background: var(--accent-hover); }
+.grading-bar button:disabled  { background: #bbb; cursor: not-allowed; }
+
+/* ── Wrong-question review document ── */
+.wrong-review-box {
+  display: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+  margin: 18px 0;
+}
+.wrong-review-box h3 {
+  margin-top: 0;
+}
+.wrong-review-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+}
+.wrong-review-actions button {
+  font-size: 0.92em;
+  padding: 6px 12px;
+  background: var(--ink);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.wrong-review-actions button:hover {
+  background: #000;
+}
+#wrong-review-text {
+  width: 100%;
+  min-height: 220px;
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  line-height: 1.5;
+  background: #fff;
+  resize: vertical;
+}
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 7：无线与移动网络</h1>
+<h2 style="text-align:center">章节测试</h2>
+<p style="text-align:center;color:var(--ink-light);font-size:0.95em">满分100分</p>
+
+<div id="score-box"><div class="score-num" id="score-num">0</div><div class="score-label">总分</div></div>
+<div id="questions-container"></div>
+<div class="grading-bar no-print"><button onclick="gradeAll()" id="grade-btn">提交批改</button></div>
+<div id="wrong-review-box" class="wrong-review-box no-print"></div>
+
+<script>
+var Q = [{"type": "choice", "points": 2, "question": "关于无线与移动性的关系，下列说法正确的是？", "options": ["无线通信必然意味着设备是移动的", "移动设备必须使用无线链路接入网络", "无线并不总是意味着移动性，例如通过无线网卡接入网络的台式机", "有线网络中的主机一定不能移动"], "answer": 2, "knowledge_point": "无线网络的组成要素", "diagnosis_hint": "混淆了无线（wireless）与移动（mobile）两个独立维度", "explanation": "<strong>正确答案</strong>：C<br><br><strong>推理过程</strong>：无线主机可以是静止的（非移动）或移动的，无线只是接入方式，并不必然意味着移动性。", "pitfall": "无线 ≠ 移动，二者是两个独立的维度。"}, {"type": "choice", "points": 2, "question": "802.11 的 CSMA/CA 与有线以太网 CSMA/CD 的本质区别是什么？", "options": ["CA 不需要监听信道，CD 需要", "CA 无法像 CD 那样边发送边检测冲突", "CA 只用于自组网模式，CD 只用于基础结构模式", "CA 不需要 ACK 确认机制，CD 需要"], "answer": 1, "knowledge_point": "CSMA/CA 协议原理", "diagnosis_hint": "误以为 CSMA/CA 与 CSMA/CD 只是名称不同，原理一致", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：无线信道中发射信号强度远高于接收信号强度，且存在隐藏终端和信号衰减导致的侦听盲区，因此 802.11 无法像有线 CSMA/CD 一样边发送边检测冲突，只能致力于「避免」冲突。", "pitfall": "CA = Collision Avoidance（避免冲突），CD = Collision Detection（检测冲突），二者思路不同。"}, {"type": "choice", "points": 2, "question": "在隐藏终端问题的经典场景中（A、B、C 依次排列，B 在中间），下列描述正确的是？", "options": ["A、B、C 三者两两都能互相侦听到", "B 能同时侦听到 A 和 C，但 A、C 因障碍物遮挡彼此侦听不到", "A、C 能互相侦听到，但都听不到 B", "B 听不到 A 也听不到 C"], "answer": 1, "knowledge_point": "隐藏终端问题", "diagnosis_hint": "未理清 A/B/C 三者之间侦听关系的具体拓扑", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：隐藏终端问题中，B 与 A、B 与 C 彼此可以侦听到，但 A 与 C 由于障碍物遮挡彼此侦听不到，若 A、C 同时向 B 发送则会在 B 处发生冲突而双方都不知情。", "pitfall": "隐藏终端问题的关键是 A、C 互相听不到（而不是听不到 B）。"}, {"type": "choice", "points": 2, "question": "关于 SNR 与 BER 的关系，下列说法正确的是？", "options": ["SNR 越大，BER 通常越高", "给定物理层技术，增大发送功率会增大 SNR 并降低 BER", "SNR 与调制方式的选择无关", "移动性不会引起 SNR 的变化"], "answer": 1, "knowledge_point": "信噪比与误码率", "diagnosis_hint": "颠倒了 SNR 与 BER 之间的正负相关关系", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：给定物理层，增大发送功率可提高 SNR，进而降低 BER；SNR 越大代表信号相对噪声越强，越容易正确提取信号，因此 BER 通常越低。", "pitfall": "SNR 增大 --> BER 降低，二者是负相关关系。"}, {"type": "choice", "points": 2, "question": "802.11n 相比 802.11a/b/g 的关键技术改进是什么？", "options": ["改用了跳频扩频（FHSS）", "引入了多天线（MIMO）技术", "取消了 CSMA/CA 多址接入机制", "改用了固定调制方式，不再自适应"], "answer": 1, "knowledge_point": "802.11 标准家族对比", "diagnosis_hint": "混淆了 802.11n 的 MIMO 技术与蓝牙的 FHSS 跳频技术", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：802.11n 引入了多天线（MIMO，Multiple-Input Multiple-Output）技术，配合 OFDM，在双倍带宽（40MHz）下最高速率可达 600Mbps。", "pitfall": "MIMO 是 802.11n 的标志性技术，FHSS 跳频扩频是蓝牙使用的技术，不要混淆。"}, {"type": "choice", "points": 2, "question": "按照「单跳/多跳 × 有/无基础设施」的无线网络分类，普通家庭 WiFi（主机直接连接 AP，AP 再接入 Internet）属于哪一类？", "options": ["单跳、有基础设施", "单跳、无基础设施", "多跳、有基础设施（网状网络）", "多跳、无基础设施（MANET）"], "answer": 0, "knowledge_point": "无线网络分类", "diagnosis_hint": "误将普通 WiFi 归类为多跳网络或无基础设施网络", "explanation": "<strong>正确答案</strong>：A<br><br><strong>推理过程</strong>：主机连接到基站（AP），基站直接连接到更大的互联网，无需经过其他无线节点中继，因此属于「单跳、有基础设施」一类。", "pitfall": "网状网络（mesh）才是「多跳、有基础设施」，MANET/VANET 是「多跳、无基础设施」。"}, {"type": "choice", "points": 2, "question": "802.11 主机与 AP 关联过程中必须完成的步骤是？", "options": ["直接向 AP 发送数据帧无需关联", "扫描信道以获取包含 SSID 和 MAC 地址的信标帧", "关联前必须先运行 DHCP 获取 IP 地址", "关联过程只能通过有线接口完成"], "answer": 1, "knowledge_point": "信道选择与关联过程", "diagnosis_hint": "颠倒了关联与 DHCP 获取 IP 地址的先后顺序", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：主机需要先扫描信道，监听包含 SSID 和 MAC 地址的信标帧，选择一个 BSS 进行关联（可能需要身份认证），关联成功后典型情形才会运行 DHCP 获取 IP 地址。", "pitfall": "先关联，后 DHCP 获取 IP，顺序不能颠倒。"}, {"type": "choice", "points": 2, "question": "关于 DIFS 与 SIFS 的关系，下列说法正确的是？", "options": ["SIFS 大于 DIFS，以保证数据帧优先发送", "SIFS 小于 DIFS，以保证 ACK 帧优先于新数据帧发送", "DIFS 与 SIFS 大小相等", "DIFS 和 SIFS 只用于自组网模式"], "answer": 1, "knowledge_point": "CSMA/CA 协议原理", "diagnosis_hint": "颠倒了 SIFS 与 DIFS 的大小关系及其作用", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：SIFS（短帧间间隔）小于 DIFS（分布式帧间间隔），接收方在正确接收数据帧后仅需等待较短的 SIFS 就可以发送 ACK，从而保证 ACK 帧能够优先于其他等待 DIFS 的新数据帧被发送。", "pitfall": "SIFS < DIFS，用于保证控制帧（如 ACK、CTS）相对数据帧的发送优先级。"}, {"type": "choice", "points": 2, "question": "RTS/CTS 机制主要用于解决什么问题？", "options": ["降低信标帧的发送频率", "彻底避免长数据帧因隐藏终端等原因发生冲突", "替代 ACK 确认机制", "为主机分配固定的 IP 地址"], "answer": 1, "knowledge_point": "RTS/CTS 冲突避免机制", "diagnosis_hint": "误以为 RTS/CTS 用于替代 ACK 或用于地址分配", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：RTS/CTS 通过很小的预约帧（RTS、CTS）让所有节点都能获知信道即将被占用，从而彻底避免了（长）数据帧因隐藏终端等问题发生冲突。", "pitfall": "RTS/CTS 解决的是数据帧冲突（尤其是隐藏终端引起的冲突），而不是替代 ACK。"}, {"type": "choice", "points": 2, "question": "蓝牙（Bluetooth）在信道复用方式上采用的是？", "options": ["纯 TDM，不涉及频率跳变", "TDM 与跳频扩频（FHSS）相结合", "纯 CDMA 码分多址", "OFDM 正交频分复用"], "answer": 1, "knowledge_point": "蓝牙个人区域网", "diagnosis_hint": "混淆了蓝牙的 FHSS 与 802.11a/g/n 使用的 OFDM", "explanation": "<strong>正确答案</strong>：B<br><br><strong>推理过程</strong>：蓝牙采用 TDM（625μs 时隙）与 FDM（发送方使用跳频扩频 FHSS，79 个频率信道，按伪随机顺序逐时隙跳变）相结合的方式。", "pitfall": "OFDM 是 802.11a/g/n/ac/ax 使用的技术，FHSS 是蓝牙使用的技术。"}, {"type": "tf", "points": 1, "question": "无线网络中的多路径传播是指无线电信号经物体表面反射后，在不同时刻到达同一目的地。", "options": [], "answer": true, "knowledge_point": "无线链路与有线链路的区别", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：多路径传播正是指无线电信号反射自物体表面，经不同路径在不同时刻到达接收端，从而造成信号失真。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "自组织（ad hoc）模式下的无线网络中，存在专门的基站负责协调各节点之间的通信。", "options": [], "answer": false, "knowledge_point": "无线网络的模式", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：自组织模式的定义就是「无基站」，节点只能向覆盖范围内的其他节点传输，并自行组织成网络、在节点间进行路由。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "IEEE 802.11 所有标准（如 802.11a/b/g/n/ac/ax）均使用 CSMA/CA 进行多址接入。", "options": [], "answer": true, "knowledge_point": "802.11 标准家族对比", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：802.11 各版本标准均采用 CSMA/CA 作为多址接入协议，并都具有基础结构（基站）与自组网两种网络模式版本。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "在 802.11 关联过程中，被动扫描是指主机主动广播探测请求帧（Probe Request Frame）。", "options": [], "answer": false, "knowledge_point": "被动扫描与主动扫描", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：主机主动广播探测请求帧属于「主动扫描」；被动扫描是主机被动监听各 AP 周期性发送的信标帧（Beacon Frame）。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "RTS 帧由于长度很短，因此彼此之间绝对不会发生冲突。", "options": [], "answer": false, "knowledge_point": "RTS/CTS 冲突避免机制", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：RTS 帧仍然可能彼此冲突，只是由于 RTS 帧很短，即使发生冲突代价也很小；真正被 RTS/CTS 机制保护、避免冲突的是后续的数据帧。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "802.11 数据帧地址 1、地址 2、地址 3 的具体取值取决于 ToDS 与 FromDS 两个比特的组合。", "options": [], "answer": true, "knowledge_point": "802.11 MAC 帧结构与地址字段", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：ToDS/FromDS 的四种取值组合（00、01、10、11）分别对应 IBSS、AP到主机、主机到AP、WDS 四种场景，各场景下地址字段的含义各不相同。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "主机在同一 IP 子网内从一个 BSS 移动到另一个 BSS 时，其 IP 地址可以保持不变。", "options": [], "answer": true, "knowledge_point": "移动性与高级功能", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：只要主机留在同一 IP 子网内，IP 地址即可保持不变，交换机通过自学习机制更新到达该主机的转发端口。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "蓝牙的典型覆盖半径通常大于 802.11 WiFi 的覆盖范围。", "options": [], "answer": false, "knowledge_point": "蓝牙个人区域网", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：蓝牙的覆盖半径通常小于 10m，明显小于 802.11 WiFi（室内约 10-30m、室外可达数十至上百米甚至更远）的覆盖范围。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "802.11 的功率管理机制中，移动终端进入休眠状态期间，AP 会直接丢弃所有发往该终端的帧。", "options": [], "answer": false, "knowledge_point": "移动性与高级功能", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：错误（×）<br><br><strong>推理过程</strong>：AP 得知节点休眠后不会丢弃帧，而是将发往该节点的帧缓存，并在信标帧中告知该节点是否有缓存帧等待，节点据此决定保持唤醒接收还是继续休眠。", "pitfall": ""}, {"type": "tf", "points": 1, "question": "隐藏终端问题产生的根本原因是两个发送端由于障碍物遮挡而彼此侦听不到对方的信号。", "options": [], "answer": true, "knowledge_point": "隐藏终端问题", "diagnosis_hint": "", "explanation": "<strong>正确答案</strong>：正确（√）<br><br><strong>推理过程</strong>：隐藏终端问题的成因正是两个发送端之间存在障碍物遮挡导致彼此侦听不到对方信号，从而在共同的接收端处发生冲突而双方都不知情。", "pitfall": ""}, {"type": "short", "points": 6, "question": "简述 802.11 无线局域网中「基础结构模式」与「自组织（ad hoc）模式」的区别。", "options": [], "answer": "", "knowledge_point": "无线网络的模式", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：①基础结构模式：存在基站（AP），基站将移动终端连接到有线网络；移动终端更换基站时会发生切换（handoff），以维持与有线网络的连接。②自组织（ad hoc）模式：网络中不存在基站；各节点只能向自己无线链路覆盖范围内的其他节点传输数据；节点之间需要自行组织成一个网络（自组网），并在节点之间进行路由转发。", "pitfall": "不要遗漏「切换（handoff）」这一基础结构模式的特有概念。"}, {"type": "short", "points": 6, "question": "简述 802.11 CSMA/CA 协议中，发送端在「信道空闲」和「信道忙」两种情况下的处理流程。", "options": [], "answer": "", "knowledge_point": "CSMA/CA 协议原理", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：①若监听到信道空闲已达 DIFS 时间，则直接发送整个帧（无法像 CSMA/CD 那样在发送同时检测冲突）；②若监听到信道忙，则开始随机退避计时，信道变为空闲后计时器开始倒计时，计时器超时后发送该帧；③若发送后未在规定时间内收到 ACK，则认为发生冲突或丢失，增大随机退避区间并重复上述过程。", "pitfall": "「信道忙」对应的是随机退避机制，而非立即重发。"}, {"type": "short", "points": 6, "question": "简述 RTS-CTS 机制如何解决隐藏终端问题。", "options": [], "answer": "", "knowledge_point": "RTS/CTS 冲突避免机制", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：发送端先利用 CSMA 向 AP 发送一个很短的 RTS（request-to-send）帧（该帧仍可能冲突，但代价很小）；AP 收到 RTS 后广播一个 CTS（clear-to-send）帧作为响应，由于 CTS 是由 AP 广播发出，能够被隐藏终端也能听到的所有节点接收到，从而使原本互相听不到的节点也能获知信道即将被占用而推迟发送；随后发送端才发送真正的数据帧，从而彻底避免了数据帧因隐藏终端而产生的冲突。", "pitfall": "关键点在于 CTS 由 AP 广播，能覆盖到 RTS 发送方本身无法直接触达的隐藏终端。"}, {"type": "short", "points": 6, "question": "简述 802.11 关联过程中「被动扫描」与「主动扫描」的区别。", "options": [], "answer": "", "knowledge_point": "被动扫描与主动扫描", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：被动扫描中，由各 AP 周期性主动发送信标帧（Beacon Frame），主机被动监听后向选定的 AP 发送关联请求帧，AP 回复关联响应帧。主动扫描中，由主机主动广播探测请求帧（Probe Request Frame），各 AP 收到后回复探测响应帧（Probe Response Frame），主机再向选定的 AP 发送关联请求帧，AP 回复关联响应帧。两者的核心区别在于「由谁先发起广播/探测」：被动扫描由 AP 先发（信标帧），主动扫描由主机先发（探测请求帧）。", "pitfall": "区分清楚是 AP 先广播（被动）还是主机先广播（主动）。"}, {"type": "essay", "points": 8, "question": "论述无线链路与有线链路相比存在哪些独特问题，并分别说明这些问题会给无线通信带来什么困难。", "options": [], "answer": "", "knowledge_point": "无线链路与有线链路的区别", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：无线链路相较有线链路存在三方面独特问题：①<strong>信号强度衰减（路径损耗）</strong>——无线电信号在介质中传播时会随距离增大而逐渐衰减，导致接收端信号强度下降、信噪比降低，进而影响正确接收；②<strong>来自其他来源的干扰</strong>——许多设备（如 WiFi、蜂窝网络、电机等）共享相同的无线频段（如 2.4GHz），彼此之间产生干扰，降低有效信噪比；③<strong>多路径传播</strong>——无线电信号在传播过程中经物体表面反射，多条路径的信号会在不同时刻到达接收端并叠加，造成信号失真甚至相互抵消。以上三个问题共同作用，使得通过无线链路（包括点对点无线链路）进行可靠通信比有线链路更加困难，因此无线链路的物理层与 MAC 层设计需要专门应对这些问题（如动态调制/速率适应、CSMA/CA、纠错编码等）。", "pitfall": "三个问题需要分别展开说明成因与影响，不能只罗列名词。"}, {"type": "essay", "points": 8, "question": "结合 SNR 与 BER 的关系，论述 802.11 如何通过速率适应机制应对移动性带来的信道质量变化。", "options": [], "answer": "", "knowledge_point": "信噪比与误码率 / 移动性与高级功能", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：SNR（信噪比）与 BER（误码率）之间存在权衡：SNR 越大，越容易从噪声中正确提取信号，BER 越低；给定物理层技术，增大发送功率可提升 SNR 并降低 BER；给定某个 SNR 水平，应选择在满足 BER 要求前提下吞吐量最高的调制方式（如 BPSK 1Mbps、QAM16 4Mbps、QAM256 8Mbps，SNR 越高可支持阶数越高、速率越快的调制）。当移动终端相对基站的位置发生变化（如逐渐远离基站）时，接收信号强度下降，SNR 随之降低，若仍使用原调制方式则 BER 会显著上升。为此，802.11 引入<strong>速率适应（rate adaptation）</strong>机制：基站与移动终端动态监测 SNR 的变化，一旦发现 BER 因 SNR 降低而变得过高，就切换到更低阶、抗噪能力更强的调制方式（如从 QAM256 降至 QAM16 甚至 BPSK），以更低的传输速率换取可接受的 BER，从而保证通信的连续性和可靠性；反之当终端靠近基站、SNR 提升时，也可以切换回更高阶调制以提升吞吐量。", "pitfall": "需要说清「SNR降低→BER升高→切换到更低阶调制以换取可靠性」这一因果链条，而不仅仅是罗列调制方式。"}, {"type": "essay", "points": 10, "question": "论述 802.11 数据帧中 ToDS/FromDS 两个比特的 4 种组合分别对应的地址字段含义，并结合主机 H1 经 AP1、路由器 R1 访问 Internet 的场景，说明该场景下 802.11 帧地址字段的具体取值。", "options": [], "answer": "", "knowledge_point": "802.11 MAC 帧结构与地址字段", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong>：802.11 数据帧的地址 1~4 字段取值取决于 ToDS 与 FromDS 两个比特的组合：①ToDS=0, FromDS=0（IBSS，无 AP 的自组网场景）：地址1=目的地址(DA)，地址2=源地址(SA)，地址3=BSSID，地址4不使用；②ToDS=0, FromDS=1（AP 向主机发送，架构网络）：地址1=目的地址(DA)，地址2=AP 地址(BSSID)，地址3=源地址(SA)；③ToDS=1, FromDS=0（主机向 AP 发送，架构网络）：地址1=AP 地址(BSSID)，地址2=源地址(SA)，地址3=目的地址(DA)；④ToDS=1, FromDS=1（WDS 无线分布系统，AP 间无线桥接）：地址1=RA（接收地址），地址2=TA（发送地址），地址3=DA（目的地址），地址4=SA（源地址）。<br><br>结合场景：主机 H1 向 AP1 发送数据帧属于「主机向AP」场景（ToDS=1, FromDS=0），因此该 802.11 帧的地址1=AP1 的 MAC 地址，地址2=H1 的 MAC 地址，地址3=R1 的 MAC 地址（即最终的目的地址）。AP1 收到后会将其转换为有线以太网 802.3 帧转发给 R1，802.3 帧只需要两个地址：目的 MAC 地址=R1 的 MAC 地址，源 MAC 地址=H1 的 MAC 地址。可见 802.11 帧比 802.3 帧多出一个地址字段，用于携带 AP 自身的 MAC 地址（BSSID），这是无线局域网帧格式相较于有线以太网帧格式的关键差异之一。", "pitfall": "务必区分「802.11 帧的地址3=R1 MAC」与「转换后 802.3 帧的目的MAC=R1 MAC」两者虽然值相同但字段位置/含义不同。"}, {"type": "comprehensive", "points": 20, "question": "综合题（共 3 小题）：(1)（6分）在 802.11 CSMA/CA 协议中，若发送端采用 RTS/CTS 完整预约机制发送一帧数据，从主机有数据要发送开始，到收到接收方正确接收后回送的确认帧为止，最快需要多长时间？请用 DIFS 与 SIFS 表示，并给出推导过程（忽略传播时延、处理时延和传输时延）。(2)（7分）结合 ToDS=1, FromDS=0 的地址字段规则，分析主机 H1 经 AP1、路由器 R1 访问 Internet 时，802.11 帧与随后 AP1 转发的 802.3 以太网帧在地址字段数量和取值上有何不同。(3)（7分）结合「无线网络分类（单跳/多跳 × 有/无基础设施）」表格，说明蓝牙（Bluetooth）、基础结构模式的 802.11 WiFi、MANET 分别属于哪一类，并各举一例说明其数据转发方式的特点。", "options": [], "answer": "", "knowledge_point": "CSMA/CA 与 RTS/CTS / 802.11 帧地址字段 / 无线网络分类", "diagnosis_hint": "", "explanation": "<strong>参考答案</strong><br><br><strong>(1)</strong> 采用 RTS/CTS 完整预约机制时，信道占用过程依次为：发送端监听信道空闲达 <strong>DIFS</strong> 时间后发送 RTS 帧；AP 等待 <strong>SIFS</strong> 后回复 CTS 帧；发送端收到 CTS 后等待 <strong>SIFS</strong> 后发送数据帧（DATA）；接收方正确收到数据帧后再等待 <strong>SIFS</strong> 后回送 ACK 确认帧。由于题目要求忽略传播时延、处理时延和传输时延，因此所需的最短时间仅由帧间等待间隔构成，即：$DIFS + SIFS + SIFS + SIFS = DIFS + 3\\,SIFS$。<br><br><strong>(2)</strong> H1 向 AP1 发送数据帧时 ToDS=1, FromDS=0，802.11 帧的地址1=AP1 的 MAC 地址（BSSID），地址2=H1 的 MAC 地址（源地址），地址3=R1 的 MAC 地址（最终目的地址），共使用 <strong>3 个</strong>地址字段。AP1 收到后转换为有线以太网 802.3 帧转发给 R1，802.3 帧只需要 <strong>2 个</strong>地址字段：目的 MAC 地址=R1 的 MAC 地址，源 MAC 地址=H1 的 MAC 地址。可见 802.11 帧比 802.3 帧多出一个地址字段（AP 的 MAC 地址），这是因为无线局域网中主机与最终通信对端之间需要先经过 AP 中继，802.11 帧需要显式标识这一跳的 AP 地址，而在有线以太网帧中，AP（已完成协议转换）不再作为帧头地址出现。<br><br><strong>(3)</strong> 蓝牙：无基站、点对点/小范围直接通信，属于<strong>单跳、无基础设施</strong>——例如蓝牙耳机与手机直接建立连接，数据不经过任何中继直接单跳传输。基础结构模式的 802.11 WiFi：主机连接到 AP，AP 再接入更大的互联网，属于<strong>单跳、有基础设施</strong>——例如笔记本电脑通过家用路由器（AP）一跳接入 Internet。MANET（移动自组网）：没有基站，也没有直接连接到更大的互联网，节点之间可能需要经过多个其他无线节点中继才能到达目标节点，属于<strong>多跳、无基础设施</strong>——例如车载自组网 VANET 或战场自组网中，数据包依次经过多个中间节点转发才能到达最终目的节点。", "pitfall": "第(1)问容易漏算某一段 SIFS 或误加上 DIFS 的次数；第(3)问要注意「是否经过AP」决定有无基础设施，「是否需要中继多跳」决定单跳/多跳。"}];
+var LABELS = {"page_title": "章节测试", "section": {"choice": "一、选择题", "tf": "二、判断题", "short": "三、简答题", "essay": "四、问答题", "comprehensive": "五、综合题"}, "section_order": ["choice", "tf", "short", "essay", "comprehensive"], "points_suffix": "分", "true_label": "正确", "false_label": "错误", "placeholder": "在此作答...", "pitfall_prefix": "易错提醒：", "correct_label": "正确", "wrong_label": "错误", "answer_prefix": "正确答案：", "reference_label": "参考答案", "graded_label": "已批改", "grade_button": "提交批改", "unanswered_label": "未作答", "wrong_review_title": "错题分析文档", "wrong_review_intro": "本次收录 __COUNT__ 道客观题错题。可以下载 Markdown 文档，或复制整段内容交给模型做错因分析和二次学习规划。", "no_wrong_questions": "本次客观题没有错题。主观题请对照参考答案自行复盘。", "download_wrong_review": "下载错题文档", "copy_wrong_review_prompt": "复制错题分析 Prompt", "score_label": "总分", "duration_prefix": "满分 100 分 | 建议 ", "duration_suffix": " 分钟 | 选择答案后点击提交批改"};
+var WRONG_REVIEW_PROMPT = "";
+var LAST_WRONG_REVIEW = '';
+
+function pointsOf(q) {
+  return q.points || q.score || 0;
+}
+
+function stripHtml(html) {
+  var div = document.createElement('div');
+  div.innerHTML = html || '';
+  return (div.textContent || div.innerText || '').replace(/\s+/g, ' ').trim();
+}
+
+// Convert Markdown fenced code blocks (```lang\n...\n```) and inline `code`
+// to <pre><code> / <code> HTML, then convert \n to <br> for plain text lines.
+function formatQuestion(text) {
+  if (!text) return '';
+  // 1. Replace fenced code blocks: ```lang\ncode\n```
+  text = text.replace(/```(\w*)\n([\s\S]*?)```/g, function(_, lang, code) {
+    var escaped = code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    var cls = lang ? ' class="language-' + lang + '"' : '';
+    return '<pre><code' + cls + '>' + escaped + '</code></pre>';
+  });
+  // 2. Replace inline backtick `code`
+  text = text.replace(/`([^`\n]+)`/g, function(_, code) {
+    var escaped = code.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return '<code>' + escaped + '</code>';
+  });
+  // 3. Convert remaining \n to <br> (outside pre blocks already handled above)
+  // Split on <pre>...</pre> so we don't double-process code blocks
+  var parts = text.split(/(<pre>[\s\S]*?<\/pre>)/);
+  for (var i = 0; i < parts.length; i++) {
+    if (i % 2 === 0) {
+      parts[i] = parts[i].replace(/\n/g, '<br>');
+    }
+  }
+  return parts.join('');
+}
+
+function answerText(q, value) {
+  if (value === null || value === undefined || value === '') return LABELS.unanswered_label;
+  var idx = parseInt(value);
+  if (q.type === 'choice') {
+    return String.fromCharCode(65 + idx) + '. ' + ((q.options && q.options[idx]) ? stripHtml(q.options[idx]) : '');
+  }
+  if (q.type === 'tf') {
+    return idx === 0 ? LABELS.true_label : LABELS.false_label;
+  }
+  return String(value);
+}
+
+function normalizedAnswer(q) {
+  if (q.type === 'tf') {
+    if (q.answer === LABELS.true_label || q.answer === true || q.answer === 'true') return 0;
+    if (q.answer === LABELS.false_label || q.answer === false || q.answer === 'false') return 1;
+  }
+  return parseInt(q.answer);
+}
+
+function questionTypeLabel(type) {
+  return LABELS.section[type] || type;
+}
+
+function build(){
+  var container = document.getElementById('questions-container');
+  if (!container) { console.error('ExamPass: questions-container not found'); return; }
+  var h = '';
+  var sec = '';
+  var titles = LABELS.section;
+
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var s = q.type;
+    if (s !== sec) {
+      sec = s;
+      if (titles[s]) {
+        h += '<h3>' + titles[s] + '</h3>';
+      }
+    }
+
+    var qid = 'q' + i;
+    h += '<div class="q-card" id="card-' + qid + '">';
+    h += '<div class="q-num">' + (i+1) + '. (' + pointsOf(q) + ' ' + LABELS.points_suffix + ')</div>';
+    h += '<div class="q-text">' + formatQuestion(q.question) + '</div>';
+
+    if (q.type === 'choice') {
+      var opts = q.options || [];
+      for (var j = 0; j < opts.length; j++) {
+        h += '<label class="option" id="opt-' + qid + '-' + j + '" onclick="sel(\'' + qid + '\',' + j + ')">';
+        h += '<input type="radio" name="' + qid + '" value="' + j + '">' + String.fromCharCode(65+j) + '. ' + opts[j] + '</label>';
+      }
+    } else if (q.type === 'tf') {
+      h += '<label class="option" id="opt-' + qid + '-0" onclick="sel(\'' + qid + '\',0)">';
+      h += '<input type="radio" name="' + qid + '" value="0">' + LABELS.true_label + '</label>';
+      h += '<label class="option" id="opt-' + qid + '-1" onclick="sel(\'' + qid + '\',1)">';
+      h += '<input type="radio" name="' + qid + '" value="1">' + LABELS.false_label + '</label>';
+    } else {
+      h += '<textarea class="q-textarea" id="text-' + qid + '" placeholder="' + LABELS.placeholder + '" rows="3"></textarea>';
+    }
+
+    h += '<div class="result" id="result-' + qid + '">';
+    h += '<span class="badge" id="badge-' + qid + '"></span><span id="correct-' + qid + '"></span>';
+    h += '<div class="explanation">' + q.explanation + '</div>';
+    if (q.pitfall) {
+      h += '<div class="pitfall">' + LABELS.pitfall_prefix + q.pitfall + '</div>';
+    }
+    h += '</div></div>';
+  }
+
+  container.innerHTML = h;
+
+  // Re-render MathJax for dynamically inserted formulas
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([container]).catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+document.addEventListener('DOMContentLoaded', build);
+if (document.readyState === 'interactive' || document.readyState === 'complete') {
+  build();
+}
+
+function sel(qid, idx) {
+  var prefix = 'opt-' + qid + '-';
+  var all = document.querySelectorAll('[id^="' + prefix + '"]');
+  for (var i = 0; i < all.length; i++) {
+    all[i].classList.remove('selected');
+  }
+  var target = document.getElementById('opt-' + qid + '-' + idx);
+  if (target) {
+    target.classList.add('selected');
+  }
+  var radio = document.querySelector('input[name="' + qid + '"][value="' + idx + '"]');
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+function gradeAll() {
+  var score = 0;
+  var wrongItems = [];
+  for (var i = 0; i < Q.length; i++) {
+    var q = Q[i];
+    var qid = 'q' + i;
+    var card = document.getElementById('card-' + qid);
+    var result = document.getElementById('result-' + qid);
+    var badge = document.getElementById('badge-' + qid);
+    var correctEl = document.getElementById('correct-' + qid);
+    if (!card || !result) continue;
+
+    result.style.display = 'block';
+
+    if (q.type === 'choice' || q.type === 'tf') {
+      var radio = document.querySelector('input[name="' + qid + '"]:checked');
+      var correctIndex = normalizedAnswer(q);
+      if (radio && parseInt(radio.value) === correctIndex) {
+        score += pointsOf(q);
+        card.classList.add('correct');
+        badge.className = 'badge badge-ok';
+        badge.textContent = LABELS.correct_label;
+        correctEl.innerHTML = '';
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+      } else {
+        card.classList.add('wrong');
+        badge.className = 'badge badge-no';
+        badge.textContent = LABELS.wrong_label;
+        var ansText = answerText(q, correctIndex);
+        correctEl.innerHTML = LABELS.answer_prefix + ansText;
+        if (radio) {
+          var wrongOpt = document.getElementById('opt-' + qid + '-' + radio.value);
+          if (wrongOpt) wrongOpt.classList.add('wrong-answer');
+        }
+        var correctOpt = document.getElementById('opt-' + qid + '-' + correctIndex);
+        if (correctOpt) correctOpt.classList.add('correct-answer');
+        wrongItems.push({
+          number: i + 1,
+          type: questionTypeLabel(q.type),
+          points: pointsOf(q),
+          question: stripHtml(q.question),
+          options: (q.options || []).map(stripHtml),
+          userAnswer: answerText(q, radio ? radio.value : null),
+          correctAnswer: ansText,
+          explanation: stripHtml(q.explanation),
+          pitfall: stripHtml(q.pitfall || ''),
+          knowledgePoint: stripHtml(q.knowledge_point || q.knowledgePoint || '')
+        });
+      }
+    } else {
+      card.classList.add('correct');
+      badge.className = 'badge badge-ref';
+      badge.textContent = LABELS.reference_label;
+    }
+  }
+
+  var sb = document.getElementById('score-box');
+  if (sb) {
+    sb.style.display = 'block';
+    document.getElementById('score-num').textContent = score;
+    sb.scrollIntoView({behavior:'smooth'});
+  }
+
+  var opts = document.querySelectorAll('.option');
+  for (var i = 0; i < opts.length; i++) opts[i].style.pointerEvents = 'none';
+  var tas = document.querySelectorAll('.q-textarea');
+  for (var i = 0; i < tas.length; i++) tas[i].disabled = true;
+
+  var btn = document.getElementById('grade-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = LABELS.graded_label;
+  }
+
+  buildWrongReview(wrongItems);
+
+  // Re-render MathJax for revealed explanations
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise().catch(function(err) {
+      console.error('MathJax typeset error:', err);
+    });
+  }
+}
+
+function buildWrongReview(wrongItems) {
+  var box = document.getElementById('wrong-review-box');
+  if (!box) return;
+
+  LAST_WRONG_REVIEW = renderWrongReviewMarkdown(wrongItems);
+
+  if (!wrongItems.length) {
+    box.style.display = 'block';
+    box.innerHTML = '<h3>' + LABELS.wrong_review_title + '</h3><p>' + LABELS.no_wrong_questions + '</p>';
+    return;
+  }
+
+  box.style.display = 'block';
+  box.innerHTML = [
+    '<h3>' + LABELS.wrong_review_title + '</h3>',
+    '<p>' + LABELS.wrong_review_intro.replace('__COUNT__', wrongItems.length) + '</p>',
+    '<div class="wrong-review-actions">',
+    '<button type="button" onclick="downloadWrongReview()">' + LABELS.download_wrong_review + '</button>',
+    '<button type="button" onclick="copyWrongReviewPrompt()">' + LABELS.copy_wrong_review_prompt + '</button>',
+    '</div>',
+    '<textarea id="wrong-review-text" readonly rows="12">' + LAST_WRONG_REVIEW.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</textarea>'
+  ].join('');
+}
+
+function renderWrongReviewMarkdown(wrongItems) {
+  var now = new Date().toLocaleString();
+  var lines = [];
+
+  lines.push('# ExamPass 错题分析文档');
+  lines.push('');
+  lines.push('- 生成时间：' + now);
+  lines.push('- 错题数量：' + wrongItems.length);
+  lines.push('');
+  lines.push('## 给模型的错题分析 Prompt');
+  lines.push('');
+  if (WRONG_REVIEW_PROMPT) {
+    lines.push(WRONG_REVIEW_PROMPT);
+  } else {
+    lines.push('请根据下面的错题记录，分析我的错因，并给出继续学习方案。要求：');
+    lines.push('1. 按知识模块归类错题，不要只逐题复述答案；');
+    lines.push('2. 判断每道题错在概念定义、公式推导、图表理解、条件适用、计算步骤、概念混淆还是审题；');
+    lines.push('3. 对涉及公式或推导的错题，补全从前提到结论的推导链条，不能跳步；');
+    lines.push('4. 对选择题，解释我选错选项为什么有迷惑性，以及正确选项和错误选项的关键边界；');
+    lines.push('5. 给出需要回看课件的具体知识点、图表、公式和页/章节线索；');
+    lines.push('6. 最后生成一份二次学习清单和 5 道针对这些薄弱点的进阶训练题。');
+  }
+  lines.push('');
+  lines.push('## 错题记录');
+  lines.push('');
+
+  if (!wrongItems.length) {
+    lines.push('本次没有客观题错题。');
+    return lines.join('\n');
+  }
+
+  for (var i = 0; i < wrongItems.length; i++) {
+    var item = wrongItems[i];
+    lines.push('### 错题 ' + (i + 1) + '：第 ' + item.number + ' 题');
+    lines.push('');
+    lines.push('- 题型：' + item.type);
+    lines.push('- 分值：' + item.points);
+    lines.push('- 题干：' + item.question);
+    if (item.options.length) {
+      lines.push('- 选项：');
+      for (var j = 0; j < item.options.length; j++) {
+        lines.push('  - ' + String.fromCharCode(65 + j) + '. ' + item.options[j]);
+      }
+    }
+    lines.push('- 我的答案：' + item.userAnswer);
+    lines.push('- 正确答案：' + item.correctAnswer);
+    lines.push('- 解析：' + item.explanation);
+    if (item.pitfall) lines.push('- 易错点：' + item.pitfall);
+    if (item.knowledgePoint) lines.push('- 对应知识点：' + item.knowledgePoint);
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+function downloadWrongReview() {
+  if (!LAST_WRONG_REVIEW) return;
+  var blob = new Blob([LAST_WRONG_REVIEW], {type: 'text/markdown;charset=utf-8'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = '错题分析文档.md';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function copyWrongReviewPrompt() {
+  var text = LAST_WRONG_REVIEW || '';
+  if (!text) return;
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text);
+  } else {
+    var ta = document.getElementById('wrong-review-text');
+    if (ta) {
+      ta.focus();
+      ta.select();
+      document.execCommand('copy');
+    }
+  }
+}
+
+</script>
+</body>
+</html>
