@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 7：无线与移动网络</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 7：无线与移动网络</h1>
+<div class="toc">
+<h2>目录</h2>
+<ul>
+<li><a href="#s66847130">7.1 无线与移动网络概述</a></li>
+  <li><a href="#s45746727">无线与移动网络的背景 了解</a></li>
+  <li><a href="#s48333681">无线网络的组成要素 重点</a></li>
+  <li><a href="#s28782514">典型无线网络标准对比 常考</a></li>
+  <li><a href="#s34546377">无线网络的模式：基础结构与自组织 必考</a></li>
+  <li><a href="#s87956562">无线网络分类（单跳/多跳 × 有/无基础设施） 重点</a></li>
+<li><a href="#s82884489">7.2 无线链路与网络特性</a></li>
+  <li><a href="#s23419471">无线链路与有线链路的区别 必考</a></li>
+  <li><a href="#s46759725">信噪比与误码率（SNR / BER） 必考</a></li>
+  <li><a href="#s12937534">隐藏终端问题与信号衰减问题 必考</a></li>
+<li><a href="#s30243096">7.3 无线局域网：IEEE 802.11</a></li>
+  <li><a href="#s39465017">802.11 标准家族对比 必考</a></li>
+  <li><a href="#s80405537">802.11 LAN 体系结构：BSS 与 AP 重点</a></li>
+  <li><a href="#s67374472">信道选择与关联过程 重点</a></li>
+  <li><a href="#s37288078">被动扫描与主动扫描 常考</a></li>
+  <li><a href="#s19129781">CSMA/CA 协议原理 必考</a></li>
+  <li><a href="#s38169809">RTS/CTS 冲突避免机制 必考</a></li>
+  <li><a href="#s83677695">802.11 MAC 帧结构与地址字段 重点</a></li>
+  <li><a href="#s39409921">移动性与高级功能 常考</a></li>
+  <li><a href="#s79705087">蓝牙（Bluetooth）个人区域网 了解</a></li>
+<li><a href="#s52702246">公式速查</a></li>
+<li><a href="#s47016832">易错点汇总</a></li>
+<li><a href="#s25268143">考试重点提示</a></li>
+<li><a href="#s69346373">本章总结</a></li>
+</ul>
+</div>
+
+<h2 id="s66847130">7.1 无线与移动网络概述</h2>
+
+<h3 id="s45746727">无线与移动网络的背景 <span class="tag-info">了解</span></h3>
+<p>无线（移动）电话用户数已远超固定（有线）电话用户；移动宽带连接设备数也已超过固定宽带连接设备数。蜂窝网络现已采用<span class="kp">互联网协议栈</span>，并引入 <span class="kp">4G/5G</span>、<span class="kp">SDN</span> 等技术。无线与移动网络面临两个重要且不同的挑战：<span class="kp">无线（wireless）</span>——通过无线链路进行通信；<span class="kp">移动（mobile）</span>——处理改变网络接入点的移动用户。</p>
+<blockquote>易错："无线"与"移动"是两个不同维度的概念，二者既可以独立存在也可以同时存在（见下文"无线网络分类"）。</blockquote>
+
+<h3 id="s48333681">无线网络的组成要素 <span class="tag-key">重点</span></h3>
+<p><span class="kp">无线主机（wireless host）</span>：笔记本电脑、智能手机、IoT 设备等，运行应用程序，可以是静止的（非移动）或移动的。<span class="exp">无线并不总是意味着移动性</span>——例如台式机通过无线网卡接入网络但从不移动。</p>
+<p><span class="kp">基站（base station）</span>：通常连接到有线网络，起<span class="exp">中继</span>作用，负责在其"蜂窝区域"中的有线网络和无线主机之间转发数据包，例如手机信号塔、802.11 接入点（AP）。主机与某个基站<span class="kp">相关联（associate）</span>。</p>
+<p><span class="kp">无线链路（wireless link）</span>：通常用于将移动设备连接到基站，也可用作骨干链路；由<span class="kp">多路访问控制（MAC）协议</span>协调链路接入；具有各种不同的传输速率、覆盖距离和使用频段。</p>
+
+<h3 id="s28782514">典型无线网络标准对比 <span class="tag-freq">常考</span></h3>
+<p>按覆盖范围可大致分为：室内（10-30m，如 Bluetooth 2Mbps）、室外中距离（50-200m，如 802.11b/g/n）、室外中长距离（200m-4km，如 802.11ac/ax、4G LTE）、室外长距离（4km-15km，如 5G、802.11af/ah）。总体趋势是<span class="exp">覆盖范围越大，可达到的最高数据速率通常越低</span>。</p>
+
+<h3 id="s34546377">无线网络的模式：基础结构与自组织 <span class="tag-must">必考</span></h3>
+<table>
+<tr><th>模式</th><th>特点</th></tr>
+<tr><td>基础结构模式（infrastructure）</td><td>基站将移动终端连接到有线网络；移动终端更换基站时发生<span class="kp">切换（handoff）</span>，以维持有线网络连接</td></tr>
+<tr><td>自组织模式（ad hoc）</td><td>网络中<span class="kp">无基站</span>；节点只能向无线链路覆盖范围内的其他节点传输；节点之间自行组织成一个网络（自组网），并在节点间进行路由</td></tr>
+</table>
+
+<h3 id="s87956562">无线网络分类（单跳/多跳 × 有/无基础设施） <span class="tag-key">重点</span></h3>
+<table>
+<tr><th></th><th>单跳</th><th>多跳</th></tr>
+<tr><td>有基础设施</td><td>主机连接到基站（WiFi、蜂窝），基站连接到更大的互联网</td><td>主机可能需通过多个无线节点中继才能连接到更大的互联网：<span class="kp">网状网络（mesh network）</span></td></tr>
+<tr><td>无基础设施</td><td>没有基站，无法连接到更大的互联网（蓝牙、点对点网络）</td><td>没有基站，也没有连接到更大的互联网；可能需要中继才能到达其他给定的无线节点：<span class="kp">MANET</span>、<span class="kp">VANET</span></td></tr>
+</table>
+
+<h2 id="s82884489">7.2 无线链路与网络特性</h2>
+
+<h3 id="s23419471">无线链路与有线链路的区别 <span class="tag-must">必考</span></h3>
+<p>无线链路存在以下几个使通信变得更加"困难"的独特问题：</p>
+<p>1）<span class="kp">信号强度衰减（路径损耗）</span>：无线电信号在介质中传播时逐渐衰减；</p>
+<p>2）<span class="kp">来自其他来源的干扰</span>：许多设备（如 WiFi、蜂窝网络、电机）共享同一无线频率（如 2.4GHz），彼此产生干扰；</p>
+<p>3）<span class="kp">多路径传播</span>：无线电信号从物体表面反射后，会在不同时刻到达同一目的地，造成信号失真。</p>
+
+<h3 id="s46759725">信噪比与误码率（SNR / BER） <span class="tag-must">必考</span></h3>
+<p><span class="kp">信噪比（SNR）</span>越大，越容易从噪声中提取出信号；<span class="kp">误码率（BER）</span>则是比特差错发生的概率。二者之间存在权衡（SNR vs BER）：</p>
+<p>给定物理层技术：<span class="exp">增大发送功率 --> SNR 增大 --> BER 降低</span>；</p>
+<p>给定 SNR：应选择满足 BER 要求前提下<span class="exp">吞吐量最高</span>的物理层调制方式（如 BPSK 1Mbps、QAM16 4Mbps、QAM256 8Mbps，SNR 越高可用的调制阶数越高）；</p>
+<p>SNR 可能随<span class="kp">移动性</span>变化而变化，因此需要<span class="kp">动态自适应物理层</span>（调制技术、传输速率）以维持可接受的 BER。</p>
+
+<h3 id="s12937534">隐藏终端问题与信号衰减问题 <span class="tag-must">必考</span></h3>
+<p>设有 A、B、C 三个节点依次分布，B 位于 A 和 C 之间。</p>
+<p><span class="kp">隐藏终端问题</span>：B 与 A 彼此可以侦听到；B 与 C 彼此可以侦听到；但 <span class="exp">A 与 C 由于障碍物遮挡（信号被完全阻断），彼此侦听不到</span>——若 A、C 同时向 B 发送，会在 B 处发生冲突，而 A、C 双方都不知情。</p>
+<p><span class="kp">信号衰减问题</span>：B 与 A、B 与 C 彼此可以侦听到；但 A、C <span class="exp">因距离过远、信号强度衰减</span>而彼此侦听不到，即 A 和 C 不知道他们的信号会在 B 处相互干扰。</p>
+<blockquote>易错：隐藏终端问题与信号衰减问题的现象相似（A、C 互相听不到导致 B 处冲突），但<span class="exp">成因不同</span>——前者是障碍物遮挡，后者是距离过远导致的信号强度衰减，二者都会促使 802.11 采用 CSMA/CA 而非 CSMA/CD。</blockquote>
+
+<h2 id="s30243096">7.3 无线局域网：IEEE 802.11</h2>
+
+<h3 id="s39465017">802.11 标准家族对比 <span class="tag-must">必考</span></h3>
+<table>
+<tr><th>标准</th><th>频段</th><th>最高数据速率</th><th>物理层技术</th><th>特点</th></tr>
+<tr><td>802.11b</td><td>2.4GHz</td><td>11Mbps</td><td>直接序列扩频（DSSS）</td><td>速率最低，价格最低，传播距离最远，不易受阻碍</td></tr>
+<tr><td>802.11a</td><td>5GHz</td><td>54Mbps</td><td>OFDM</td><td>速率较高，支持更多用户，价格最高，传播距离较短，易受阻碍</td></tr>
+<tr><td>802.11g</td><td>2.4GHz</td><td>54Mbps</td><td>OFDM</td><td>速率较高，传播距离远，不易受阻，价格比 802.11b 贵</td></tr>
+<tr><td>802.11n（WiFi 4）</td><td>2.4/5GHz</td><td>600Mbps</td><td>MIMO + OFDM</td><td>多天线技术，双倍带宽（40MHz）下可达最高速率</td></tr>
+<tr><td>802.11ac（WiFi 5）</td><td>5GHz</td><td>3.47Gbps</td><td>-</td><td>-</td></tr>
+<tr><td>802.11ax（WiFi 6）</td><td>2.4/5GHz</td><td>14Gbps</td><td>-</td><td>-</td></tr>
+<tr><td>802.11af / 802.11ah</td><td>TV 空闲频段 / 900MHz</td><td>数十~数百Mbps</td><td>-</td><td>覆盖距离可达 1km（长距离场景）</td></tr>
+</table>
+<p><span class="kp">所有 802.11 标准均使用 CSMA/CA 进行多址接入</span>，并具有<span class="kp">基础结构（基站）</span>与<span class="kp">自组网</span>两种网络模式版本。当前主流为 Wi-Fi 6/6E；Wi-Fi 7（802.11be）已于近年开始商用部署。</p>
+
+<h3 id="s80405537">802.11 LAN 体系结构：BSS 与 AP <span class="tag-key">重点</span></h3>
+<p>无线主机与<span class="kp">基站（base station）</span>通信，基站又称<span class="kp">接入点（Access Point, AP）</span>。AP 及与其关联的无线主机共同构成一个<span class="kp">基本服务集（Basic Service Set, BSS）</span>，也称为一个<span class="kp">蜂窝（cell）</span>。基础结构网络模式下，BSS 包含无线主机与 AP，AP 连接到交换机或路由器进而接入 Internet；自组网（ad hoc）模式下，BSS 中只有主机，没有 AP。</p>
+
+<h3 id="s67374472">信道选择与关联过程 <span class="tag-key">重点</span></h3>
+<p>频谱被划分为不同频率的<span class="kp">信道（channel）</span>，每个 AP 需选择一个信道工作；相邻的 AP 可能选择相同的信道，从而存在<span class="exp">干扰</span>的可能。主机必须与某个 AP<span class="kp">关联（associate）</span>才能通信，一般流程为：主机扫描信道，监听包含 <span class="kp">服务集标识符（SSID）</span>和 MAC 地址的<span class="kp">信标帧（beacon frame）</span>；选择一个 BSS 进行关联；可能需要进行身份认证；典型情形下随后运行 DHCP 获取 IP 地址等信息。</p>
+
+<h3 id="s37288078">被动扫描与主动扫描 <span class="tag-freq">常考</span></h3>
+<table>
+<tr><th>方式</th><th>过程</th></tr>
+<tr><td>被动扫描（passive scanning）</td><td>①各 AP 周期性发送信标帧（Beacon Frame）；②主机(H1)向选择的 AP 发送关联请求帧；③AP 向主机(H1)发送关联响应帧</td></tr>
+<tr><td>主动扫描（active scanning）</td><td>①主机(H1)主动广播探测请求帧（Probe Request Frame）；②各 AP 发送探测响应帧（Probe Response Frame）；③主机(H1)向选择的 AP 发送关联请求帧；④AP 向主机(H1)发送关联响应帧</td></tr>
+</table>
+
+<h3 id="s19129781">CSMA/CA 协议原理 <span class="tag-must">必考</span></h3>
+<p>目标：<span class="kp">避免冲突（Collision Avoidance）</span>而非像有线以太网 CSMA/CD 那样"边发送边检测冲突"。原因：①无线信道中发射信号强度远高于接收信号强度，难以在发送的同时侦听到冲突；②无法侦听到所有可能的冲突（隐藏终端、信号衰减问题）。</p>
+<p><span class="kp">802.11 发送端</span>流程：若<span class="exp">监听到信道空闲达 DIFS（分布式帧间间隔）时间</span>，则发送整个帧（无同时检测冲突）；若<span class="exp">监听到信道忙</span>，则开始随机退避计时，信道空闲时计时器倒计时，计时器超时后发送帧；若<span class="exp">未收到 ACK</span>，则增大随机退避区间并重复上述过程。</p>
+<p><span class="kp">802.11 接收端</span>：若正确接收到帧，则延迟 <span class="kp">SIFS（短帧间间隔，SIFS &lt; DIFS）</span>时间后向发送端回送 ACK；由于隐藏终端问题的存在，ACK 确认机制是必要的。</p>
+
+<h3 id="s38169809">RTS/CTS 冲突避免机制 <span class="tag-must">必考</span></h3>
+<p>基本思想：允许发送端"预约（reserve）"信道而不是随机发送数据帧，从而避免长数据帧发生冲突。流程：①发送端先利用 CSMA 向 AP 发送一个很短的 <span class="kp">RTS（request-to-send）帧</span>——RTS 帧仍可能彼此冲突，但由于帧很短，代价很低；②AP 广播一个 <span class="kp">CTS（clear-to-send）帧</span>作为对 RTS 的响应，CTS 帧可被<span class="exp">所有节点</span>接收到，从而消除隐藏终端的影响，其他节点据此推迟发送；③发送端随后发送数据帧。<span class="exp">利用很小的预约帧彻底避免了（长）数据帧的冲突</span>。</p>
+<blockquote>易错：RTS 帧本身并非绝对不会冲突，只是因为帧很短，即使冲突代价也很小；真正被"保护"而避免冲突的是后续的数据帧。</blockquote>
+
+<h3 id="s83677695">802.11 MAC 帧结构与地址字段 <span class="tag-key">重点</span></h3>
+<p>802.11 MAC 帧主要字段：帧控制（frame control）、持续时间（duration，用于 RTS/CTS 预约传输的时间）、地址 1~4、序号控制（seq control，用于处理可能的重传副本）、数据净荷（payload，0~2312 字节）、CRC 校验。帧控制字段包含协议版本、类型/子类型（区分 RTS、CTS、ACK、data 等帧类型）、ToDS、FromDS、More Frag、Retry、Power Mgt、More Data、WEP、Rsvd 等子字段。</p>
+<p>数据帧的 4 个地址字段取值取决于 <span class="kp">ToDS</span> 与 <span class="kp">FromDS</span> 两个比特的组合：</p>
+<table>
+<tr><th>场景</th><th>ToDS</th><th>FromDS</th><th>地址1</th><th>地址2</th><th>地址3</th><th>地址4</th></tr>
+<tr><td>IBSS（独立基本服务集，无 AP）</td><td>0</td><td>0</td><td>目的地址(DA)</td><td>源地址(SA)</td><td>BSSID</td><td>——</td></tr>
+<tr><td>AP --> 主机（架构网络）</td><td>0</td><td>1</td><td>目的地址(DA)</td><td>AP 地址(BSSID)</td><td>源地址(SA)</td><td>——</td></tr>
+<tr><td>主机 --> AP（架构网络）</td><td>1</td><td>0</td><td>AP 地址(BSSID)</td><td>源地址(SA)</td><td>目的地址(DA)</td><td>——</td></tr>
+<tr><td>WDS（无线分布系统）</td><td>1</td><td>1</td><td>RA</td><td>TA</td><td>DA</td><td>SA</td></tr>
+</table>
+<p>例如：主机 H1 经 AP1、路由器 R1 访问 Internet 时，802.11 帧（H1 --> AP1）的地址 1/2/3 分别为 AP 的 MAC 地址、H1 的 MAC 地址、R1 的 MAC 地址；而 AP1 转换为有线以太网 802.3 帧后转发给 R1 时，只需目的 MAC（R1 MAC 地址）与源 MAC（H1 MAC 地址）两个地址——<span class="exp">802.11 帧比 802.3 帧多一个地址字段，用于携带 AP 的 MAC 地址</span>。</p>
+
+<h3 id="s39409921">移动性与高级功能 <span class="tag-freq">常考</span></h3>
+<p><span class="kp">同一子网内的移动</span>：只要主机 H1 留在同一 IP 子网内，其 IP 地址可保持不变；交换机通过<span class="kp">自学习</span>机制——根据来自 H1 的帧，"记住"哪个交换机端口可到达 H1，从而正确转发帧。</p>
+<p><span class="kp">速率适应（rate adaptation）</span>：当移动终端远离基站导致 SNR 降低、BER 升高时，动态切换到更低阶的调制方式（如从 QAM256 切换到 QAM16 甚至 BPSK）以降低 BER，代价是速率随之降低。</p>
+<p><span class="kp">功率管理（power management）</span>：节点告知 AP"我要休眠，直到下一个信标帧"，AP 得知后不再向该节点发送帧；节点在下一个信标帧之前醒来；信标帧中包含 AP 目前缓存的、等待发送给各休眠移动终端的帧列表；若有待发送给该节点的帧，节点保持唤醒状态，否则再次进入休眠，直到下一个信标帧。</p>
+
+<h3 id="s79705087">蓝牙（Bluetooth）个人区域网 <span class="tag-info">了解</span></h3>
+<p>覆盖半径通常小于 10m，常用于替代线缆（鼠标、键盘、耳机），采用<span class="kp">自组网（无基础设施）</span>模式，使用 2.4-2.5GHz ISM 无线电频段，速率最高可达 4Mbps。设备角色分为<span class="kp">主设备（master device）</span>与<span class="kp">客户设备（client device）</span>：主设备轮询各客户设备，授予其传输许可；<span class="kp">停放设备（parked device）</span>处于非活跃（inactive）状态。</p>
+<p>多路复用方式：<span class="kp">TDM</span>（625μs 时隙）+ <span class="kp">FDM</span>（发送方使用<span class="kp">跳频扩频 FHSS</span>：79 个频率信道，每个时隙使用一个信道，按伪随机顺序在信道间跳变；不在同一皮克网（piconet）内的设备仅可能干扰某些时隙）。<span class="kp">停放模式</span>：客户设备可"进入睡眠"（停放）并在稍后唤醒以节省电量；<span class="kp">引导（bootstrapping）</span>：节点即插即用地自组成一个皮克网。</p>
+
+<h2 id="s52702246">公式速查</h2>
+<table>
+<tr><th>场景</th><th>说明</th></tr>
+<tr><td>CSMA/CA 最短信道占用时间（不使用 RTS/CTS）</td><td>$DIFS + SIFS$（发送数据帧 + 接收方回 ACK）</td></tr>
+<tr><td>CSMA/CA + RTS/CTS 完整预约信道占用时间</td><td>$DIFS + 3\,SIFS$（RTS --> SIFS --> CTS --> SIFS --> DATA --> SIFS --> ACK，忽略传播/处理/传输时延）</td></tr>
+</table>
+
+<h2 id="s47016832">易错点汇总</h2>
+<blockquote>易错：无线 ≠ 移动。静止设备也可以通过无线方式接入网络（如台式机 WiFi 网卡）。</blockquote>
+<blockquote>易错：802.11 的 CSMA/CA 不能像有线以太网 CSMA/CD 那样在发送的同时检测冲突，因为无线收发器发送信号强度远大于接收信号强度，且存在隐藏终端/信号衰减导致的"侦听盲区"。</blockquote>
+<blockquote>易错：隐藏终端问题（障碍物遮挡）与信号衰减问题（距离过远）现象相似但成因不同。</blockquote>
+<blockquote>易错：RTS 帧仍可能冲突，只是代价很小；数据帧才是被 RTS/CTS 机制真正保护、避免冲突的对象。</blockquote>
+<blockquote>易错：802.11 数据帧有 4 个地址字段，具体取值取决于 ToDS/FromDS 两个比特的组合，而非固定不变。</blockquote>
+
+<h2 id="s25268143">考试重点提示</h2>
+<p>本章 PPT 课件（学生版）标题页列出的教学大纲包含 7.1~7.8 共 8 个小节（含移动通信网络体系结构、移动 IP、移动管理等），但<span class="exp">本课件实际提供的内容仅覆盖到 7.3（IEEE 802.11 无线局域网）及蓝牙</span>，7.4~7.8（移动通信网络体系结构、网络移动管理原理、移动 IP、移动通信网络的移动管理、无线与移动对高层协议的影响）在本课件中<span class="kp">未展开讲授</span>。如老师明确要求这些内容，请以课堂讲授或教材（谢希仁《计算机网络》/ Kurose &amp; Ross）补充内容为准，本讲义暂不包含对应知识点。</p>
+
+<h2 id="s69346373">本章总结</h2>
+<p>本章围绕无线与移动网络的物理特性与接入控制展开：7.1 介绍了无线网络的组成要素（主机、基站、无线链路）与两种网络模式（基础结构、自组网）；7.2 分析了无线链路区别于有线链路的三大特性（衰减、干扰、多路径）及 SNR/BER 权衡、隐藏终端问题；7.3 详细讲解了 IEEE 802.11 标准族、BSS 体系结构、关联过程、CSMA/CA 协议及 RTS/CTS 冲突避免机制、MAC 帧地址字段规则，并简要介绍了蓝牙个人区域网技术。CSMA/CA 协议原理与 RTS/CTS 预约机制、802.11 帧地址字段是本章考查的重点与难点。</p>
+
+
+
+</body>
+</html>

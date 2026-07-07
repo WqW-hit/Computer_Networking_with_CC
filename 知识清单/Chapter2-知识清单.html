@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 2：物理层</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 2：物理层</h1>
+<div class="toc">
+<h2>目录</h2>
+<ul>
+<li><a href="#s43328446">本章知识地图与学习目标</a></li>
+<li><a href="#s24891507">2.1 物理层基本功能</a></li>
+  <li><a href="#s38495243">物理层的功能、接口与传输模式 必考</a></li>
+  <li><a href="#s18705726">物理层接口特性 必考</a></li>
+<li><a href="#s21875417">2.2 数据通信基础</a></li>
+  <li><a href="#s38138494">数据通信系统的基本概念 重点</a></li>
+  <li><a href="#s25094681">异步通信与同步通信 必考</a></li>
+  <li><a href="#s40190456">信源编码（PCM）与扩频 常考</a></li>
+<li><a href="#s65023595">2.3 物理介质</a></li>
+  <li><a href="#s18174046">导引型传输介质 重点</a></li>
+  <li><a href="#s32051826">非导引型传输介质与电磁波传播方式 常考</a></li>
+<li><a href="#s43010541">2.4 信道与信道容量</a></li>
+  <li><a href="#s79544558">信道分类与传输特性 重点</a></li>
+  <li><a href="#s84263216">奈奎斯特公式与香农公式 必考</a></li>
+<li><a href="#s88088794">2.5 信道共享-多路复用</a></li>
+  <li><a href="#s44642762">频分复用FDM与时分复用TDM 必考</a></li>
+  <li><a href="#s23118245">波分复用WDM与码分复用CDM 重点</a></li>
+<li><a href="#s26335795">2.6 基带传输</a></li>
+  <li><a href="#s51148866">基带传输基本概念 重点</a></li>
+  <li><a href="#s67996331">典型数字基带传输码型 必考</a></li>
+<li><a href="#s77018872">2.7 频带传输</a></li>
+  <li><a href="#s14240416">频带传输基本概念与二进制数字调制 必考</a></li>
+  <li><a href="#s68800184">多进制数字调制与QAM 重点</a></li>
+<li><a href="#s31898734">2.8 物理层设备</a></li>
+  <li><a href="#s94923618">中继器与集线器 了解</a></li>
+<li><a href="#s56380733">公式速查</a></li>
+<li><a href="#s80389758">易错点汇总</a></li>
+<li><a href="#s85214525">考试重点提示</a></li>
+<li><a href="#s45808672">本章总结</a></li>
+</ul>
+</div>
+
+<h2 id="s43328446">本章知识地图与学习目标</h2>
+<p>物理层要回答的核心问题只有一个：<span class="kp">如何在连接结点的物理介质上把比特流从一端送到另一端</span>。<span class="exp">全章按"功能与接口(2.1) --> 数据通信基本原理(2.2) --> 传输介质(2.3) --> 信道容量上限(2.4) --> 信道如何被多人共享(2.5) --> 基带传输怎么编码(2.6) --> 频带传输怎么调制(2.7) --> 物理层设备(2.8)"的逻辑展开：先明确物理层做什么、通过什么接口与上层交互，再讲清楚数据通信的基本术语和同步方式，然后介绍比特实际跑在什么介质上，用奈奎斯特/香农公式给出这条介质理论上最多能传多快，接着讨论多个用户如何共享同一条信道，最后分别讨论"直接传数字信号"（基带传输）和"调制到载波上传"（频带传输）两种实现方式。</span></p>
+
+<h2 id="s24891507">2.1 物理层基本功能</h2>
+
+<h3 id="s38495243">物理层的功能、接口与传输模式 <span class="tag-must">必考</span></h3>
+<p><strong>核心功能</strong>：<span class="kp">在连接结点的物理介质上实现比特流的透明传输</span>，<span class="exp">需要解决比特编码、数据率、比特同步（时钟同步）等问题，向数据链路层提供的服务体现为：上层交给物理层一串比特（如1100100111），物理层负责把它原样送到对端的数据链路层。</span></p>
+<p><strong>物理层接口两端的角色</strong>：</p>
+<ul>
+<li><span class="kp">数据终端设备 DTE（Data Terminal Equipment）</span><span class="exp">：负责数据处理，是信源或信宿，如计算机、终端。</span></li>
+<li><span class="kp">数据电路终结设备 DCE（Data Circuit-terminating Equipment）</span><span class="exp">：位于DTE和传输线路之间，提供信号变换和编码功能，实现串行比特传输，如调制解调器（Modem）、网络接口卡（NIC）。DCE之后连接的是通信设施，负责在物理介质上传输比特，并与DTE之间交换数据和控制信息。</span></li>
+</ul>
+<p><strong>传输模式</strong>：<span class="kp">单工（Simplex）、半双工（half-duplex）、全双工（full-duplex）</span>三种，与下面的接口特性是并列的两类不同概念，不要混为一谈。</p>
+<blockquote>易错：DTE与DCE的角色容易记反——DTE是数据的"源/宿"（做数据处理的计算机/终端），DCE是"中间转换设备"（如Modem，负责信号变换编码），不是DTE去做信号变换。</blockquote>
+
+<h3 id="s18705726">物理层接口特性 <span class="tag-must">必考</span></h3>
+<p>物理层协议需要约定DTE和DCE间、DCE与物理介质间的接口特性，包含四个方面：</p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>特性</th><th>含义</th></tr>
+<tr><td>机械特性</td><td>指明接口所用接线器的形状和尺寸、引线数目和排列、固定和锁定装置等</td></tr>
+<tr><td>电气特性</td><td>指明在接口电缆的各条线上出现的电压范围等电路特性</td></tr>
+<tr><td>功能特性</td><td>指明某条线上出现的某一电平的电压表示何种意义</td></tr>
+<tr><td>规程特性（过程特性）</td><td>指明对于不同功能的各种可能事件的出现顺序</td></tr>
+</table>
+<blockquote>易错：单工/半双工/全双工这三种传输模式描述的是"数据流动的方向性"，并不属于机械/电气/功能/规程这四项接口特性的范畴，考试中常把二者混为一谈。</blockquote>
+
+<h2 id="s21875417">2.2 数据通信基础</h2>
+
+<h3 id="s38138494">数据通信系统的基本概念 <span class="tag-key">重点</span></h3>
+<p>一个数据通信系统由<span class="kp">信源 --&gt; 发送设备 --&gt; 信道（伴随噪声源） --&gt; 接收设备 --&gt; 信宿</span>构成：</p>
+<ul>
+<li><span class="kp">信源</span><span class="exp">：将消息转换为信号的设备，如计算机。</span></li>
+<li><span class="kp">发送设备</span><span class="exp">：对信源产生的信号进行适当变换（主要是编码和调制），使之适合在信道中传输。</span></li>
+<li><span class="kp">信道</span><span class="exp">：信号传输通道，如物理介质。</span></li>
+<li><span class="kp">噪声</span><span class="exp">：自然界和通信设备中产生的干扰。</span></li>
+<li><span class="kp">接收设备</span><span class="exp">：完成发送设备的反变换，还原原始发送信号。</span></li>
+<li><span class="kp">信宿</span><span class="exp">：信号终点，将信号转换为人们能识别的消息。</span></li>
+</ul>
+<p><strong>常见术语</strong>：</p>
+<ul>
+<li><span class="kp">数据（data）</span>：传送消息的实体。</li>
+<li><span class="kp">信号（signal）</span>：数据的电气的或电磁的表示，$y(t)=A\sin(\omega t+\theta)$。信号分为"模拟的"（参数取值连续）和"数字的"（参数取值离散）。</li>
+<li><span class="kp">码元</span>：信号的基本波形（信号基本单元）。</li>
+<li><span class="kp">频带（Spectrum）</span>：信号的频率范围，单位Hz。</li>
+<li><span class="kp">带宽（Bandwidth）</span>：有效带宽。</li>
+</ul>
+<p><strong>并行通信 vs 串行通信</strong>：<span class="exp">并行通信同时使用多条线路传输多个比特，速度快但线路成本高、只适合短距离；串行通信在一条线路上依次传输比特，是长距离数据通信的主流方式。</span></p>
+
+<h3 id="s25094681">异步通信与同步通信 <span class="tag-must">必考</span></h3>
+<p><strong>问题的来源</strong>：<span class="exp">发送器（transmitter，Tx）与接收器（receiver，Rx）之间存在时钟同步问题，有两种解决方案：异步（Asynchronous）与同步（Synchronous）。</span></p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>方式</th><th>原理</th><th>优缺点</th><th>适用场景</th></tr>
+<tr><td>异步通信</td><td>每次传输一个字符（5~8 bits），发送器和接收器分别使用各自独立的时钟；只需在每个字符传输期间保证时钟同步，两个字符之间时钟不必同步；每个字符开始时通过检测1到0的跳变重新同步时钟，结束后回归空闲状态</td><td>优点：简单、低成本；缺点：开销大，每个字符有2或3位的额外开销（约20%）</td><td>短距离、低速率、字符间间隔时间大的场景，如键盘通信</td></tr>
+<tr><td>同步通信</td><td>用于（大）数据块传输，时钟必须同步；可使用单独的时钟线（适合短距离），或将时钟信号嵌入数据信号中（如曼彻斯特编码、载波频率）以克服时钟信号损伤</td><td>比异步通信更高效（开销少）</td><td>大数据块、较长距离的高速传输</td></tr>
+</table>
+<blockquote>易错：异步通信是"字符之间"时钟不需要同步，不是"完全不需要同步"——每个字符内部（字符传输期间）仍必须保持时钟同步，否则无法正确采样。</blockquote>
+
+<h3 id="s40190456">信源编码（PCM）与扩频 <span class="tag-freq">常考</span></h3>
+<p><strong>信源编码要解决的问题</strong>：<span class="kp">如果信源产生的是模拟数据，如何在数字通信系统中传输？</span><span class="exp">答案是信源编码，典型方法是脉冲编码调制 PCM（Pulse Code Modulation），包含三个步骤，顺序不可颠倒：</span></p>
+<ol>
+<li><span class="kp">采样</span>：用一系列时间上离散的采样值代替时间上连续的模拟数据，即实现时间上的离散化。</li>
+<li><span class="kp">量化</span>：使采样值在取值上离散化。</li>
+<li><span class="kp">编码</span>：将量化后的采样值用一定位数的二进制码表示；若量化级数为$N$，则每个采样值编码成$\log_2 N$位二进制码。</li>
+</ol>
+<p><strong>扩频（Spread Spectrum）</strong>：<span class="exp">将数据的传输（调制）扩展到更宽的频带上，除了抗干扰，也能使通信不易被窃听。两种典型方式：</span></p>
+<ul>
+<li><span class="kp">跳频（Frequency Hopping）</span><span class="exp">：载波信号频率在一组频率上按某种规律随机跳变，由好莱坞女影星Hedy Lamarr发明。</span></li>
+<li><span class="kp">直接序列扩频（Direct Sequence Spread Spectrum）</span><span class="exp">：通过传输多个比特（扩频码）表示原始信息的1个比特。</span></li>
+</ul>
+<blockquote>易错：PCM三步骤的顺序是"采样 --&gt; 量化 --&gt; 编码"，考试中常把顺序打乱（如"编码-采样-量化"）来设置干扰项。</blockquote>
+
+<h2 id="s65023595">2.3 物理介质</h2>
+
+<h3 id="s18174046">导引型传输介质 <span class="tag-key">重点</span></h3>
+<ul>
+<li><span class="kp">架空明线</span><span class="exp">：易受天气和外界电磁干扰，对外界噪声敏感，带宽有限。</span></li>
+<li><span class="kp">双绞线</span><span class="exp">：主要用于基带传输，分屏蔽双绞线STP（Shielded Twisted Pair）和非屏蔽双绞线UTP（Unshielded Twisted Pair）。</span></li>
+<li><span class="kp">同轴电缆</span><span class="exp">：主要用于频带传输。</span></li>
+<li><span class="kp">光纤</span><span class="exp">：基本原理是光的全反射，分为多模光纤和单模光纤两类。</span></li>
+</ul>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>UTP类别</th><th>带宽</th><th>典型应用</th></tr>
+<tr><td>3类</td><td>16 MHz</td><td>低速网络、电话网络</td></tr>
+<tr><td>4类</td><td>20 MHz</td><td>10Base-T以太网</td></tr>
+<tr><td>5类</td><td>100 MHz</td><td>10Base-T/100Base-T，以太网、快速以太网</td></tr>
+<tr><td>5E类（超5类）</td><td>100 MHz</td><td>100Base-T/1000Base-T，快速以太网、吉比特以太网</td></tr>
+<tr><td>6类</td><td>250 MHz</td><td>1000Base-T，吉比特以太网、ATM网络</td></tr>
+</table>
+<blockquote>易错：不要把"双绞线用于基带传输"和"同轴电缆用于频带传输"这两个对应关系记反——这是常见选择题的设置角度。</blockquote>
+
+<h3 id="s32051826">非导引型传输介质与电磁波传播方式 <span class="tag-freq">常考</span></h3>
+<p><span class="kp">非导引型传输介质通过自由空间（无线电波）传播</span>，<span class="exp">不同频段具有不同的传播特性，频率越低传播损耗越小、绕射能力越强，但可用带宽也越窄。</span></p>
+<p><strong>三种主要传播方式</strong>：</p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>传播方式</th><th>频率范围</th><th>特点</th></tr>
+<tr><td>地波传播</td><td>频率较低，大约2 MHz以下</td><td>电磁波沿地球表面传播，有一定绕射能力，低频/甚低频段传播距离可超过数百米至数千公里</td></tr>
+<tr><td>天波传播</td><td>频率较高，大约2~30 MHz之间</td><td>电磁波被距地表约60~400km高度的电离层反射，电离层密度和厚度随时间随机变化（随参信道），可传播10000km以上</td></tr>
+<tr><td>视线传播</td><td>频率高于30 MHz</td><td>电磁波穿透电离层不会被反射，沿地面绕射能力很弱，通常采用视线无障碍的点对点直线传播，可设立地面或卫星中继站进行接力传输</td></tr>
+</table>
+<p><span class="exp">补充参考：无线电频谱从极低频ELF（3~30Hz，远程导航/水下通信）到紫外线（750~3000THz，光通信系统）依次覆盖了导航、广播、电视、蜂窝网、卫星通信、雷达等各类应用，频率越高可用带宽越大，但传播距离/穿透能力通常越受限。</span></p>
+<blockquote>易错：天波传播依赖"电离层反射"，视线传播则是电磁波"穿透电离层"后沿直线传播——二者常被误认为都依赖电离层，实际视线传播已经不再依赖电离层反射。</blockquote>
+
+<h2 id="s43010541">2.4 信道与信道容量</h2>
+
+<h3 id="s79544558">信道分类与传输特性 <span class="tag-key">重点</span></h3>
+<p><strong>狭义信道</strong>：<span class="kp">仅指信号传输介质</span>。<strong>广义信道</strong>：<span class="kp">包括信号传输介质和通信系统中的一些变换装置</span>，<span class="exp">如发送设备、接收设备、天线、调制器、解调器等，可进一步分为调制信道和编码信道两个层次。</span></p>
+<p><strong>信道传输特性</strong>：</p>
+<ul>
+<li><span class="kp">恒参信道</span><span class="exp">：各种有线信道和部分无线信道（如微波视线传播链路、卫星链路）都属于恒参信道；理想的恒参信道是理想的无失真传输信道，对信号幅值产生固定的衰减，对信号输出产生固定的时延。</span></li>
+<li><span class="kp">随参信道</span><span class="exp">：许多无线信道（如电离层反射的天波信道）是随参信道，信号的传输衰减和传输时延都随时间随机变化，且存在多径传播现象。</span></li>
+</ul>
+
+<h3 id="s84263216">奈奎斯特公式与香农公式 <span class="tag-must">必考</span></h3>
+<p><span class="kp">信道容量是指信道无差错传输信息的最大平均信息速率</span>。</p>
+<p><strong>奈奎斯特（Nyquist）信道容量公式</strong>——理想无噪声信道的极限容量：$$C=2B\log_2 M$$<span class="exp">其中$C$为信道容量（单位b/s）；$B$为信道带宽（单位Hz）；$M$为进制数，即信号状态数。该公式只适用于理想的<strong>无噪声</strong>信道。</span></p>
+<p><strong>例题1</strong>：在无噪声情况下，若某通信链路带宽为$3$kHz，采用4个相位、每个相位具有4种振幅的QAM调制技术（$M=4\times4=16$），则该链路的最大数据传输速率为：$$C=2\times3000\times\log_2 16=2\times3000\times4=24000\text{bps}=24\text{kbps}$$</p>
+<p><strong>香农（Shannon）信道容量公式</strong>——有噪声信道的信道容量：$$C=B\log_2(1+S/N)$$<span class="exp">其中$S/N$为信噪比，即信号能量与噪声能量之比，通常以分贝（dB）为单位描述：$$(S/N)_{dB}=10\log_{10}(\text{Signal power}/\text{Noise power})$$该公式给出的是有噪声信道容量的理论上限，不依赖具体的调制方式，是任何编码/调制手段都不可能超越的速率极限。</span></p>
+<p><strong>例题2</strong>：若某通信链路带宽为$2$MHz，信噪比为$30$dB（即$S/N\approx1000$），则该链路的最大数据传输速率约为：$$C=2\times10^6\times\log_2(1001)\approx2\times10^6\times9.97\approx20\text{Mbps}$$</p>
+<blockquote>易错：奈奎斯特公式针对<strong>无噪声</strong>信道、依赖调制进制数$M$；香农公式针对<strong>有噪声</strong>信道、依赖信噪比$S/N$，二者是两种不同前提下的容量上限，不能混用；也不能认为"提高$M$就能无限提高速率"——现实信道存在噪声，$M$过大会导致星座点过密、误码率上升。</blockquote>
+
+<h2 id="s88088794">2.5 信道共享-多路复用</h2>
+
+<h3 id="s44642762">频分复用FDM与时分复用TDM <span class="tag-must">必考</span></h3>
+<p><span class="kp">多路复用（multiplexing，简称复用）是把链路/网络资源（如带宽）划分为若干"资源片"，分配给各路"呼叫"（calls）共享同一信道的基本技术</span>，<span class="exp">每路呼叫独占分配到的资源片进行通信，资源片可能出现闲置（idle）。典型方法包括FDM、TDM、WDM、CDM。</span></p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>方式</th><th>原理</th><th>要点</th></tr>
+<tr><td>频分多路复用 FDM（Frequency Division Multiplexing）</td><td>各用户占用不同的频带资源（注意：这里的"带宽"是频率带宽，单位Hz，不是数据发送速率）</td><td>用户在分配到一定频带后，通信过程中自始至终占用这个频带</td></tr>
+<tr><td>时分多路复用 TDM（Time Division Multiplexing）</td><td>将时间划分为一段段等长的时分复用帧（TDM帧），每个用户在每个TDM帧中占用固定序号的时隙</td><td>每用户占用的时隙周期性出现（周期即TDM帧长度）；TDM的所有用户在不同时间占用相同的频带宽度</td></tr>
+</table>
+<blockquote>易错：FDM划分的是"频率"资源，各用户同时、不同频段通信；TDM划分的是"时间"资源，各用户不同时、相同频段通信——二者划分维度完全不同，不能混用定义。</blockquote>
+
+<h3 id="s23118245">波分复用WDM与码分复用CDM <span class="tag-key">重点</span></h3>
+<p><strong>波分复用（Wavelength Division Multiplexing, WDM）</strong>：<span class="kp">本质就是光的频分复用</span>，<span class="exp">不同波长（对应不同频率）的光信号在同一根光纤中共享传输，通过光复用器/分用器（含光调制器/解调器）实现多路光信号的合波与分波，常见于长距离骨干光网络（如8×2.5Gb/s波长复用成20Gb/s）。</span></p>
+<p><strong>码分多路复用（Code Division Multiplexing, CDM）</strong>：<span class="kp">广泛应用于无线链路共享（如蜂窝网、卫星通信）</span>，<span class="exp">各用户使用相同的频率载波、相同的时间，通过各自唯一的$m$ bit码片序列（chipping sequence）区分，其中"0"用"$-1$"表示，"1"用"$+1$"表示。</span></p>
+<p><strong>编码规则</strong>：<span class="kp">编码信号 = 原始数据 × 码片序列</span>，若发送比特1（+1），发送自己的码片序列；若发送比特0（-1），发送该码片序列的反码。各用户的码片序列相互正交（orthogonal）：$$\frac{1}{m}S_i\cdot S_j=\begin{cases}1,&i=j\\0,&i\neq j\end{cases}$$</p>
+<p><strong>解码</strong>：<span class="exp">设各用户叠加信号为$P=\sum_{i=1}^{N}d_iS_i$，接收方用自己的码片序列$S_i$与接收到的叠加信号$P$做内积（归一化）即可恢复出自己的数据$d_i$：$$d_i=\frac{1}{m}S_i\cdot P$$即使多个用户的编码信号在同一时刻叠加传输，只要各用户码片序列两两正交，接收方也能通过内积精确分离出属于自己的数据，不受其他用户信号干扰。</span></p>
+<blockquote>易错：CDM允许多个用户"同时、同频"通信而不互相干扰，这与FDM（不同频）、TDM（不同时）的资源划分思路完全不同——CDM的关键是"码片序列正交"，不是频率或时间上的隔离。</blockquote>
+
+<h2 id="s26335795">2.6 基带传输</h2>
+
+<h3 id="s51148866">基带传输基本概念 <span class="tag-key">重点</span></h3>
+<p><span class="kp">信源发出的原始电信号是基带信号</span>：<span class="exp">模拟信源产生模拟基带信号，数字信源产生数字基带信号；基带信号往往包含较多低频成分，甚至有直流成分。直接在信道中传送基带信号称为基带传输，实现基带传输的系统称为基带传输系统；在信道中直接传输数字基带信号，称为数字基带传输。</span></p>
+<p><strong>数字基带传输系统</strong>的基本流程：<span class="kp">数字基带信号 --&gt; 信号形成器 --&gt; 信道（叠加噪声） --&gt; 接收滤波器 --&gt; 抽样判决器 --&gt; 再生数字基带信号</span>，<span class="exp">同时需要从信号中提取同步信息。基带信号比较适合在具有低通特性的有线信道中传输，通常不适合在无线信道中直接传输；信道传输特性会引起波形失真，且受噪声影响，信号传播一定距离后质量会下降，甚至出现误码。</span></p>
+
+<h3 id="s67996331">典型数字基带传输码型 <span class="tag-must">必考</span></h3>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>码型</th><th>编码规则</th><th>特点/应用</th></tr>
+<tr><td>单极不归零码（NRZ）</td><td>用某一固定正电平表示1、零电平表示0，码元之间电平不归零</td><td>易于产生，但不适合长距离传输</td></tr>
+<tr><td>双极不归零码</td><td>用正电平（+E）表示1、负电平（-E）表示0</td><td>无直流分量偏移，比单极码更适合传输</td></tr>
+<tr><td>单极归零码（RZ）</td><td>码元不为零的时间只占码元周期的一部分（占空比，如50%表示不为零时间为$T_b/2$）</td><td>脉冲之间留有间隙，便于同步</td></tr>
+<tr><td>双极归零码</td><td>正、负脉冲之间均留有归零间隙</td><td>兼具双极码和归零码的特点</td></tr>
+<tr><td>差分码（相对码）</td><td>相邻脉冲有电平跳变表示1，无跳变表示0</td><td>用相对电平变化而非绝对电平表示信息</td></tr>
+<tr><td>AMI码（信号交替反转码）</td><td>信息码0编码为AMI码的0（零电平）；信息码1交替编码为AMI码的+1（正脉冲）和-1（负脉冲）</td><td>无直流分量，便于时钟提取</td></tr>
+<tr><td>双相码（曼彻斯特码 Manchester）</td><td>只有正、负两种电平；每个比特持续时间的中间时刻进行电平跳变：正跳负表示1，负跳正表示0</td><td>每比特周期中间都有跳变，便于提取定时信息；利用两个脉冲编码一个比特，相当于双极码的两倍带宽；10Mbps以太网采用曼彻斯特码</td></tr>
+<tr><td>差分双相码（差分曼彻斯特码）</td><td>每比特周期中间时刻也有跳变，但该跳变仅用于同步；利用每比特开始处是否存在跳变编码信息：有跳变表示0，无跳变表示1</td><td>IEEE 802.5令牌环网采用差分曼彻斯特码</td></tr>
+<tr><td>nBmB码</td><td>将$n$位二进制信息码作为一组，映射成$m$位二进制新码组（$m&gt;n$），从$2^m$个码中优选出$2^n$个作为有效码，其余作为禁用码用于检错</td><td>快速以太网100Base-TX/100Base-FX传输码采用4B5B编码：从$2^5=32$个码中优选$2^4=16$个有效码，兼顾同步信息和差错检测</td></tr>
+</table>
+<blockquote>易错：曼彻斯特码的电平跳变<strong>本身就携带信息</strong>（正跳负=1，负跳正=0）；差分曼彻斯特码的中间跳变<strong>只用于同步、不携带信息</strong>，真正的信息由每比特开始处"是否存在跳变"决定——二者的编码规则不能混淆。</blockquote>
+<blockquote>易错：以太网（10Mbps）采用曼彻斯特码，令牌环网（IEEE 802.5）采用差分曼彻斯特码——考试中容易把两种网络对应的码型记反。</blockquote>
+
+<h2 id="s77018872">2.7 频带传输</h2>
+
+<h3 id="s14240416">频带传输基本概念与二进制数字调制 <span class="tag-must">必考</span></h3>
+<p><span class="kp">许多带通信道（如无线信道）不具有低通特性，不能直接传输基带信号</span>，<span class="exp">只能利用基带信号去调制与信道传输特性相匹配的载波信号，通过信道传送经过调制的载波信号，把基带信号所携带的信息传送出去。利用模拟基带信号调制载波称为模拟调制，利用数字基带信号调制载波称为数字调制——数字调制就是利用数字基带信号控制（或影响）载波信号的某些特征参量。</span>频带传输系统通常选择正弦波作为载波：$$y(t)=a\cos(2\pi ft+\phi)$$</p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>调制方式</th><th>原理</th></tr>
+<tr><td>二进制幅移键控 2ASK</td><td>用二进制基带信号$s(t)$控制载波信号的<strong>幅值</strong>变化：$y'(t)=s(t)\cos(2\pi ft)$</td></tr>
+<tr><td>二进制频移键控 2FSK</td><td>选择两个不同频率的载波$f_1$、$f_2$，比特为0时发$\cos(2\pi f_1 t)$，比特为1时发$\cos(2\pi f_2 t)$，即用<strong>频率</strong>的变化表示信息</td></tr>
+<tr><td>二进制相移键控 2PSK</td><td>用二进制基带信号控制载波信号的<strong>相位</strong>变化：比特0对应初始相位$\phi_0$，比特1对应$\phi_0+\pi$</td></tr>
+<tr><td>二进制差分相移键控 2DPSK</td><td>利用相邻两个码元载波间的<strong>相对相位变化</strong>表示信息：比特0不产生相位跳变（$\Delta\phi=0$），比特1产生$\pi$的相位跳变</td></tr>
+</table>
+<p><strong>二进制数字调制性能比较</strong>：</p>
+<ul>
+<li><span class="kp">频带利用率</span>：<span class="exp">2ASK、2PSK、2DPSK的频带利用率相同；2FSK的频带利用率最低。</span></li>
+<li><span class="kp">误码率（抗噪声性能）</span>：<span class="exp">相同信噪比下，2PSK误码率最低，2ASK误码率最高；即抗噪声性能：2PSK &gt; 2FSK &gt; 2ASK。</span></li>
+<li><span class="kp">对信道特性变化的敏感性</span>：<span class="exp">2ASK对信道特性变化最敏感，性能最差；2FSK与2PSK对信道特性变化都不敏感。</span></li>
+</ul>
+<blockquote>易错：2DPSK利用的是"相邻码元之间"的相对相位变化，2PSK利用的是相对于固定参考相位$\phi_0$的绝对相位——二者都是"相移"，但参考基准不同，不能等同。</blockquote>
+
+<h3 id="s68800184">多进制数字调制与QAM <span class="tag-key">重点</span></h3>
+<p><strong>提高数据传输速率的思路</strong>：<span class="exp">在确定带宽与频带利用率的情况下，提高每个码元传输的信息量（每个码元调制多个比特），即多进制数字调制。数据传输速率$R_b$（比特率，单位bps）与码元传输速率$R_B$（波特率/调制速率，单位Baud）以及进制数$M$（通常为2的幂次）的关系为：$$R_b=R_B\log_2 M$$多进制数字调制需要更大的信噪比，发送端需要增大发送信号的功率。</span></p>
+<p><strong>正交幅值调制 QAM（Quadrature Amplitude Modulation）</strong>：<span class="kp">也称为幅值相位联合键控（APK）</span>，<span class="exp">调制信号的幅值和相位均受基带信号调制：$$y'(t)=A_n\cos(2\pi ft)+B_n\sin(2\pi ft)$$信号由两路相互正交的载波（同相I信号、正交Q信号）经调制后叠加而成，已调信号矢量端点在I-Q平面上的分布称为星座图（如方形16QAM、圆形16QAM、16PSK星座图）。</span></p>
+<p><strong>QAM的优点</strong>：<span class="kp">频带利用率高、抗噪声能力强、调制解调系统简单</span>，<span class="exp">具有高频带利用率且可自适应调整调制速率，系统设备比较简单，应用广泛（如有线电视网络、Wi-Fi、蜂窝移动网络等均采用不同阶数的QAM）。</span></p>
+<blockquote>易错：多进制调制虽能提高比特率$R_b=R_B\log_2 M$，但$M$越大，星座图上信号点越密集，对信噪比的要求也越高——不能脱离信道条件盲目追求高进制数。</blockquote>
+
+<h2 id="s31898734">2.8 物理层设备</h2>
+
+<h3 id="s94923618">中继器与集线器 <span class="tag-info">了解</span></h3>
+<ul>
+<li><span class="kp">中继器（Repeater）</span><span class="exp">：工作在物理层，功能是比特再生——对衰减/失真的信号进行放大、整形、再生转发，不具备帧过滤、寻址或转发决策能力，中继器两端属于同一个冲突域。</span></li>
+<li><span class="kp">集线器（Hub）</span><span class="exp">：本质是多端口中继器，所有端口内部物理连通，工作原理与中继器相同；典型应用如10BaseT、100BaseT以太网。</span></li>
+</ul>
+<p>（补充解释：中继器/集线器目前在实际组网中已基本被交换机取代，此处作为物理层设备的历史/原理性了解内容。）</p>
+
+<h2 id="s56380733">公式速查</h2>
+<ul>
+<li>信号：$y(t)=A\sin(\omega t+\theta)$；PCM三步骤：采样 --&gt; 量化 --&gt; 编码</li>
+<li>奈奎斯特公式（无噪声信道）：$C=2B\log_2 M$</li>
+<li>香农公式（有噪声信道）：$C=B\log_2(1+S/N)$，$(S/N)_{dB}=10\log_{10}(\text{Signal power}/\text{Noise power})$</li>
+<li>码分复用正交性：$\dfrac{1}{m}S_i\cdot S_j=1(i=j)$或$0(i\neq j)$；解码：$d_i=\dfrac{1}{m}S_i\cdot P$</li>
+<li>多进制调制比特率与波特率关系：$R_b=R_B\log_2 M$</li>
+<li>正弦载波：$y(t)=a\cos(2\pi ft+\phi)$；QAM：$y'(t)=A_n\cos(2\pi ft)+B_n\sin(2\pi ft)$</li>
+</ul>
+
+<h2 id="s80389758">易错点汇总</h2>
+<blockquote>易错：单工/半双工/全双工不属于物理层接口特性（机械/电气/功能/规程）的范畴。</blockquote>
+<blockquote>易错：PCM的正确顺序是采样 --&gt; 量化 --&gt; 编码。</blockquote>
+<blockquote>易错：双绞线用于基带传输，同轴电缆用于频带传输，不要记反。</blockquote>
+<blockquote>易错：奈奎斯特公式适用于无噪声信道（依赖进制数M），香农公式适用于有噪声信道（依赖信噪比S/N），不能混用。</blockquote>
+<blockquote>易错：FDM按频率划分资源（不同频同时通信），TDM按时间划分资源（不同时同频通信），CDM靠码片序列正交实现同频同时通信。</blockquote>
+<blockquote>易错：曼彻斯特码的跳变本身携带信息，差分曼彻斯特码的中间跳变只用于同步，信息由比特开始处是否跳变决定；10Mbps以太网用曼彻斯特码，IEEE 802.5令牌环网用差分曼彻斯特码。</blockquote>
+
+<h2 id="s85214525">考试重点提示</h2>
+<p>本章计算题高频考点：①奈奎斯特公式与香农公式的应用与区分；②多进制调制中比特率与波特率的换算（$R_b=R_B\log_2 M$）；③CDMA码片序列的编码与解码计算。概念辨析高频考点：①物理层接口特性四要素与传输模式的区分；②FDM/TDM/WDM/CDM四种多路复用方式的原理比较；③典型基带码型（尤其曼彻斯特码与差分曼彻斯特码）的编码规则；④2ASK/2FSK/2PSK/2DPSK的性能比较。</p>
+
+<h2 id="s45808672">本章总结</h2>
+<p>物理层的核心任务是在物理介质上实现比特流的透明传输，为此需要通过接口特性（机械/电气/功能/规程）与传输模式（单工/半双工/全双工）规定与上层的交互方式，并借助数据通信的基本概念（信源-信道-信宿、模拟/数字信号、异步/同步通信、PCM信源编码）描述通信过程。物理传输介质分为导引型（双绞线、同轴电缆、光纤）和非导引型（自由空间中的地波/天波/视线传播）两大类；奈奎斯特公式和香农公式分别给出了无噪声信道和有噪声信道下信道容量的理论上限。为了让多个用户共享有限的信道资源，网络采用FDM、TDM、WDM、CDM等多路复用技术。数据的两类传输方式是基带传输（直接传数字基带信号，常见码型有NRZ、RZ、AMI、曼彻斯特码等）与频带传输（用数字信号调制载波，常见方式有2ASK/2FSK/2PSK/2DPSK及多进制的QAM）；中继器与集线器是典型的物理层设备，二者工作原理相同，均只做比特级的信号再生。
+
+
+
+</body>
+</html>

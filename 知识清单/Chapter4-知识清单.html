@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 4：网络层</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 4：网络层</h1>
+<div class="toc">
+<h2>目录</h2>
+<ul>
+<li><a href="#s64704938">4.1 网络层概述</a></li>
+  <li><a href="#s77026175">网络层的两大核心功能 必考</a></li>
+  <li><a href="#s60848089">数据平面与控制平面 重点</a></li>
+<li><a href="#s90270847">4.2 虚电路网络与数据报网络</a></li>
+  <li><a href="#s35388648">虚电路网络（Virtual Circuit, VC） 必考</a></li>
+  <li><a href="#s50623457">数据报网络（Datagram Network） 重点</a></li>
+  <li><a href="#s83959048">VC 与数据报网络对比 高频</a></li>
+<li><a href="#s56423839">4.3 路由器体系结构</a></li>
+  <li><a href="#s66709294">路由器四大组成部分 必考</a></li>
+  <li><a href="#s26609675">队头阻塞（HOL Blocking） 必考</a></li>
+  <li><a href="#s91242448">三种交换结构 重点</a></li>
+  <li><a href="#s53308705">输出端口调度规则 了解</a></li>
+<li><a href="#s22654589">4.4 网际协议 IP</a></li>
+  <li><a href="#s83565389">IPv4 数据报格式 必考</a></li>
+  <li><a href="#s72875615">TTL 字段 重点</a></li>
+  <li><a href="#s89279014">IP 分片与重组 必考</a></li>
+  <li><a href="#s39602195">IPv4 编址：分类编址 重点</a></li>
+  <li><a href="#s88609373">子网划分与子网掩码 必考</a></li>
+  <li><a href="#s27797593">CIDR 与最长前缀匹配 必考</a></li>
+  <li><a href="#s39568935">特殊 IP 地址 高频</a></li>
+  <li><a href="#s82860450">私有 IP 地址范围 必考</a></li>
+<li><a href="#s46937406">4.5 IPv6</a></li>
+  <li><a href="#s88288401">IPv6 产生的动机 重点</a></li>
+  <li><a href="#s68435541">IPv6 首部特点 必考</a></li>
+  <li><a href="#s18835396">IPv6 地址表示 了解</a></li>
+  <li><a href="#s84432140">IPv6 地址类型 了解</a></li>
+  <li><a href="#s67899536">IPv4 到 IPv6 过渡：隧道技术 重点</a></li>
+<li><a href="#s65213216">4.6 IP 相关协议</a></li>
+  <li><a href="#s69029197">地址解析协议 ARP 必考</a></li>
+  <li><a href="#s22021432">跨局域网通信中的地址变化 高频</a></li>
+  <li><a href="#s45540651">网际控制报文协议 ICMP 必考</a></li>
+  <li><a href="#s16014569">traceroute 工作原理 重点</a></li>
+  <li><a href="#s27223257">动态主机配置协议 DHCP 必考</a></li>
+  <li><a href="#s29406108">网络地址转换 NAT 必考</a></li>
+<li><a href="#s41415253">4.7 路由选择算法</a></li>
+  <li><a href="#s53653711">路由选择问题的抽象 重点</a></li>
+  <li><a href="#s91440906">链路状态路由选择算法（LS，Dijkstra） 必考</a></li>
+  <li><a href="#s65598145">距离向量路由选择算法（DV，Bellman-Ford） 必考</a></li>
+  <li><a href="#s49710257">无穷计数问题（Count-to-Infinity） 必考</a></li>
+  <li><a href="#s37526086">LS 与 DV 算法比较 高频</a></li>
+<li><a href="#s59943761">4.8 层次路由与路由协议</a></li>
+  <li><a href="#s91603930">自治系统与层次路由 必考</a></li>
+  <li><a href="#s47403498">热土豆路由（Hot-Potato Routing） 重点</a></li>
+  <li><a href="#s23306366">RIP（路由信息协议） 重点</a></li>
+  <li><a href="#s84769618">OSPF（开放最短路径优先） 必考</a></li>
+  <li><a href="#s28341586">BGP（边界网关协议） 必考</a></li>
+<li><a href="#s15301798">公式速查</a></li>
+<li><a href="#s56829374">易错点汇总</a></li>
+<li><a href="#s90156365">考试重点提示</a></li>
+<li><a href="#s29035980">本章总结</a></li>
+</ul>
+</div>
+
+<h2 id="s64704938">4.1 网络层概述</h2>
+
+<h3 id="s77026175">网络层的两大核心功能 <span class="tag-must">必考</span></h3>
+<p><span class="kp">转发（forwarding）</span>：路由器将分组从<span class="exp">输入端口转移到合适的输出端口</span>的动作，发生在<span class="kp">数据平面</span>，由硬件在纳秒级时间尺度完成，依据的是路由器本地的<span class="kp">转发表</span>。</p>
+<p><span class="kp">路由选择（routing）</span>：确定分组从源到目的<span class="exp">所经过路径</span>的过程，发生在<span class="kp">控制平面</span>，由运行在路由器（或集中控制器）上的软件在毫秒到秒级完成，路由算法的输出结果用于计算和更新转发表。</p>
+<blockquote>易错：转发和路由选择常被混淆。转发是"低层动作"（看一个分组、查表、送出），路由选择是"全局计算"（算出整个网络的路径）。转发表是路由选择算法的产物，但转发本身不需要再次计算路径。</blockquote>
+
+<h3 id="s60848089">数据平面与控制平面 <span class="tag-key">重点</span></h3>
+<p>传统路由器中，路由选择算法本身也运行在路由器内部，控制平面是<span class="exp">"每路由器一个"</span>；而在<span class="kp">软件定义网络（SDN）</span>中，控制平面从路由器中抽离，由远程控制器统一计算并下发转发表，控制平面变为<span class="exp">"逻辑集中"</span>。</p>
+
+<h2 id="s90270847">4.2 虚电路网络与数据报网络</h2>
+
+<h3 id="s35388648">虚电路网络（Virtual Circuit, VC） <span class="tag-must">必考</span></h3>
+<p>在数据传送前需要经过<span class="kp">建立连接</span>阶段，源到目的之间的路径在此阶段被确定，路径上每台路由器都要维护该连接的状态。每条虚电路由一个<span class="kp">VCID（虚电路号）</span>标识。</p>
+<p><span class="exp">关键点</span>：同一条虚电路在其经过的<span class="kp">每段链路上使用的 VCID 可以不同</span>，因为 VCID 只具有本地链路意义；分组每经过一台路由器，路由器都要根据自己的 VC 转发表把分组的 VCID 字段<span class="exp">重写</span>为下一段链路上对应的 VCID，然后从对应输出端口转发。</p>
+<blockquote>易错：很多同学误以为"同一条虚电路全程使用相同的 VCID"，这是错误的——VCID 是逐链路（link-by-link）分配和重写的，路由器的 VC 表中就存有"输入端口/输入VCID --> 输出端口/输出VCID"的映射。</blockquote>
+
+<h3 id="s50623457">数据报网络（Datagram Network） <span class="tag-key">重点</span></h3>
+<p>不需要建立连接，每个分组携带完整的<span class="kp">目的地址</span>，独立地根据转发表进行转发，同一条流的不同分组可能经过不同路径。IP 网络即采用此模式。转发表按<span class="kp">目的地址前缀（最长前缀匹配）</span>组织，而不是按连接组织。</p>
+
+<h3 id="s83959048">VC 与数据报网络对比 <span class="tag-freq">高频</span></h3>
+<table>
+<tr><th>特性</th><th>虚电路网络</th><th>数据报网络</th></tr>
+<tr><td>建立连接</td><td>需要</td><td>不需要</td></tr>
+<tr><td>路由器状态</td><td>每条连接维护状态</td><td>无连接状态</td></tr>
+<tr><td>分组头部字段</td><td>VCID</td><td>目的地址</td></tr>
+<tr><td>路径</td><td>固定</td><td>可能变化</td></tr>
+<tr><td>典型代表</td><td>ATM、帧中继</td><td>Internet（IP）</td></tr>
+</table>
+
+<h2 id="s56423839">4.3 路由器体系结构</h2>
+
+<h3 id="s66709294">路由器四大组成部分 <span class="tag-must">必考</span></h3>
+<p><span class="kp">输入端口</span>（物理层/链路层处理、查找转发表、决定输出端口）、<span class="kp">交换结构</span>（将分组从输入端口连接到输出端口）、<span class="kp">输出端口</span>（缓存、调度、发送）、<span class="kp">路由选择处理器</span>（运行路由协议、维护路由表、计算转发表）。</p>
+
+<h3 id="s26609675">队头阻塞（HOL Blocking） <span class="tag-must">必考</span></h3>
+<p>当输入端口采用<span class="kp">FIFO 队列</span>，且交换结构速率有限（一次只能处理一个分组）时，排在队首的分组若因目的输出端口繁忙而无法转发，会<span class="exp">阻塞其后面排队的、原本可以转发到其他空闲输出端口的分组</span>，造成不必要的等待和丢包，即使这些后面的分组本身没有拥塞。</p>
+<blockquote>易错：HOL 阻塞是"输入端口排队"带来的问题，与"输出端口拥塞"不同；解决办法之一是采用虚拟输出队列（VOQ），为每个输出端口在输入端口维护单独的队列。</blockquote>
+
+<h3 id="s91242448">三种交换结构 <span class="tag-key">重点</span></h3>
+<p>1）<span class="kp">经内存交换</span>：分组在 CPU 控制下从输入端口拷贝到内存，再从内存拷贝到输出端口，是<span class="exp">第一代路由器</span>的方式，交换速率受限于内存带宽（需两次穿越总线）。</p>
+<p>2）<span class="kp">经总线交换</span>：输入端口通过共享总线直接将分组送到输出端口，不经过路由选择处理器，但同一时刻<span class="exp">总线只能传送一个分组</span>，交换带宽受总线带宽限制。</p>
+<p>3）<span class="kp">经互联网络交换</span>：使用如纵横式（crossbar）等多路径网络，允许多个分组<span class="exp">并行地</span>从不同输入端口传送到不同输出端口，克服了总线带宽的限制，是高性能路由器的主流方案。</p>
+
+<h3 id="s53308705">输出端口调度规则 <span class="tag-info">了解</span></h3>
+<p>常见调度规则：<span class="kp">FIFO</span>（先到先服务）、<span class="kp">优先级排队</span>（按类别分高低优先级队列）、<span class="kp">循环（RR）</span>（各类别轮流服务）、<span class="kp">加权公平排队（WFQ）</span>（按权重共享带宽，兼顾公平性与差异化服务）。当输出端口发送速率小于到达速率之和时，需要缓存，缓存耗尽则丢包。</p>
+
+<h2 id="s22654589">4.4 网际协议 IP</h2>
+
+<h3 id="s83565389">IPv4 数据报格式 <span class="tag-must">必考</span></h3>
+<p>固定首部 20 字节，主要字段：<span class="kp">版本</span>（4）、<span class="kp">首部长度</span>（以 4 字节为单位，无选项时为 5，即 20 字节）、<span class="kp">区分服务（TOS/DiffServ）</span>（服务质量标记，一般置 0）、<span class="kp">总长度</span>（首部+数据，字节，最大 65535）、<span class="kp">标识（Identification）</span>、<span class="kp">标志</span>（DF 不分片位、MF 更多分片位）、<span class="kp">片偏移</span>、<span class="kp">生存时间 TTL</span>、<span class="kp">协议</span>（指出上层协议，如 TCP=6，UDP=17）、<span class="kp">首部校验和</span>、<span class="kp">源 IP 地址</span>、<span class="kp">目的 IP 地址</span>、可选的<span class="kp">选项</span>字段与<span class="kp">填充</span>。</p>
+
+<h3 id="s72875615">TTL 字段 <span class="tag-key">重点</span></h3>
+<p>TTL 用于<span class="exp">防止分组在网络中无限循环转发</span>：每经过一台路由器，TTL 减 1，减到 0 时该路由器丢弃分组并可向源发送 ICMP 超时报文。由于 TTL 每跳都变化，<span class="kp">首部校验和必须逐跳重新计算</span>。</p>
+<blockquote>易错：TTL 不是"生存时间的秒数"，而是"最大可经过的路由器跳数"，名字容易让人误解为计时器。</blockquote>
+
+<h3 id="s89279014">IP 分片与重组 <span class="tag-must">必考</span></h3>
+<p>当数据报长度超过链路的<span class="kp">最大传输单元（MTU）</span>时，路由器需要将其<span class="exp">分片</span>。设数据报总长度为 $L$（字节，含 20 字节首部，假设无选项），链路 MTU 为 $M$，则：</p>
+<p>每片最大数据部分长度：$$d = \left\lfloor \frac{M - 20}{8} \right\rfloor \times 8$$</p>
+<p>分片数：$$n = \left\lceil \frac{L - 20}{d} \right\rceil$$</p>
+<p>第 $i$ 片（$i = 1, 2, \dots, n$）的片偏移（以 8 字节为单位计）：$$F_i = \frac{d}{8} \times (i - 1)$$</p>
+<p>第 $i$ 片的总长度：$$L_i = \begin{cases} d + 20, & i < n \\ L - (n-1)d, & i = n \end{cases}$$</p>
+<p>更多分片标志：$$MF_i = \begin{cases} 1, & i < n \\ 0, & i = n \end{cases}$$</p>
+<p>所有分片共享同一个<span class="kp">标识（Identification）</span>字段值，目的主机据此将属于同一原始数据报的分片重新组装。只有<span class="kp">最后一片</span>的 MF 为 0。</p>
+<blockquote>易错：片偏移单位是 8 字节而不是 1 字节，计算时容易漏掉除以 8 或乘以 8 这一步；同时片长度计算要注意"数据部分"和"含首部总长度"的区别。</blockquote>
+
+<h3 id="s39602195">IPv4 编址：分类编址 <span class="tag-key">重点</span></h3>
+<table>
+<tr><th>类别</th><th>首字节范围</th><th>网络号位数</th><th>主机号位数</th></tr>
+<tr><td>A类</td><td>1–126</td><td>8</td><td>24</td></tr>
+<tr><td>B类</td><td>128–191</td><td>16</td><td>16</td></tr>
+<tr><td>C类</td><td>192–223</td><td>24</td><td>8</td></tr>
+<tr><td>D类</td><td>224–239</td><td colspan="2">组播地址</td></tr>
+<tr><td>E类</td><td>240–255</td><td colspan="2">保留（实验用）</td></tr>
+</table>
+
+<h3 id="s88609373">子网划分与子网掩码 <span class="tag-must">必考</span></h3>
+<p>子网掩码由连续的 1（网络位+子网位）和连续的 0（主机位）组成。将 <span class="kp">IP 地址</span> 与<span class="kp">子网掩码</span>逐位<span class="exp">"与"（AND）</span>运算，即得到该地址所在的<span class="kp">子网网络地址</span>。</p>
+<p>例如 IP 地址 140.20.34.100，掩码 255.255.240.0（即 /20），二进制 34 = 00100010，与掩码高 4 位 1111 相与后得到子网部分为 00100000 = 32，因此子网地址为 140.20.32.0。</p>
+
+<h3 id="s27797593">CIDR 与最长前缀匹配 <span class="tag-must">必考</span></h3>
+<p><span class="kp">无类别域间路由（CIDR）</span>采用 <code>a.b.c.d/x</code> 记法，$x$ 为网络前缀位数，打破了 A/B/C 类的固定边界，支持<span class="exp">路由聚合（超网）</span>：多个具有相同前缀的小网络可以聚合为一条更短前缀的路由，减少路由表条目。</p>
+<p>转发时若一个目的地址同时匹配多条路由（前缀长度不同），路由器必须选择<span class="kp">前缀最长</span>的那条，即<span class="kp">最长前缀匹配（Longest Prefix Match）</span>原则。</p>
+<blockquote>易错：最长前缀匹配容易被误记为"选择第一条匹配的路由"，实际上必须比较所有匹配路由的前缀长度，取最长者，与路由表中条目的先后顺序无关。</blockquote>
+
+<h3 id="s39568935">特殊 IP 地址 <span class="tag-freq">高频</span></h3>
+<table>
+<tr><th>地址形式</th><th>含义</th></tr>
+<tr><td>网络号全 0，主机号全 0</td><td>本网络本主机（仅用作源地址，启动时使用）</td></tr>
+<tr><td>网络号，主机号全 0</td><td>该网络的网络地址</td></tr>
+<tr><td>网络号，主机号全 1</td><td>该网络的广播地址（定向广播）</td></tr>
+<tr><td>全 1（255.255.255.255）</td><td>受限广播地址（本网络内广播）</td></tr>
+<tr><td>127.x.x.x</td><td>环回（loopback）地址，用于本机测试</td></tr>
+</table>
+
+<h3 id="s82860450">私有 IP 地址范围 <span class="tag-must">必考</span></h3>
+<p>根据 RFC 1918，以下地址段仅用于内部网络，不在公网路由：</p>
+<table>
+<tr><th>类别</th><th>范围</th></tr>
+<tr><td>A类</td><td>10.0.0.0 – 10.255.255.255（10.0.0.0/8）</td></tr>
+<tr><td>B类</td><td>172.16.0.0 – 172.31.255.255</td></tr>
+<tr><td>C类</td><td>192.168.0.0 – 192.168.255.255</td></tr>
+</table>
+<blockquote>易错：A 类私有地址是 10.x.x.x，B 类私有地址才是 172.16–172.31，二者容易记混，172.x 段绝不是 A 类私有地址。</blockquote>
+
+<h2 id="s46937406">4.5 IPv6</h2>
+
+<h3 id="s88288401">IPv6 产生的动机 <span class="tag-key">重点</span></h3>
+<p>1）<span class="kp">IPv4 地址空间即将耗尽</span>（32 位，约 43 亿个地址）；2）<span class="kp">简化首部</span>以加快路由器处理速度；3）更好地支持<span class="kp">服务质量（QoS）</span>。</p>
+
+<h3 id="s68435541">IPv6 首部特点 <span class="tag-must">必考</span></h3>
+<p>固定<span class="kp">40 字节</span>首部（不含选项，采用扩展首部替代 IPv4 的可变选项），地址长度扩展为<span class="kp">128 位</span>。相比 IPv4，IPv6 <span class="exp">取消了首部校验和字段</span>（由链路层和传输层保证差错检测，减少每跳处理开销），并且<span class="exp">不再支持路径中间路由器分片</span>（分片只能由源主机完成，若中间链路 MTU 不足则丢弃并返回 ICMPv6 差错）。</p>
+
+<h3 id="s18835396">IPv6 地址表示 <span class="tag-info">了解</span></h3>
+<p>128 位地址通常写成 8 组 4 位十六进制数（冒号分十进制），如 <code>2001:0db8:0000:0000:0000:ff00:0042:8329</code>；可<span class="kp">压缩表示</span>——每组前导 0 可省略，连续多组全 0 可用 <code>::</code> 缩写一次；IPv4 兼容地址可写作 <code>::ffff:192.0.2.1</code>。</p>
+
+<h3 id="s84432140">IPv6 地址类型 <span class="tag-info">了解</span></h3>
+<p><span class="kp">单播</span>（一对一）、<span class="kp">组播</span>（一对多，替代 IPv4 广播）、<span class="kp">任播</span>（一对多中最近一个，anycast）。IPv6 中<span class="exp">取消了广播地址类型</span>，广播功能由组播替代。</p>
+
+<h3 id="s67899536">IPv4 到 IPv6 过渡：隧道技术 <span class="tag-key">重点</span></h3>
+<p>在 IPv4 网络尚未全部升级的过渡期，可采用<span class="kp">隧道（tunneling）</span>技术：在 IPv6 分组穿越纯 IPv4 网络区域时，将整个 IPv6 数据报<span class="exp">封装进 IPv4 数据报的数据部分</span>传输，到达隧道另一端的 IPv6 路由器后再解封装还原。</p>
+
+<h2 id="s65213216">4.6 IP 相关协议</h2>
+
+<h3 id="s69029197">地址解析协议 ARP <span class="tag-must">必考</span></h3>
+<p>ARP 用于在<span class="kp">同一局域网内</span>将已知的 <span class="kp">IP 地址解析为 MAC 地址</span>。主机以<span class="exp">广播帧（目的 MAC 全为 FF-FF-FF-FF-FF-FF）</span>发送 ARP 查询，局域网内所有主机都会收到，只有 IP 地址匹配的目的主机以<span class="exp">单播</span>方式回复其 MAC 地址。查询结果缓存在本机的 <span class="kp">ARP 表</span>中，每条记录有一个生存时间（<span class="exp">约 20 分钟</span>），超时后需重新查询。</p>
+
+<h3 id="s22021432">跨局域网通信中的地址变化 <span class="tag-freq">高频</span></h3>
+<p>数据报从源主机经过多台路由器到达目的主机的过程中，<span class="kp">源 IP 地址和目的 IP 地址始终保持不变</span>，但<span class="kp">源 MAC 地址和目的 MAC 地址在每一跳都会被重写</span>为当前链路两端设备的 MAC 地址（依赖每一跳的 ARP 解析）。</p>
+<blockquote>易错：初学者常误以为 MAC 地址也是端到端不变的，实际上只有 IP 地址端到端不变，MAC 地址是"逐跳"变化的，这是理解路由器转发过程的关键。</blockquote>
+
+<h3 id="s45540651">网际控制报文协议 ICMP <span class="tag-must">必考</span></h3>
+<p>ICMP 用于报告网络层的差错和提供网络诊断信息，分为两大类：</p>
+<p><span class="kp">差错报告报文</span>（5 种）：目的不可达、源点抑制（拥塞时降速）、超时（TTL 减为 0 或分片重组超时）、参数问题（首部字段有误）、改变路由（重定向）。</p>
+<p><span class="kp">询问报文</span>（2 对）：回送请求/回答（ping 使用）、时间戳请求/回答。</p>
+<p><span class="exp">不发送 ICMP 差错报文的例外情况</span>：1）对 ICMP 差错报文本身不再发送 ICMP 差错报文（防止无限循环）；2）对<span class="kp">非第一个分片</span>的数据报不发送；3）对<span class="kp">具有组播地址</span>的数据报不发送；4）对具有特殊地址（如 127.0.0.0 或 0.0.0.0）的数据报不发送。</p>
+<blockquote>易错：这四条例外情况是高频考点，容易漏记"非第一个分片"和"组播地址"这两条。</blockquote>
+
+<h3 id="s16014569">traceroute 工作原理 <span class="tag-key">重点</span></h3>
+<p>源主机依次发送 <span class="kp">TTL = 1, 2, 3, ...</span> 的探测分组：TTL 耗尽的路由器返回 ICMP 超时报文，从而依次探测出路径上每一跳的地址；当分组到达目的主机时，由于目的端口通常未被使用，目的主机返回 <span class="kp">ICMP 端口不可达</span>报文，源主机据此判断已经到达终点，探测结束。</p>
+
+<h3 id="s27223257">动态主机配置协议 DHCP <span class="tag-must">必考</span></h3>
+<p>DHCP 让主机<span class="kp">即插即用</span>地自动获取 IP 地址等配置信息，采用<span class="kp">应用层</span>的 route-d 守护进程实现，基于<span class="kp">UDP</span>封装，通过<span class="kp">广播</span>方式完成四条报文交互：</p>
+<p>1）<span class="kp">DHCP discover</span>（主机广播发现服务器）--> 2）<span class="kp">DHCP offer</span>（服务器广播提供的配置）--> 3）<span class="kp">DHCP request</span>（主机广播确认选择某个提供）--> 4）<span class="kp">DHCP ACK</span>（服务器广播确认租约）。</p>
+
+<h3 id="s29406108">网络地址转换 NAT <span class="tag-must">必考</span></h3>
+<p>NAT 使得整个内部网络对外只使用<span class="kp">一个（或少量）公网 IP 地址</span>，通过维护一张 <span class="kp">NAT 转换表</span>（记录内部 IP:端口 与 外部 IP:端口 的映射）实现端口级别的地址转换。</p>
+<p><span class="exp">动机</span>：1）<span class="kp">缓解公网 IP 地址短缺</span>；2）内部可以任意更改主机 IP 编址而不需通知外部（<span class="kp">编址灵活性</span>）；3）<span class="kp">隐藏内部网络结构</span>，一定程度提升安全性。</p>
+<p>由于端口号字段为 16 位，理论上一个公网 IP 最多可支持约 <span class="kp">6 万多（2^16 约 65536）</span>个并发端口映射连接。</p>
+<p><span class="exp">争议</span>：1）违反了网络<span class="kp">端到端原则</span>；2）路由器本应只处理到第三层（网络层），NAT 却修改了传输层端口号，<span class="kp">违反分层设计</span>；3）破坏了 <span class="kp">P2P 应用</span>直接建立连接的能力（内网主机不可直接被外部发起连接）；4）反对者认为 IPv6 地址空间充足即可从根本上解决地址短缺问题，无需 NAT。</p>
+<p><span class="kp">NAT 穿越（NAT Traversal）</span>解决方案：1）<span class="exp">静态配置端口转发（port forwarding）</span>，在 NAT 路由器上手动配置外部端口到内部主机端口的固定映射；2）<span class="exp">UPnP（IGD，Internet Gateway Device）</span>协议，允许内网主机自动向 NAT 路由器请求分配并配置端口映射；3）<span class="exp">借助中继（Relay）服务器</span>转发数据（如 Skype 早期采用的方式），双方都主动连接到公网上的第三方中继服务器进行中转通信。</p>
+
+<h2 id="s41415253">4.7 路由选择算法</h2>
+
+<h3 id="s53653711">路由选择问题的抽象 <span class="tag-key">重点</span></h3>
+<p>网络被抽象为图 $G = (N, E)$，$N$ 为路由器（节点）集合，$E$ 为链路（边，带权重代表代价）集合。路由算法的目标是找出源到目的<span class="kp">代价最小</span>的路径。</p>
+<p>按信息获取方式分为：<span class="kp">全局路由选择算法</span>（每个节点掌握全网拓扑和链路代价，如链路状态算法）与<span class="kp">分散式路由选择算法</span>（节点只知道物理相连邻居的信息，通过与邻居反复交换信息迭代计算，如距离向量算法）。按是否随流量/拓扑变化调整分为<span class="kp">静态路由选择</span>与<span class="kp">动态路由选择</span>。</p>
+
+<h3 id="s91440906">链路状态路由选择算法（LS，Dijkstra） <span class="tag-must">必考</span></h3>
+<p>每个节点通过<span class="kp">洪泛</span>方式获得全网拓扑和所有链路代价，然后独立运行 <span class="kp">Dijkstra 最短路径算法</span>，以自身为源节点计算到所有其他节点的最短路径。</p>
+<p>算法维护 $D(v)$（当前从源到 $v$ 的最短路径估计代价）和 $p(v)$（$v$ 的前驱节点），每轮从未确定集合中选取 $D(v)$ 最小的节点加入已确定集合 $N'$，并用其更新邻居的 $D$ 值，直至所有节点都被确定。朴素实现下，共需 $n$ 轮迭代，每轮遍历所有节点找最小值，因此时间复杂度为 $$O(n^2)$$（使用堆等数据结构优化可降至 $O(n\log n)$）。</p>
+
+<h3 id="s65598145">距离向量路由选择算法（DV，Bellman-Ford） <span class="tag-must">必考</span></h3>
+<p>基于 <span class="kp">Bellman-Ford 方程</span>：$$d_x(y) = \min_{v} \{ c(x,v) + d_v(y) \}$$ 其中 $v$ 遍历 $x$ 的所有邻居。每个节点只与<span class="exp">直接相连的邻居</span>周期性或触发式交换自己的距离向量，收到邻居更新后按方程重新计算，若结果变化则继续向自己的邻居传播，直至全网收敛。</p>
+
+<h3 id="s49710257">无穷计数问题（Count-to-Infinity） <span class="tag-must">必考</span></h3>
+<p>当某条链路的代价<span class="kp">增大或失效</span>时，DV 算法可能出现坏消息传播极慢的问题：两个节点互相以对方（此时已失效）的路径作为参照不断微小递增各自的距离估计，代价值要经过很多轮迭代才能"数"到真正的（很大的或无穷大的）值，这种现象称为无穷计数问题。</p>
+<p><span class="kp">毒性逆转（poisoned reverse）</span>：若 $Z$ 通过 $Y$ 到达 $X$，则 $Z$ 向 $Y$ 通告的到 $X$ 的距离设为无穷大，从而防止 $Y$ 用经过 $Z$ 的路径反过来"欺骗"自己。<span class="exp">但毒性逆转只能解决两节点之间形成的环路</span>，对于涉及三个及以上节点的更大环路仍然无法根治。</p>
+<p>RIP 协议中采用<span class="kp">最大跳数限制</span>缓解该问题：将 16 定义为"无穷大"（不可达），从而限制无穷计数持续的轮数上限。</p>
+<blockquote>易错："毒性逆转彻底解决了无穷计数问题"是错误说法，它只能应对二节点环路，多节点环路仍可能发生无穷计数，因此距离向量协议通常还需配合最大跳数等其他机制。</blockquote>
+
+<h3 id="s37526086">LS 与 DV 算法比较 <span class="tag-freq">高频</span></h3>
+<table>
+<tr><th>比较维度</th><th>链路状态 LS</th><th>距离向量 DV</th></tr>
+<tr><td>消息复杂度</td><td>需要向全网广播，$O(nE)$ 个消息</td><td>只与相邻节点交换，通信量小</td></tr>
+<tr><td>收敛速度</td><td>$O(n^2)$，较快且稳定</td><td>收敛速度不定，可能出现路由环路和无穷计数，较慢</td></tr>
+<tr><td>健壮性</td><td>节点若发布错误链路代价，只影响该节点自身的计算结果</td><td>错误的距离向量可能通过迭代扩散影响全网</td></tr>
+</table>
+
+<h2 id="s59943761">4.8 层次路由与路由协议</h2>
+
+<h3 id="s91603930">自治系统与层次路由 <span class="tag-must">必考</span></h3>
+<p>因特网规模巨大，若将其视为单一网络运行统一路由算法，将带来<span class="exp">规模问题（路由表和消息量爆炸）</span>和<span class="exp">管理自治性问题</span>（各网络管理者希望自行控制内部路由策略，不愿受制于统一算法）。因此因特网被划分为许多<span class="kp">自治系统（AS，Autonomous System）</span>，每个 AS 内部运行自己选择的<span class="kp">域内路由选择协议（intra-AS）</span>；AS 之间的连接由<span class="kp">网关路由器</span>负责，运行<span class="kp">域间路由选择协议（inter-AS）</span>，两者共同决定路由器最终的转发表。</p>
+
+<h3 id="s47403498">热土豆路由（Hot-Potato Routing） <span class="tag-key">重点</span></h3>
+<p>当一个 AS 内部到达外部目的网络有多个出口网关可选时，路由器<span class="exp">选择自身到该网关之间域内路径代价最小的那个网关</span>进行转发，尽快把分组"甩出"本 AS，而不关心分组离开本 AS 之后的路径长短。</p>
+
+<h3 id="s23306366">RIP（路由信息协议） <span class="tag-key">重点</span></h3>
+<p>基于<span class="kp">距离向量算法</span>，度量为<span class="kp">跳数（hop count）</span>，最大有效跳数为 <span class="kp">15</span>，<span class="kp">16 表示不可达（无穷大）</span>。每隔约 <span class="kp">30 秒</span>通过 <span class="kp">UDP</span> 广播一次<span class="kp">路由更新（advertisement）</span>报文，每个报文最多包含 <span class="kp">25 个目的网络</span>的信息。若 <span class="kp">180 秒</span>未收到某邻居的更新，则认为该邻居不可达/链路失效。RIP 由应用层的 route-d 守护进程实现。</p>
+
+<h3 id="s84769618">OSPF（开放最短路径优先） <span class="tag-must">必考</span></h3>
+<p>基于<span class="kp">链路状态算法</span>，各路由器泛洪链路状态信息，本地运行 <span class="kp">Dijkstra 算法</span>计算最短路径。相比 RIP 的优势：1）支持<span class="kp">安全认证</span>（防止恶意路由通告）；2）支持到同一目的地的<span class="kp">多条等代价路径</span>并可负载均衡；3）为不同类型的业务提供<span class="kp">不同 TOS 值对应不同度量</span>的支持；4）集成对<span class="kp">组播路由（MOSPF）</span>的支持。</p>
+<p>大型 AS 内部可采用<span class="kp">层次化 OSPF</span>（RFC 2328）：划分为多个<span class="kp">区域（Area）</span>，其中一个必须是<span class="kp">主干区域（Backbone Area）</span>；连接主干与其他区域的路由器称为<span class="kp">区域边界路由器（ABR）</span>；负责本区域内部路由的称为<span class="kp">主干路由器（BR）</span>；连接到其他 AS 的称为<span class="kp">自治系统边界路由器（ASBR）</span>。</p>
+
+<h3 id="s28341586">BGP（边界网关协议） <span class="tag-must">必考</span></h3>
+<p>BGP 是因特网事实上的<span class="kp">域间路由选择协议</span>标准，分为两种会话：<span class="kp">eBGP</span>（运行在不同 AS 的网关路由器之间，用于学习到达外部网络的可达性）与 <span class="kp">iBGP</span>（运行在同一 AS 内部路由器之间，用于将 eBGP 学到的外部路由信息扩散到本 AS 内所有路由器）。</p>
+<p>BGP 路由通告中携带重要的<span class="kp">路径属性</span>：<span class="kp">AS-PATH</span>（记录该路由所经过的 AS 序列，也用于检测和避免环路）与 <span class="kp">NEXT-HOP</span>（进入被通告网络的下一跳路由器接口地址）。</p>
+<p>当存在多条通往同一目的网络的路由时，BGP 按以下顺序选择最优路由：1）<span class="kp">本地偏好值（local preference）</span>最高者优先（体现策略偏好）；2）若本地偏好相同，选择 <span class="kp">AS-PATH 最短</span>者；3）若仍相同，选择 <span class="kp">NEXT-HOP 路由器（热土豆路由）距离最近</span>者；4）若仍无法区分，则依据一组<span class="kp">附加准则</span>（如 BGP 标识符大小等）确定。</p>
+<p>BGP 本质上是<span class="kp">策略路由（policy-based routing）</span>：AS 之间存在商业关系（如提供商-客户、对等关系），一个 AS 通常<span class="exp">不会将从一个提供商学到的路由转发给另一个提供商</span>（除非本身是转接 AS），因此路由的选择和是否通告都受到商业策略的过滤，而不仅仅是"最短路径"。</p>
+
+<h2 id="s15301798">公式速查</h2>
+<p>分片最大数据长度：$$d = \left\lfloor \frac{M-20}{8} \right\rfloor \times 8$$</p>
+<p>分片数：$$n = \left\lceil \frac{L-20}{d} \right\rceil$$</p>
+<p>第 $i$ 片偏移：$$F_i = \frac{d}{8}\times(i-1)$$</p>
+<p>第 $i$ 片长度：$$L_i = d+20 \ (i<n),\quad L_n = L-(n-1)d$$</p>
+<p>Bellman-Ford 方程：$$d_x(y)=\min_{v}\{c(x,v)+d_v(y)\}$$</p>
+
+<h2 id="s56829374">易错点汇总</h2>
+<ul>
+<li>虚电路的 VCID 是逐链路重写的，不是全程不变的。</li>
+<li>A 类私有地址是 10.x.x.x，B 类私有地址才是 172.16–172.31.x.x。</li>
+<li>片偏移单位是 8 字节，不是 1 字节。</li>
+<li>跨网络通信中 IP 地址端到端不变，MAC 地址逐跳改变。</li>
+<li>毒性逆转只能解决二节点环路，不能根治无穷计数问题。</li>
+<li>最长前缀匹配与路由表条目顺序无关，只看前缀长度。</li>
+<li>ICMP 差错报文有四种不发送的例外情形（对 ICMP 差错本身、非第一分片、组播地址、特殊地址）。</li>
+</ul>
+
+<h2 id="s90156365">考试重点提示</h2>
+<p>本章高频考点集中在：IP 数据报首部字段含义、IP 分片计算、子网划分与 CIDR 最长前缀匹配、私有地址范围、ARP 工作原理、NAT 机制与端口转换、DV 算法无穷计数问题、BGP 路由选择准则顺序。综合题常将<span class="kp">分片计算</span>与<span class="kp">子网划分/转发表设计</span>结合考查，需熟练掌握公式推导过程而非死记结论。</p>
+
+<h2 id="s29035980">本章总结</h2>
+<p>网络层的核心是在<span class="kp">转发（数据平面）</span>与<span class="kp">路由选择（控制平面）</span>之间建立联系：转发依赖路由器体系结构与转发表，路由选择依赖 LS/DV 等分布式算法计算出最短路径。IP 协议族（IPv4/IPv6、ARP、ICMP、DHCP、NAT）解决了寻址、地址解析、差错报告、自动配置与地址复用等具体问题；而因特网规模巨大催生了以自治系统为单位的层次化路由体系，域内（RIP/OSPF）与域间（BGP）路由协议分工协作，共同构成了全球因特网的路由基础设施。</p>
+
+
+
+</body>
+</html>

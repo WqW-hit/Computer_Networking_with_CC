@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Chapter 1：计算机网络概述</title>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$']],
+    displayMath: [['$$', '$$']]
+  }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js"></script>
+<style>
+/* === ExamPass Shared Styles === */
+/* Paper-like warm background, clean typography, responsive */
+
+:root {
+  --paper: #fdf6e3;
+  --paper-dark: #f5ecd7;
+  --ink: #2c2c2c;
+  --ink-light: #555;
+  --accent: #2563eb;
+  --accent-hover: #1d4ed8;
+  --divider: #d6c8a8;
+  --card-bg: #fef9ef;
+  --card-border: #e8dcc8;
+  --correct: #22c55e;
+  --correct-bg: #f0fdf4;
+  --wrong: #ef4444;
+  --wrong-bg: #fef2f2;
+  --tag-bg: #fef3c7;
+  --tag-text: #92400e;
+  --radius: 6px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: "Microsoft YaHei", "Noto Sans SC", "SimSun", sans-serif;
+  font-size: 12pt; line-height: 1.75; color: var(--ink);
+  max-width: 860px; margin: auto; padding: 24px 20px 60px;
+  background: var(--paper);
+}
+
+@media print {
+  body { font-size: 10.5pt; background: #fff; }
+  .no-print { display: none !important; }
+  h1, h2, h3 { page-break-after: avoid; }
+}
+
+/* ── Header ── */
+#exampass-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding: 6px 0; margin-bottom: 0;
+}
+.header-brand { font-size: 1.2em; font-weight: 700; color: #1a1a2e; letter-spacing: 0.3px; }
+.header-url  { font-size: 0.78em; color: #999; }
+.header-divider { border: none; border-top: 2px solid var(--divider); margin: 4px 0 20px 0; }
+
+/* ── Typography ── */
+h1 { font-size: 1.55em; text-align: center; border-bottom: 2px solid var(--divider); padding-bottom: 8px; margin-top: 0; }
+h2 { font-size: 1.25em; border-bottom: 1px solid var(--divider); padding-bottom: 4px; margin-top: 28px; }
+h3 { font-size: 1.08em; margin-top: 20px; color: var(--ink); }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Tables ── */
+table { border-collapse: collapse; width: 100%; margin: 10px 0; font-size: 0.95em; }
+td, th { border: 1px solid var(--card-border); padding: 5px 9px; text-align: left; }
+th { background: var(--paper-dark); font-weight: 700; }
+
+/* ── Embedded source images ── */
+.embedded-images {
+  margin: 18px 0 24px;
+}
+.embedded-images-intro {
+  color: var(--ink-light);
+  font-size: 0.95em;
+}
+.embedded-image {
+  margin: 14px 0 18px;
+  padding: 10px;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius);
+  background: var(--card-bg);
+  break-inside: avoid;
+}
+.embedded-image img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border: 1px solid var(--divider);
+  background: #fff;
+}
+.embedded-image figcaption {
+  margin-top: 8px;
+  color: var(--ink-light);
+  font-size: 0.92em;
+  line-height: 1.5;
+}
+.embedded-image-note::before {
+  content: " - ";
+}
+
+/* ── Knowledge point vs explanation ── */
+.kp { font-weight: 700; color: var(--ink); }           /* key point: bold dark */
+.exp { font-weight: 400; color: var(--ink-light); }    /* explanation: lighter */
+.exp em, .exp strong { color: var(--ink); }             /* emphasis inside explanation */
+
+/* ── Block elements ── */
+blockquote {
+  border-left: 3px solid #c0392b; background: #fef9ef;
+  padding: 6px 14px; margin: 10px 0; font-size: 0.95em;
+}
+code { background: #f0ede0; padding: 2px 5px; border-radius: 3px; font-size: 0.92em; }
+pre { background: #f0ede0; padding: 10px; border-radius: var(--radius); overflow-x: auto; }
+
+/* ── TOC ── */
+div.toc {
+  background: var(--card-bg); padding: 14px 18px;
+  border: 1px solid var(--card-border); border-radius: var(--radius); margin-bottom: 22px;
+}
+div.toc ul { padding-left: 18px; }
+div.toc li { margin: 3px 0; font-size: 0.95em; }
+
+/* ── Priority tags ── */
+.tag-must   { background: #fee2e2; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-key    { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-freq   { background: #dbeafe; color: #1e40af; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+.tag-info   { background: #f0fdf4; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 0.82em; font-weight: 600; }
+
+
+</style>
+</head>
+<body>
+
+<header id="exampass-header">
+  <div class="header-left"><span class="header-brand">ExamPass Assistant</span></div>
+  <div class="header-right"><span class="header-url">github.com/MIKUZ12/ExamPass-Assistant</span></div>
+</header>
+<hr class="header-divider">
+
+<h1>Chapter 1：计算机网络概述</h1>
+<div class="toc">
+<h2>目录</h2>
+<ul>
+<li><a href="#s41108257">本章知识地图与学习目标</a></li>
+<li><a href="#s41709519">1.1 计算机网络基本概念</a></li>
+  <li><a href="#s29978525">计算机网络的定义 必考</a></li>
+  <li><a href="#s22704884">网络协议的定义与三要素 必考</a></li>
+  <li><a href="#s25993059">计算机网络的分类 重点</a></li>
+<li><a href="#s57303583">1.2 计算机网络的结构</a></li>
+  <li><a href="#s32888681">网络边缘、接入网络与网络核心 必考</a></li>
+  <li><a href="#s88178688">接入网络的主要技术 常考</a></li>
+  <li><a href="#s82872016">Internet结构：网络之网络 重点</a></li>
+<li><a href="#s15813729">1.3 数据交换</a></li>
+  <li><a href="#s68077498">电路交换 必考</a></li>
+  <li><a href="#s31485532">报文交换与分组交换 必考</a></li>
+  <li><a href="#s38539794">存储转发时延计算 必考</a></li>
+  <li><a href="#s26842901">分组交换 vs 电路交换 重点</a></li>
+<li><a href="#s39019231">1.4 计算机网络性能指标</a></li>
+  <li><a href="#s92056626">速率与带宽 必考</a></li>
+  <li><a href="#s72303425">四种分组延迟 必考</a></li>
+  <li><a href="#s67053432">流量强度与时延带宽积 重点</a></li>
+  <li><a href="#s86481146">RTT、利用率与丢包率 重点</a></li>
+  <li><a href="#s72188617">吞吐量与瓶颈链路 必考</a></li>
+<li><a href="#s49468588">1.5 计算机网络体系结构</a></li>
+  <li><a href="#s81288180">为什么需要分层结构 重点</a></li>
+  <li><a href="#s44270651">分层体系结构的基本概念 常考</a></li>
+  <li><a href="#s28693831">OSI七层参考模型 必考</a></li>
+  <li><a href="#s78873883">TCP/IP模型与五层参考模型 必考</a></li>
+  <li><a href="#s37452662">数据封装与PDU 必考</a></li>
+<li><a href="#s82441258">1.6 计算机网络发展历史（补充解释）</a></li>
+  <li><a href="#s14478786">发展历程简述 了解</a></li>
+<li><a href="#s24067436">公式速查</a></li>
+<li><a href="#s17706440">易错点汇总</a></li>
+<li><a href="#s67620782">考试重点提示</a></li>
+<li><a href="#s65052224">本章总结</a></li>
+</ul>
+</div>
+
+<h2 id="s41108257">本章知识地图与学习目标</h2>
+<p>本章围绕一个核心问题：<span class="kp">计算机网络是什么，它由什么组成，数据如何在其中传输，以及如何评价和描述它</span>。<span class="exp">全章按"概念 --> 结构 --> 交换方式 --> 性能指标 --> 体系结构"的逻辑展开：先给出网络与协议的定义（1.1），再拆解网络的物理组成（网络边缘/接入网络/网络核心，1.2），然后回答"数据如何通过网络核心传输"（数据交换方式，1.3），接着用一组量化指标描述网络表现（1.4），最后给出组织这一切的抽象框架——分层体系结构（1.5）。1.6发展历史仅作背景了解。</span></p>
+
+<h2 id="s41709519">1.1 计算机网络基本概念</h2>
+
+<h3 id="s29978525">计算机网络的定义 <span class="tag-must">必考</span></h3>
+<p><strong>定义</strong>：<span class="kp">计算机网络就是互连的、自治的计算机集合</span>。</p>
+<ul>
+<li><span class="kp">互连</span><span class="exp">：主机之间通过通信链路实现互联互通，链路距离远、数量大，需要通过交换网络（由路由器/交换机构成）间接互连，而非两两直连。</span></li>
+<li><span class="kp">自治</span><span class="exp">：网络中的计算机之间无主从关系，每台主机独立运行，不存在谁支配谁的关系（区别于早期主机-终端集中式系统）。</span></li>
+</ul>
+<p><strong>从组成细节角度看Internet</strong>：<span class="exp">数以百万计互连的计算设备构成主机（端系统，hosts / end systems），通过通信链路（光纤、铜缆、无线电、卫星等）与分组转发设备（路由器、交换机）相连，形成"网络之网络"。</span></p>
+<p><strong>从服务角度看Internet</strong>：<span class="kp">Internet是为网络应用提供通信服务的基础设施</span><span class="exp">，通过应用编程接口（API）支持应用程序连接网络、发送/接收数据，类似邮政系统提供的数据传输服务。</span></p>
+<blockquote>易错：网络的"自治"不是指网络与网络之间无需协议协作，而是指网络内部主机之间没有主从/支配关系；不要将"自治"误解为"互不通信"。</blockquote>
+
+<h3 id="s22704884">网络协议的定义与三要素 <span class="tag-must">必考</span></h3>
+<p><strong>为什么需要协议</strong>：<span class="exp">仅有硬件（主机、链路、路由器）互连，并不能保证应用数据被顺畅、有序地交付——还需要通信实体之间事先约定好的规则，即协议。硬件是网络的基础，协议规定了数据交换的规则。</span></p>
+<p><strong>定义</strong>：<span class="kp">网络协议（network protocol），简称协议，是为进行网络中的数据交换而建立的规则、标准或约定</span><span class="exp">，规定了通信实体之间交换消息的格式、意义、顺序，以及针对收到信息或发生的事件所采取的动作（actions）。</span></p>
+<p><strong>协议三要素</strong>：</p>
+<ul>
+<li><span class="kp">语法（Syntax）</span><span class="exp">：数据与控制信息的结构或格式，如信号电平如何编码。</span></li>
+<li><span class="kp">语义（Semantics）</span><span class="exp">：需要发出何种控制信息，完成何种动作以及做出何种响应，包括差错控制。</span></li>
+<li><span class="kp">时序（Timing）</span><span class="exp">：事件的发生顺序、速度匹配等。</span></li>
+</ul>
+<p><strong>协议标准</strong>：<span class="exp">Internet的协议标准通过RFC（Request for Comments）发布，由IETF（Internet Engineering Task Force，互联网工程任务组）制定。典型协议：TCP、IP、HTTP、802.11等。</span></p>
+<blockquote>易错：协议三要素"语法/语义/时序"常与"人类交谈需要规则"的类比混淆——记忆口诀：语法管"长什么样"，语义管"该做什么"，时序管"什么时候做"。</blockquote>
+
+<h3 id="s25993059">计算机网络的分类 <span class="tag-key">重点</span></h3>
+<p><strong>按覆盖范围分类</strong>：</p>
+<ul>
+<li><span class="kp">个人区域网 PAN</span>（Personal Area Network）<span class="exp">：约10米</span></li>
+<li><span class="kp">局域网 LAN</span>（Local Area Network）<span class="exp">：约1公里</span></li>
+<li><span class="kp">城域网 MAN</span>（Metropolitan Area Network）<span class="exp">：约5-50公里</span></li>
+<li><span class="kp">广域网 WAN</span>（Wide Area Network）<span class="exp">：约几十至几千公里</span></li>
+</ul>
+<p><strong>按使用者分类</strong>：<span class="kp">专用网（private network）</span> 与 <span class="kp">公用网（public network）</span>。</p>
+<p><strong>按拓扑结构分类</strong>：<span class="kp">星形、总线形、环形、网状、树形、混合拓扑</span>六种基本拓扑。</p>
+
+<h2 id="s57303583">1.2 计算机网络的结构</h2>
+
+<h3 id="s32888681">网络边缘、接入网络与网络核心 <span class="tag-must">必考</span></h3>
+<p>计算机网络的结构可分为三大部分：</p>
+<ul>
+<li><span class="kp">网络边缘（network edge）</span><span class="exp">：由主机（端系统）和运行在其上的网络应用构成，位于网络的"外围"。端系统的两种应用模型：①客户/服务器（client/server）模型——客户发送请求，服务器响应，如Web、FTP；②对等（peer-to-peer, P2P）模型——不（仅）依赖专用服务器，通信在对等实体间直接进行，如BT、Skype、QQ。</span></li>
+<li><span class="kp">接入网络（access network）</span><span class="exp">：将网络边缘的端系统物理接入到网络核心（边缘路由器）的有线或无线通信链路。</span></li>
+<li><span class="kp">网络核心（network core）</span><span class="exp">：由互联的路由器（分组转发设备）构成的"网络之网络"，负责数据交换。</span></li>
+</ul>
+<blockquote>易错：不要把"路由器/交换机"归入网络边缘——端系统（主机）才是网络边缘，路由器和交换机属于网络核心/接入网络中的转发设备。</blockquote>
+
+<h3 id="s88178688">接入网络的主要技术 <span class="tag-freq">常考</span></h3>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>技术</th><th>原理</th><th>特点</th></tr>
+<tr><td>数字用户线路 DSL</td><td>利用已有电话线连接中心局DSLAM，FDM分频传输语音与数据</td><td>上行3.5-16Mbps，下行24-52Mbps，用户独占至中心局的线路</td></tr>
+<tr><td>电缆网络（HFC）</td><td>混合光纤同轴电缆，频分多路复用在不同频道传输数据/电视信号</td><td>下行40Mbps-1.2Gbps，上行30-100Mbps，各家庭共享至电缆头端的接入网络（非独占，区别于DSL）</td></tr>
+<tr><td>光纤到户 FTTH</td><td>无源光纤网络PON：局端OLT通过分光器连接多个用户端ONU/光猫</td><td>带宽大、线路稳定，是我国及全球先进地区的主流方案</td></tr>
+<tr><td>机构以太网接入</td><td>端系统直接连接以太网交换机，再经机构路由器接入ISP</td><td>典型速率10Mbps/100Mbps/1Gbps/10Gbps，多用于企业、高校</td></tr>
+<tr><td>无线接入</td><td>通过基站（base station/access point）共享无线信道</td><td>WiFi（局域，如802.11ac达866Mbps，WiFi6可达9.6Gbps）；蜂窝网3G/4G/5G（广域）</td></tr>
+</table>
+<blockquote>易错：DSL用户"独占"至中心局的线路，而电缆网络（HFC）用户"共享"至电缆头端的接入网络——这是二者关于带宽共享方式的核心区别，是常见选择题考点。</blockquote>
+
+<h3 id="s82872016">Internet结构：网络之网络 <span class="tag-key">重点</span></h3>
+<p><span class="kp">数以百万计的接入ISP如何互连？</span><span class="exp">直接两两互连的方案存在$O(N^2)$连接问题，不适用于大规模网络。Internet的实际演化路径为：接入ISP --&gt; 连接到少数"一级"（tier-1）全球/国家级ISP --&gt; 出于竞争，多个一级ISP之间通过互联网交换点（IXP，Internet Exchange Point）建立对等链路（peering link）互连 --&gt; 区域网络（regional network）连接接入ISP与运营商ISP --&gt; 内容提供商网络（如Google）建立私有网络，就近为用户提供内容、通常绕过一级ISP和区域ISP。</span></p>
+<p><strong>当前结构</strong>：<span class="exp">Internet结构复杂，无人能给出精确描述；经济与国家政策是网络演进的主要驱动力。</span></p>
+
+<h2 id="s15813729">1.3 数据交换</h2>
+
+<h3 id="s68077498">电路交换 <span class="tag-must">必考</span></h3>
+<p><strong>典型网络</strong>：<span class="kp">电话网络</span>。</p>
+<p><strong>三个阶段</strong>：<span class="kp">建立连接（呼叫/电路建立）--&gt; 通信 --&gt; 释放连接（拆除电路）</span>。</p>
+<p><strong>核心特点</strong>：<span class="exp">通信双方在通信期间独占所分配的资源（链路带宽），即使双方暂无数据传输，资源也不会被他人使用。链路资源的共享通过多路复用（Multiplexing，如FDM、TDM）实现。</span></p>
+
+<h3 id="s31485532">报文交换与分组交换 <span class="tag-must">必考</span></h3>
+<p><strong>报文交换（message switching）</strong>：<span class="kp">源（应用）将信息作为一个整体（如一个文件）一次性发送，即"报文"</span>。<span class="exp">中间节点必须收到完整报文后才能转发给下一节点（存储-转发）。</span></p>
+<p><strong>分组交换（packet switching）</strong>：<span class="kp">报文被拆分为一系列相对较小的数据包（分组），每个分组加上头部后独立转发，接收端再重组为原报文</span>。<span class="exp">拆分与重组会产生额外开销（头部字节），但换来了流水线式的转发效率。</span></p>
+<p><strong>存储-转发（store-and-forward）</strong>：<span class="kp">报文交换与分组交换均采用存储-转发方式转发，区别在于转发的"单位"大小不同</span>——报文交换以完整报文为单位存储-转发，分组交换以较小的分组为单位存储-转发。</p>
+<p><strong>分组交换的统计多路复用（Statistical Multiplexing）</strong>：<span class="exp">多条数据流的分组序列到达顺序不确定，按需共享同一条输出链路，等待中的分组在路由器缓存中排队，这使得链路资源可以被更充分地共享。</span></p>
+<blockquote>易错：分组交换的额外开销来自"分组头部"，是拆分与重组带来的代价，不是"传输速率变慢"；报文交换没有这部分额外开销，但转发粒度粗，流水线效果差。</blockquote>
+
+<h3 id="s38539794">存储转发时延计算 <span class="tag-must">必考</span></h3>
+<p>设报文长度为 $M$ bits，链路带宽为 $R$ bps，链路跳数（链路段数）为 $h$，则中间路由器数 $n = h-1$。</p>
+<p><strong>报文交换的报文交付时间</strong>：$$T_{message} = h \times \dfrac{M}{R}$$<span class="exp">因为每一跳都必须等待完整报文到达才能转发，$h$跳各需 $M/R$ 时间，依次串行叠加。</span></p>
+<p><strong>分组交换的报文交付时间</strong>（分组长度 $L$ bits）：$$T_{packet} = \dfrac{M}{R} + (h-1)\times\dfrac{L}{R} = \dfrac{M}{R} + n\times\dfrac{L}{R}$$<span class="exp">第一项是发送端把全部报文送上第一段链路所需时间（流水线式转发使各跳可重叠进行），第二项是最后一个分组还需经过剩余 $n$ 段链路转发的时间。</span></p>
+<p><strong>例题</strong>：链路带宽 $R=1.5$ Mbps，$h=3$（3段链路，2个路由器，$n=2$），报文长度 $M=7.5$ Mbits，分组长度 $L=1500$ bits（$M=5000L$，共5000个分组）。</p>
+<ul>
+<li>报文交换：$T_{message} = 3 \times (7.5/1.5) = 3\times 5 = 15$ s</li>
+<li>分组交换：$T_{packet} = 7.5/1.5 + 2\times(1500/1.5\times10^6) = 5 + 0.002 = 5.002$ s</li>
+</ul>
+<p><span class="exp">结论：分组交换（5.002s）远快于报文交换（15s），因为分组交换允许流水线式转发——路由器在收到一个分组后即可转发，无需等待整份报文全部到达。</span></p>
+<blockquote>易错：分组交换公式中的 $(h-1)L/R$ 只针对"最后一个分组"额外经过的跳数，不是把 $L/R$ 乘以分组总数——不要把分组总数和路由器跳数混淆。</blockquote>
+
+<h3 id="s26842901">分组交换 vs 电路交换 <span class="tag-key">重点</span></h3>
+<p><strong>分组交换的优势</strong>：<span class="kp">资源充分共享、简单、无需呼叫建立</span>。<span class="exp">例：1Mbps链路，每用户"活动"时需100kbps，平均活动时间10%。电路交换只能支持10个用户；分组交换允许35个用户接入时，超过10个用户同时活动的概率小于0.0004，即分组交换允许更多用户同时使用网络。</span></p>
+<p><strong>分组交换的代价</strong>：<span class="exp">可能产生拥塞（congestion），导致分组延迟和丢失；需要额外的协议机制处理可靠数据传输与拥塞控制，难以像电路交换那样提供确定性的带宽/时延保障（例如音视频应用所需的严格带宽保障）。</span></p>
+<blockquote>易错："分组交换绝对优于电路交换"是错误说法——分组交换更适合突发式数据传输场景，而电路交换在提供确定性服务质量保障（如传统电话通话）方面仍有优势，二者是权衡取舍关系。</blockquote>
+
+<h2 id="s39019231">1.4 计算机网络性能指标</h2>
+
+<h3 id="s92056626">速率与带宽 <span class="tag-must">必考</span></h3>
+<p><strong>速率</strong>：<span class="kp">即数据率（data rate）或比特率（bit rate），指单位时间内传输的信息（比特）量，是计算机网络最重要的性能指标</span>。<span class="exp">单位为b/s（bps）、kb/s、Mb/s、Gb/s（k=$10^3$，M=$10^6$，G=$10^9$）。速率通常指额定/标称速率，而非实测速率。</span></p>
+<p><strong>带宽</strong>：<span class="kp">原指信号的频带宽度（最高频率与最低频率之差，单位Hz），在计算机网络中通常指数字信道所能传送的最高数据率，单位与速率相同（b/s）</span>。</p>
+
+<h3 id="s72303425">四种分组延迟 <span class="tag-must">必考</span></h3>
+<p>节点总延迟：$$d_{nodal} = d_{proc} + d_{queue} + d_{trans} + d_{prop}$$</p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>延迟类型</th><th>定义</th><th>决定因素</th></tr>
+<tr><td>节点处理延迟 $d_{proc}$</td><td>差错检测、确定输出链路等所需时间</td><td>通常&lt;1微秒级，一般忽略</td></tr>
+<tr><td>排队延迟 $d_{queue}$</td><td>分组在路由器输出缓存中等待输出链路可用的时间</td><td>取决于路由器拥塞程度（流量强度）</td></tr>
+<tr><td>传输延迟 $d_{trans}$</td><td>把分组的全部比特推向（发送到）链路所需的时间</td><td>$d_{trans}=L/R$，$L$=分组长度(bits)，$R$=链路带宽(bps)</td></tr>
+<tr><td>传播延迟 $d_{prop}$</td><td>比特从链路一端传播到另一端所需的时间</td><td>$d_{prop}=d/s$，$d$=物理链路长度，$s$=信号传播速度(约$2\times10^8$m/s)</td></tr>
+</table>
+<p><strong>类比：车队过收费站</strong>——<span class="exp">车速类比信号传播速度，收费站放行一台车的时间类比比特传输时间，一台车类比一个比特，车队类比一个分组；车队通过收费站所需时间类比传输延迟，每台车从一个收费站跑到下一个收费站所需时间类比传播延迟。</span></p>
+<blockquote>易错：传输延迟 $d_{trans}=L/R$ 只与分组长度和链路带宽有关，与链路的物理长度无关；传播延迟 $d_{prop}=d/s$ 只与物理链路长度和信号传播速度有关，与分组长度、链路带宽无关——二者本质完全不同，不能混用公式，是最常考的辨析点。</blockquote>
+
+<h3 id="s67053432">流量强度与时延带宽积 <span class="tag-key">重点</span></h3>
+<p><strong>流量强度（traffic intensity）</strong>：设链路带宽为 $R$ (bps)，分组长度为 $L$ (bits)，平均分组到达速率为 $a$，则 $$\text{流量强度} = \dfrac{La}{R}$$</p>
+<ul>
+<li>$La/R \to 0$：平均排队延迟很小</li>
+<li>$La/R \to 1$：平均排队延迟很大</li>
+<li>$La/R > 1$：超出服务能力，平均排队延迟趋于无限大</li>
+</ul>
+<p><strong>时延带宽积</strong>：<span class="kp">链路的时延带宽积又称为以比特为单位的链路长度</span>，$$\text{时延带宽积} = d_{prop} \times R \ \text{(bits)}$$</p>
+
+<h3 id="s86481146">RTT、利用率与丢包率 <span class="tag-key">重点</span></h3>
+<p><strong>往返时间 RTT（Round-Trip Time）</strong>：<span class="kp">从发送方发送完数据，到发送方开始接到确认分组数据所经历的时间</span>，$$RTT = 2t_P + t_{PRC}$$<span class="exp">其中 $t_P$ 为单向传播时延，$t_{PRC}$ 为接收方处理分组的时延。响应时间 $= t_{PKT} + RTT + t_{ACK}$（$t_{PKT}$为发送分组的传输时延，$t_{ACK}$为确认分组的传输时延）。PPT特别注明：不同教材对RTT的定义存在差异（部分教材的RTT定义不包含接收方处理时延），做题时应以题目/教材给出的定义为准。</span></p>
+<p><strong>利用率</strong>：<span class="kp">信道利用率指某信道被利用时间的百分比，网络利用率是全网络信道利用率的加权平均值</span>，$$U = \dfrac{t_{PKT}}{t_{PKT}+RTT+t_{ACK}}$$</p>
+<p><strong>分组丢失（丢包）</strong>：<span class="exp">路由器队列缓存容量有限，分组到达已满队列时将被丢弃。</span>$$\text{丢包率} = \dfrac{丢包数}{已发分组总数}$$</p>
+
+<h3 id="s72188617">吞吐量与瓶颈链路 <span class="tag-must">必考</span></h3>
+<p><strong>吞吐量（Throughput）</strong>：<span class="kp">表示在发送端与接收端之间实际传送数据的速率（b/s）</span>，分即时吞吐量（给定时刻的速率）和平均吞吐量（一段时间内的平均速率）。</p>
+<p><strong>瓶颈链路（bottleneck link）</strong>：<span class="kp">端到端路径上，限制端到端最大吞吐量的链路</span>，即路径上带宽最小的链路。若路径上各段链路带宽分别为 $R_1, R_2, \dots, R_n$，端到端吞吐量为 $$Throughput = \min(R_1, R_2, \dots, R_n)$$</p>
+<p><strong>例题</strong>：主机A通过路由器R1、R2连接主机B，三段链路带宽分别为100kbps、2Mbps、1Mbps，A以存储-转发分组交换方式向B发送一个大文件。</p>
+<ul>
+<li>网络无其他流量时，最大吞吐量：$TH=\min(100\text{kbps},2\text{Mbps},1\text{Mbps})=100\text{kbps}$（瓶颈链路是带宽最小的A-R1段）。</li>
+<li>若文件大小为4MB，传输所需时间约为：$T = \dfrac{4\times8\times10^6}{100\times10^3} = 320$ s。</li>
+</ul>
+<blockquote>易错：瓶颈链路是路径上带宽<strong>最小</strong>的链路，不是带宽最大的链路；很多同学会把"瓶颈"直觉误解为"流量最大处"，但决定端到端吞吐上限的恰恰是最"窄"的一段。</blockquote>
+<blockquote>易错：排队延迟是否会持续累积，取决于某段链路的输出带宽是否低于其上游能够维持的到达速率——若沿路径各段链路带宽依次不递减，通常不会发生持续性排队；若某段链路带宽低于上游速率，则会在该路由器发生持续排队甚至溢出丢包。</blockquote>
+
+<h2 id="s49468588">1.5 计算机网络体系结构</h2>
+
+<h3 id="s81288180">为什么需要分层结构 <span class="tag-key">重点</span></h3>
+<p><span class="kp">计算机网络是一个非常复杂的系统，涉及主机、路由器、各种链路、应用、协议、硬件、软件等众多组成部分</span>。<span class="exp">分层结构（类比航空旅行：票务-行李-登机口-飞机路由飞行，各自完成特定功能，且依赖下层服务）的优点：①结构清晰，有利于识别复杂系统各部件及其关系（分层的参考模型，reference model）；②模块化，任一层服务实现的改变对其它层是透明的，易于系统更新维护；③有利于标准化。</span></p>
+
+<h3 id="s44270651">分层体系结构的基本概念 <span class="tag-freq">常考</span></h3>
+<p><span class="kp">网络体系结构（network architecture）是计算机网络各层及其协议的集合，是抽象的功能层次及其关系的定义</span>。</p>
+<ul>
+<li><span class="kp">实体（entity）</span><span class="exp">：表示任何可发送或接收信息的硬件或软件进程。</span></li>
+<li><span class="kp">协议（protocol）</span><span class="exp">：控制两个对等实体进行通信的规则集合，协议是"水平的"（同一层的对等实体之间）。</span></li>
+<li><span class="kp">服务</span><span class="exp">：任一层实体使用下层服务、遵循本层协议实现本层功能，再向上层提供服务，服务是"垂直的"（相邻层之间）；下层协议实现对上层服务用户是透明的。</span></li>
+<li><span class="kp">服务访问点 SAP</span>（Service Access Point）<span class="exp">：同系统相邻层实体间通过接口交互，通过SAP交换原语，指定所请求的特定服务。</span></li>
+</ul>
+
+<h3 id="s28693831">OSI七层参考模型 <span class="tag-must">必考</span></h3>
+<p><span class="kp">开放系统互连（OSI）参考模型由国际标准化组织（ISO）于1984年提出</span>，目的是支持异构网络系统的互联互通。从上到下分七层：</p>
+<ol>
+<li>应用层（Application）</li>
+<li>表示层（Presentation）</li>
+<li>会话层（Session）</li>
+<li>传输层（Transport）</li>
+<li>网络层（Network）</li>
+<li>数据链路层（Data link）</li>
+<li>物理层（Physical）</li>
+</ol>
+<p><span class="exp">OSI是"理论成功，市场失败"——作为理解网络通信过程的最佳学习工具/理论模型价值巨大，但作为工业标准并未被市场广泛采用（实际主导地位的是TCP/IP协议族）。</span></p>
+<p><strong>各层核心功能</strong>：</p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>层</th><th>核心功能</th><th>关键概念</th></tr>
+<tr><td>物理层</td><td>比特传输</td><td>接口特性（机械/电气/功能/规程）、比特编码、数据率、比特/时钟同步、单工/半双工/全双工</td></tr>
+<tr><td>数据链路层</td><td>相邻节点（node-to-node）数据传输</td><td>组帧（Framing）、物理寻址、流量控制、差错控制、访问控制</td></tr>
+<tr><td>网络层</td><td>源主机到目的主机的数据分组传输，可能穿越多个网络</td><td>逻辑寻址（如IP地址）、路由（routing，确定路径）、转发（forwarding，交换至正确输出端口）</td></tr>
+<tr><td>传输层</td><td>源-目的（端-端、进程间）完整报文传输</td><td>分段与重组、SAP寻址（如端口号）、连接控制、流量控制、差错控制</td></tr>
+<tr><td>会话层</td><td>对话控制、同步</td><td>建立/维护对话、在数据流中插入同步点，是最"薄"的一层</td></tr>
+<tr><td>表示层</td><td>处理语法与语义</td><td>数据表示转化（主机独立编码）、加密/解密、压缩/解压缩</td></tr>
+<tr><td>应用层</td><td>支持用户通过应用使用网络服务</td><td>典型协议：FTP（文件传输）、SMTP（电子邮件）、HTTP（Web）</td></tr>
+</table>
+<blockquote>易错：网络层的"路由"与"转发"是两个不同概念——路由是确定分组从源到目的的传输路径（依赖路由算法生成转发表），转发是把分组从路由器的输入端口按转发表交换到正确的输出端口，二者不能混用。</blockquote>
+
+<h3 id="s78873883">TCP/IP模型与五层参考模型 <span class="tag-must">必考</span></h3>
+<p><strong>TCP/IP模型</strong>分四层：<span class="kp">应用层（HTTP、SMTP、DNS、RTP等）、传输层（TCP、UDP）、网际层（IP）、网络接口层</span>。</p>
+<p><strong>五层参考模型</strong>综合了OSI与TCP/IP的优点：<span class="kp">应用层、传输层、网络层、链路层、物理层</span>。</p>
+<table border="1" style="border-collapse:collapse;width:100%">
+<tr><th>五层模型</th><th>对应OSI</th><th>典型协议/技术</th></tr>
+<tr><td>应用层</td><td>应用层+表示层+会话层</td><td>FTP, SMTP, HTTP</td></tr>
+<tr><td>传输层</td><td>传输层</td><td>TCP, UDP</td></tr>
+<tr><td>网络层</td><td>网络层</td><td>IP协议、路由协议</td></tr>
+<tr><td>链路层</td><td>数据链路层</td><td>以太网（Ethernet）、802.11（WiFi）、PPP</td></tr>
+<tr><td>物理层</td><td>物理层</td><td>物理层比特传输</td></tr>
+</table>
+<blockquote>易错：五层模型把OSI的应用层、表示层、会话层<strong>合并为一层</strong>（应用层），而不是丢弃了表示层和会话层的功能——这些功能仍然存在，只是不再作为独立的层，常被误认为"表示层和会话层的功能被取消了"。</blockquote>
+
+<h3 id="s37452662">数据封装与PDU <span class="tag-must">必考</span></h3>
+<p><strong>为什么需要数据封装</strong>：<span class="kp">每层在上层数据前（或前后）增加本层的控制信息，构造本层的协议数据单元（PDU）</span>。<span class="exp">控制信息主要包括：地址（标识发送端/接收端）、差错检测编码（用于检测或纠正差错）、协议控制（如优先级、QoS、安全控制等附加信息）。</span></p>
+<p><strong>五层模型下的PDU封装与命名</strong>（源主机 --&gt; 交换机 --&gt; 路由器 --&gt; 目的主机）：</p>
+<ul>
+<li><span class="kp">报文（message）</span> --&gt; 应用层</li>
+<li><span class="kp">段/报文段（segment）</span>，加传输层头 --&gt; 传输层</li>
+<li><span class="kp">数据报（datagram）</span>，加网络层头 --&gt; 网络层</li>
+<li><span class="kp">帧（frame）</span>，加链路层头（及帧尾） --&gt; 链路层</li>
+</ul>
+<p><span class="exp">交换机工作在链路层，只需解析到帧（数据链路层PDU）；路由器工作在网络层，需要解析到数据报（网络层PDU）后重新封装帧再转发。数据每经过一层封装即PDU向下"套壳"一层，解封装则逐层"剥壳"。</span></p>
+<blockquote>易错：交换机（switch）与路由器（router）在数据转发时"拆包"的层次不同——交换机只需拆到链路层帧，路由器需要拆到网络层数据报才能确定转发路径，这是二者转发原理的本质区别。</blockquote>
+
+<h2 id="s82441258">1.6 计算机网络发展历史（补充解释）</h2>
+<h3 id="s14478786">发展历程简述 <span class="tag-info">了解</span></h3>
+<p><span class="exp">1961-1972：分组交换原理提出（Kleinrock排队论证实其有效性，Baran提出军事应用）并在ARPAnet中首次实现，1969年第一个ARPAnet节点运行。1972-1980：网络互连思想确立（Cerf与Kahn提出网络互连体系结构，遵循极简、自治、尽力服务原则），以太网诞生。1980-1990：TCP/IP部署，DNS、SMTP、FTP等协议定义，NSFnet形成三级网络结构。1990-2000：Web诞生并商业化，P2P应用兴起。2005至今：移动设备接入爆发式增长，社交网络与云计算普及。</span>（补充解释：具体年代细节仅作背景了解，通常不作为考试重点。）</p>
+
+<h2 id="s24067436">公式速查</h2>
+<ul>
+<li>报文交换报文交付时间：$T_{message}=h\times M/R$</li>
+<li>分组交换报文交付时间：$T_{packet}=M/R+(h-1)\times L/R$</li>
+<li>传输延迟：$d_{trans}=L/R$；传播延迟：$d_{prop}=d/s$</li>
+<li>节点总延迟：$d_{nodal}=d_{proc}+d_{queue}+d_{trans}+d_{prop}$</li>
+<li>流量强度：$La/R$</li>
+<li>时延带宽积：$d_{prop}\times R$（bits）</li>
+<li>$RTT=2t_P+t_{PRC}$；响应时间 $=t_{PKT}+RTT+t_{ACK}$；利用率 $U=t_{PKT}/(t_{PKT}+RTT+t_{ACK})$</li>
+<li>丢包率 $=$ 丢包数/已发分组总数</li>
+<li>瓶颈链路吞吐量：$Throughput=\min(R_1,R_2,\dots,R_n)$</li>
+</ul>
+
+<h2 id="s17706440">易错点汇总</h2>
+<blockquote>易错：传输延迟只与分组长度和带宽有关，传播延迟只与物理距离和信号速度有关——二者互相独立，不能混用公式。</blockquote>
+<blockquote>易错：瓶颈链路是路径上带宽<strong>最小</strong>的一段，不是最大的一段。</blockquote>
+<blockquote>易错：DSL接入是独占线路，电缆网络（HFC）接入是共享线路。</blockquote>
+<blockquote>易错：五层模型只是把OSI的应用/表示/会话层合并，功能并未消失。</blockquote>
+<blockquote>易错：网络层"路由"（确定路径）与"转发"（按转发表交换端口）是两个不同动作。</blockquote>
+<blockquote>易错：分组交换的额外开销来自分组头部，不是传输速率变慢。</blockquote>
+
+<h2 id="s67620782">考试重点提示</h2>
+<p>本章计算题高频考点：①存储转发时延（报文交换 vs 分组交换对比）；②四种分组延迟的辨析与传输/传播延迟计算；③瓶颈链路与吞吐量计算。概念辨析高频考点：①协议三要素；②网络边缘/接入网络/网络核心的划分；③OSI七层与五层模型的对应关系及层次功能；④电路交换与分组交换的优劣对比。</p>
+
+<h2 id="s65052224">本章总结</h2>
+<p>计算机网络是互连、自治的计算机集合，通过协议约定数据交换规则。从结构上看，网络由网络边缘（端系统）、接入网络和网络核心（路由器网络）组成；网络核心通过电路交换或（更常见的）分组交换实现数据交换，分组交换以统计多路复用换取资源共享效率，但也带来排队、拥塞等新问题。速率、时延（节点处理/排队/传输/传播）、时延带宽积、RTT、利用率、丢包率、吞吐量共同构成了描述网络性能的指标体系。为管理这一复杂系统，网络采用分层体系结构（OSI七层、TCP/IP四层、教学中常用的五层模型），通过协议（水平）与服务（垂直）的配合，以数据封装/PDU的形式逐层实现端到端的通信。
+
+
+
+</body>
+</html>
